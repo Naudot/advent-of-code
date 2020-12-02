@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace AdventOfCode.Year2015
 {
@@ -82,6 +85,183 @@ namespace AdventOfCode.Year2015
 
 				result += (perimeter + bow);
 			}
+			return result;
+		}
+	}
+
+	public class DayThree : Day2015
+	{
+		protected override object ResolveFirstPart()
+		{
+			char[] input = File.ReadAllText(GetResourcesPath()).ToCharArray();
+
+			int north = 0;
+			int east = 0;
+
+			HashSet<Tuple<int, int>> cases = new HashSet<Tuple<int, int>>();
+
+			cases.Add(new Tuple<int, int>(0, 0));
+
+			for (int i = 0; i < input.Length; i++)
+			{
+				if (input[i] == '<')
+				{
+					east -= 1;
+				}
+				if (input[i] == '>')
+				{
+					east += 1;
+				}
+				if (input[i] == '^')
+				{
+					north += 1;
+				}
+				if (input[i] == 'v')
+				{
+					north -= 1;
+				}
+
+				if (cases.FirstOrDefault(t => t.Item1 == north && t.Item2 == east) == null)
+				{
+					cases.Add(new Tuple<int, int>(north, east));
+				}
+			}
+
+			return cases.Count;
+		}
+
+		protected override object ResolveSecondPart()
+		{
+			char[] input = File.ReadAllText(GetResourcesPath()).ToCharArray();
+
+			int northSanta = 0;
+			int eastSanta = 0;
+
+			int northRobotSanta = 0;
+			int eastRobotSanta = 0;
+
+			HashSet<Tuple<int, int>> cases = new HashSet<Tuple<int, int>>();
+
+			cases.Add(new Tuple<int, int>(0, 0));
+
+			for (int i = 0; i < input.Length; i++)
+			{
+				if (input[i] == '<')
+				{
+					if (i % 2 == 0)
+					{
+						eastSanta -= 1;
+					}
+					else
+					{
+						eastRobotSanta -= 1;
+					}
+				}
+				if (input[i] == '>')
+				{
+					if (i % 2 == 0)
+					{
+						eastSanta += 1;
+					}
+					else
+					{
+						eastRobotSanta += 1;
+					}
+				}
+				if (input[i] == '^')
+				{
+					if (i % 2 == 0)
+					{
+						northSanta += 1;
+					}
+					else
+					{
+						northRobotSanta += 1;
+					}
+				}
+				if (input[i] == 'v')
+				{
+					if (i % 2 == 0)
+					{
+						northSanta -= 1;
+					}
+					else
+					{
+						northRobotSanta -= 1;
+					}
+				}
+
+				if (i % 2 == 0)
+				{
+					if (cases.FirstOrDefault(t => t.Item1 == northSanta && t.Item2 == eastSanta) == null)
+					{
+						cases.Add(new Tuple<int, int>(northSanta, eastSanta));
+					}
+				}
+				else
+				{
+					if (cases.FirstOrDefault(t => t.Item1 == northRobotSanta && t.Item2 == eastRobotSanta) == null)
+					{
+						cases.Add(new Tuple<int, int>(northRobotSanta, eastRobotSanta));
+					}
+				}
+			}
+
+			return cases.Count;
+		}
+	}
+
+	public class DayFour : Day2015
+	{
+		protected override object ResolveFirstPart()
+		{
+			MD5 hasher = MD5.Create();
+			int result = 0;
+			string stringResult = string.Empty;
+
+			// Convert the byte array to hexadecimal string
+			StringBuilder sb = new StringBuilder();
+
+			do
+			{
+				sb.Clear();
+				result++;
+				byte[] input = Encoding.ASCII.GetBytes("bgvyzdsv" + result);
+				byte[] hashedResult = hasher.ComputeHash(input);
+				for (int i = 0; i < hashedResult.Length; i++)
+				{
+					sb.Append(hashedResult[i].ToString("X2"));
+				}
+				stringResult = sb.ToString();
+
+			} while (stringResult[0] != '0' || stringResult[1] != '0' || stringResult[2] != '0' || stringResult[3] != '0' || stringResult[4] != '0');
+
+			return result;
+		}
+
+		protected override object ResolveSecondPart()
+		{
+			MD5 hasher = MD5.Create();
+			int result = 0;
+			string stringResult = string.Empty;
+
+			// Convert the byte array to hexadecimal string
+			StringBuilder sb = new StringBuilder();
+
+			do
+			{
+				sb.Clear();
+				result++;
+				byte[] input = Encoding.ASCII.GetBytes("bgvyzdsv" + result);
+				byte[] hashedResult = hasher.ComputeHash(input);
+				for (int i = 0; i < hashedResult.Length; i++)
+				{
+					sb.Append(hashedResult[i].ToString("X2"));
+				}
+				stringResult = sb.ToString();
+
+			} while (stringResult[0] != '0' || stringResult[1] != '0' || stringResult[2] != '0' || stringResult[3] != '0' || stringResult[4] != '0' || stringResult[5] != '0');
+
 			return result;
 		}
 	}

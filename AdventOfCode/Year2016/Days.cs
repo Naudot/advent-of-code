@@ -8,14 +8,6 @@ namespace AdventOfCode.Year2016
 {
 	public class DayOne : Day2016
 	{
-		public enum Direction
-		{
-			NORTH,
-			EAST,
-			SOUTH,
-			WEST
-		}
-
 		protected override object ResolveFirstPart()
 		{
 			string[] input = File.ReadAllText(GetResourcesPath()).Trim().Split(',');

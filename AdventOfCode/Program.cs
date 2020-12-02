@@ -18,6 +18,8 @@ namespace AdventOfCode
 		{
 			new Year2015.DayOne();
 			new Year2015.DayTwo();
+			new Year2015.DayThree();
+			//new Year2015.DayFour();
 
 			new Year2016.DayOne();
 
