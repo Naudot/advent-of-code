@@ -265,4 +265,113 @@ namespace AdventOfCode.Year2015
 			return result;
 		}
 	}
+
+	public class DayFive : Day2015
+	{
+		protected override object ResolveFirstPart()
+		{
+			string[] input = File.ReadAllLines(GetResourcesPath());
+
+			char[] vowels = new char[] { 'a', 'e', 'i', 'o', 'u' };
+
+			int result = 0;
+
+			for (int i = 0; i < input.Length; i++)
+			{
+				int foundVowels = 0;
+				char previousChar = char.MinValue;
+
+				bool meetConditionTwo = false;
+				bool meetConditionThree = true;
+
+				string stringToAnalyze = input[i];
+
+				for (int j = 0; j < stringToAnalyze.Length; j++)
+				{
+					char currentChar = stringToAnalyze[j];
+
+					if (vowels.Contains(currentChar))
+					{
+						foundVowels += 1;
+					}
+
+					if (previousChar == currentChar)
+					{
+						meetConditionTwo = true;
+					}
+
+					if ((previousChar == 'a' && currentChar == 'b') ||
+						(previousChar == 'c' && currentChar == 'd') ||
+						(previousChar == 'p' && currentChar == 'q') ||
+						(previousChar == 'x' && currentChar == 'y'))
+					{
+						meetConditionThree = false;
+					}
+
+					previousChar = currentChar;
+				}
+
+				bool meetConditionOne = foundVowels >= 3;
+
+				result += meetConditionOne && meetConditionTwo && meetConditionThree ? 1 : 0;
+			}
+
+			return result;
+		}
+
+		protected override object ResolveSecondPart()
+		{
+			string[] input = File.ReadAllLines(GetResourcesPath());
+
+			//string[] input = new string[] { "aaa", "qjhvhtzxzqqjkmpb", "xxyxx", "uurcxstgmygtbstg", "ieodomkazucvgmuy", "xyxy", "aabcdefgaa", "abcdefeghi" };
+			int result = 0;
+
+			for (int i = 0; i < input.Length; i++)
+			{
+				// First index found of the pair
+				Dictionary<Tuple<char, char>, int> pairs = new Dictionary<Tuple<char, char>, int>();
+				bool meetConditionOne = false;
+				bool meetConditionTwo = false;
+
+				string stringToAnalyze = input[i];
+				char previousChar = char.MinValue;
+				char secondPreviousChar = char.MinValue;
+
+				for (int j = 0; j < stringToAnalyze.Length; j++)
+				{
+					char currentChar = stringToAnalyze[j];
+
+					// Pair aggregation
+					Tuple<char, char> pair = new Tuple<char, char>(previousChar, currentChar);
+					if (!pairs.ContainsKey(pair))
+					{
+						pairs.Add(pair, j);
+					}
+
+					// First condition
+					if ((j - pairs[pair]) > 1)
+					{
+						meetConditionOne = true;
+					}
+
+					// Second condition
+					if (secondPreviousChar == currentChar)
+					{
+						meetConditionTwo = true;
+					}
+
+					if (meetConditionOne && meetConditionTwo)
+					{
+						result += 1;
+						break;
+					}
+
+					secondPreviousChar = previousChar;
+					previousChar = currentChar;
+				}
+			}
+
+			return result;
+		}
+	}
 }
