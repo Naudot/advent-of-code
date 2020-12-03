@@ -28,6 +28,7 @@ namespace AdventOfCode
 			new Year2018.DayOne();
 
 			new Year2019.DayOne();
+			new Year2019.DayTwo();
 
 			new Year2020.DayOne();
 			new Year2020.DayTwo();
