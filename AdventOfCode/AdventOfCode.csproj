@@ -81,6 +81,9 @@
     <Content Include="Year2020\Resources\inputDayOne.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Year2020\Resources\inputDayThree.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Year2020\Resources\inputDayTwo.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

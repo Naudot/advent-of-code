@@ -31,6 +31,7 @@ namespace AdventOfCode
 
 			new Year2020.DayOne();
 			new Year2020.DayTwo();
+			new Year2020.DayThree();
 
 			Day2015.LogResults();
 			Console.WriteLine();
