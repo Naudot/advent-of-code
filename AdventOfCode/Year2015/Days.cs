@@ -323,7 +323,6 @@ namespace AdventOfCode.Year2015
 		{
 			string[] input = File.ReadAllLines(GetResourcesPath());
 
-			//string[] input = new string[] { "aaa", "qjhvhtzxzqqjkmpb", "xxyxx", "uurcxstgmygtbstg", "ieodomkazucvgmuy", "xyxy", "aabcdefgaa", "abcdefeghi" };
 			int result = 0;
 
 			for (int i = 0; i < input.Length; i++)
@@ -372,6 +371,19 @@ namespace AdventOfCode.Year2015
 			}
 
 			return result;
+		}
+	}
+
+	public class DaySix : Day2015
+	{
+		protected override object ResolveFirstPart()
+		{
+			return string.Empty;
+		}
+
+		protected override object ResolveSecondPart()
+		{
+			return string.Empty;
 		}
 	}
 }
