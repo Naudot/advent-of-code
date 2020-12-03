@@ -307,6 +307,7 @@ namespace AdventOfCode.Year2015
 						(previousChar == 'x' && currentChar == 'y'))
 					{
 						meetConditionThree = false;
+						break;
 					}
 
 					previousChar = currentChar;
@@ -472,6 +473,19 @@ namespace AdventOfCode.Year2015
 			}
 
 			return result;
+		}
+	}
+
+	public class DaySeven : Day2015
+	{
+		protected override object ResolveFirstPart()
+		{
+			return string.Empty;
+		}
+
+		protected override object ResolveSecondPart()
+		{
+			return string.Empty;
 		}
 	}
 }

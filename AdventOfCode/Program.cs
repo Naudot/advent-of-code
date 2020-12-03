@@ -22,6 +22,7 @@ namespace AdventOfCode
 			//new Year2015.DayFour();
 			new Year2015.DayFive();
 			new Year2015.DaySix();
+			new Year2015.DaySeven();
 
 			new Year2016.DayOne();
 
@@ -36,17 +37,17 @@ namespace AdventOfCode
 			new Year2020.DayTwo();
 			new Year2020.DayThree();
 
-			Day2015.LogResults();
+			Day2015.CalculateAndLogResults();
 			Console.WriteLine();
-			Day2016.LogResults();
+			Day2016.CalculateAndLogResults();
 			Console.WriteLine();
-			Day2017.LogResults();
+			Day2017.CalculateAndLogResults();
 			Console.WriteLine();
-			Day2018.LogResults();
+			Day2018.CalculateAndLogResults();
 			Console.WriteLine();
-			Day2019.LogResults();
+			Day2019.CalculateAndLogResults();
 			Console.WriteLine();
-			Day2020.LogResults();
+			Day2020.CalculateAndLogResults();
 		}
 	}
 }

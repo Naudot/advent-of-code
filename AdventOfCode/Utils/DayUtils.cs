@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 namespace AdventOfCode
@@ -38,11 +39,16 @@ namespace AdventOfCode
 
 		#region Methods
 
-		public static void LogResults()
+		public static void CalculateAndLogResults()
 		{
 			for (int i = 0; i < Days.Count; i++)
 			{
-				Console.WriteLine(Days[i].GetType().FullName + " P1 Result: " + Days[i].ResolveFirstPart() + " P2 Result: " + Days[i].ResolveSecondPart());
+				Stopwatch stopwatch = Stopwatch.StartNew();
+				object firstResult = Days[i].ResolveFirstPart();
+				long firstTime = stopwatch.ElapsedMilliseconds;
+				object secondResult = Days[i].ResolveSecondPart();
+				long secondTime = stopwatch.ElapsedMilliseconds;
+				Console.WriteLine(Days[i].GetType().FullName + "\n\tP1: " + firstResult + "\n\t" + firstTime + " ms\n\tP2: " + secondResult + "\n\t" + secondTime + " ms");
 			}
 		}
 
