@@ -13,7 +13,15 @@ namespace AdventOfCode.Year2015
 		protected override object ResolveFirstPart()
 		{
 			string input = File.ReadAllText(GetResourcesPath());
-			return input.Count(character => character == '(') - input.Count(charactaer => charactaer == ')');
+
+			int result = 0;
+
+			for (int i = 0; i < input.Length; i++)
+			{
+				result += input[i] == '(' ? 1 : -1;
+			}
+
+			return result;
 		}
 
 		protected override object ResolveSecondPart()

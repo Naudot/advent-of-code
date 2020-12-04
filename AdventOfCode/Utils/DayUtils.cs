@@ -17,8 +17,8 @@ namespace AdventOfCode
 	{
 		#region Implementation
 
-		protected abstract object ResolveSecondPart();
 		protected abstract object ResolveFirstPart();
+		protected abstract object ResolveSecondPart();
 
 		#endregion
 	}
@@ -41,14 +41,22 @@ namespace AdventOfCode
 
 		public static void CalculateAndLogResults()
 		{
+			Stopwatch stopwatch = new Stopwatch();
+
 			for (int i = 0; i < Days.Count; i++)
 			{
-				Stopwatch stopwatch = Stopwatch.StartNew();
-				object firstResult = Days[i].ResolveFirstPart();
-				long firstTime = stopwatch.ElapsedMilliseconds;
-				object secondResult = Days[i].ResolveSecondPart();
-				long secondTime = stopwatch.ElapsedMilliseconds;
-				Console.WriteLine(Days[i].GetType().FullName + "\n\tP1: " + firstResult + "\n\t" + firstTime + " ms\n\tP2: " + secondResult + "\n\t" + secondTime + " ms");
+				Day<T> day = Days[i];
+				stopwatch.Restart();
+				object firstResult = day.ResolveFirstPart();
+				stopwatch.Stop();
+				double firstTime = stopwatch.Elapsed.TotalMilliseconds * 1000;
+
+				stopwatch.Restart();
+				object secondResult = day.ResolveSecondPart();
+				stopwatch.Stop();
+				double secondTime = stopwatch.Elapsed.TotalMilliseconds * 1000;
+
+				Console.WriteLine(day.GetType().FullName + "\n\t" + firstTime + " µs" + "\t\tP1: " + firstResult + "\n\t" + secondTime + " µs" + "\t\tP2: " + secondResult);
 			}
 		}
 
