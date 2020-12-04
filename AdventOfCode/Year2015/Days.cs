@@ -338,7 +338,7 @@ namespace AdventOfCode.Year2015
 			for (int i = 0; i < input.Length; i++)
 			{
 				// First index found of the pair
-				Dictionary<Tuple<char, char>, int> pairs = new Dictionary<Tuple<char, char>, int>();
+				Dictionary<string, int> pairs = new Dictionary<string, int>();
 				bool meetConditionOne = false;
 				bool meetConditionTwo = false;
 
@@ -351,7 +351,7 @@ namespace AdventOfCode.Year2015
 					char currentChar = stringToAnalyze[j];
 
 					// Pair aggregation
-					Tuple<char, char> pair = new Tuple<char, char>(previousChar, currentChar);
+					string pair = string.Empty + previousChar + currentChar;
 					if (!pairs.ContainsKey(pair))
 					{
 						pairs.Add(pair, j);
