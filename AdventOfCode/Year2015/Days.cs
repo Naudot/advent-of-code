@@ -332,14 +332,11 @@ namespace AdventOfCode.Year2015
 		protected override object ResolveSecondPart()
 		{
 			string[] input = File.ReadAllLines(GetResourcesPath());
+			int inputMaxLength = input[0].Length + 1;
 
 			int result = 0;
 
-			StringBuilder stringBuilder = new StringBuilder();
-
-			// First index found of the pair
-			Dictionary<string, int> pairs = new Dictionary<string, int>();
-			//object[,,] objects = new object[26,26,1];
+			int[,] objects = new int[122 - 97, 122 - 97];
 
 			for (int i = 0; i < input.Length; i++)
 			{
@@ -354,14 +351,14 @@ namespace AdventOfCode.Year2015
 				{
 					char currentChar = stringToAnalyze[j];
 
-					// Pair aggregation
-					string pair = stringBuilder.Append(previousChar).Append(currentChar).ToString();
-					if (!pairs.ContainsKey(pair))
+					if (objects[previousChar - 97, currentChar - 97] == 0)
 					{
-						pairs.Add(pair, j);
+						objects[previousChar - 97, currentChar - 97] = j + 1;
 					}
+
 					// First condition
-					if ((j - pairs[pair]) > 1)
+					int value = objects[previousChar - 97, currentChar - 97];
+					if (value != 0 && ((j + 1) - value) > 1)
 					{
 						meetConditionOne = true;
 					}
@@ -380,10 +377,9 @@ namespace AdventOfCode.Year2015
 
 					secondPreviousChar = previousChar;
 					previousChar = currentChar;
-					stringBuilder.Clear();
 				}
 
-				pairs.Clear();
+				//Array.Clear(objects, 0, objects.Length);
 			}
 
 			return result;
