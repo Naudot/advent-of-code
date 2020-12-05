@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -313,12 +314,102 @@ namespace AdventOfCode.Year2020
 	{
 		protected override object ResolveFirstPart()
 		{
-			return string.Empty;
+			string[] input = File.ReadAllLines(GetResourcesPath());
+			int result = 0;
+
+			for (int i = 0; i < input.Length; i++)
+			{
+				string seat = input[i];
+
+				int lowerRow = 0;
+				int upperRow = 127;
+				int lowerColumn = 0;
+				int upperColumn = 7;
+
+				for (int j = 0; j < seat.Length; j++)
+				{
+					if (seat[j] == 'F')
+					{
+						upperRow -= (int)Math.Pow(2, (6 - j));
+					}
+					else if (seat[j] == 'B')
+					{
+						lowerRow += (int)Math.Pow(2, (6 - j));
+					}
+					else if (seat[j] == 'L')
+					{
+						upperColumn -= (int)Math.Pow(2, (9 - j));
+					}
+					else if (seat[j] == 'R')
+					{
+						lowerColumn += (int)Math.Pow(2, (9 - j));
+					}
+				}
+
+				int value = upperRow * 8 + upperColumn;
+				if (value > result)
+				{
+					result = value;
+				}
+			}
+
+			return result;
 		}
 
 		protected override object ResolveSecondPart()
 		{
-			return string.Empty;
+			string[] input = File.ReadAllLines(GetResourcesPath());
+
+			bool[] seats = new bool[1024];
+
+			for (int i = 0; i < input.Length; i++)
+			{
+				string seat = input[i];
+
+				int lowerRow = 0;
+				int upperRow = 127;
+				int lowerColumn = 0;
+				int upperColumn = 7;
+
+				for (int j = 0; j < seat.Length; j++)
+				{
+					if (seat[j] == 'F')
+					{
+						upperRow -= (int)Math.Pow(2, (6 - j));
+					}
+					else if (seat[j] == 'B')
+					{
+						lowerRow += (int)Math.Pow(2, (6 - j));
+					}
+					else if (seat[j] == 'L')
+					{
+						upperColumn -= (int)Math.Pow(2, (9 - j));
+					}
+					else if (seat[j] == 'R')
+					{
+						lowerColumn += (int)Math.Pow(2, (9 - j));
+					}
+				}
+
+				int value = upperRow * 8 + upperColumn;
+				seats[value] = true;
+			}
+
+			bool hasFoundAtLeastOneOccupiedSeat = false;
+
+			for (int i = 0; i < seats.Length; i++)
+			{
+				if (!seats[i] && hasFoundAtLeastOneOccupiedSeat)
+				{
+					return i;
+				}
+				else if (seats[i])
+				{
+					hasFoundAtLeastOneOccupiedSeat = true;
+				}
+			}
+
+			return -1;
 		}
 	}
 }
