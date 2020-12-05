@@ -332,11 +332,11 @@ namespace AdventOfCode.Year2015
 		protected override object ResolveSecondPart()
 		{
 			string[] input = File.ReadAllLines(GetResourcesPath());
-			int inputMaxLength = input[0].Length + 1;
 
 			int result = 0;
 
-			int[,] objects = new int[122 - 97, 122 - 97];
+			int[,] objects = new int[122 - 97 + 1, 122 - 97 + 1];
+			int[] indexes = new int[input[0].Length];
 
 			for (int i = 0; i < input.Length; i++)
 			{
@@ -344,16 +344,17 @@ namespace AdventOfCode.Year2015
 				bool meetConditionTwo = false;
 
 				string stringToAnalyze = input[i];
-				char previousChar = char.MinValue;
+				char previousChar = stringToAnalyze[0];
 				char secondPreviousChar = char.MinValue;
 
-				for (int j = 0; j < stringToAnalyze.Length; j++)
+				for (int j = 1; j < stringToAnalyze.Length; j++)
 				{
 					char currentChar = stringToAnalyze[j];
 
 					if (objects[previousChar - 97, currentChar - 97] == 0)
 					{
-						objects[previousChar - 97, currentChar - 97] = j + 1;
+						objects[previousChar - 97, currentChar - 97] = j + 1; // The +1 is to avoid working with 0s
+						indexes[j] = (previousChar - 97) * 100 + currentChar - 97;
 					}
 
 					// First condition
@@ -379,7 +380,12 @@ namespace AdventOfCode.Year2015
 					previousChar = currentChar;
 				}
 
-				//Array.Clear(objects, 0, objects.Length);
+				for (int j = 0; j < indexes.Length; j++)
+				{
+					int value = indexes[j];
+					objects[value / 100, value % 100] = 0;
+					indexes[j] = 0;
+				}
 			}
 
 			return result;
