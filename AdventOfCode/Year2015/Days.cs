@@ -335,7 +335,7 @@ namespace AdventOfCode.Year2015
 
 			int result = 0;
 
-			int[,] objects = new int[122 - 97 + 1, 122 - 97 + 1];
+			int[,] objects = new int[26, 26];
 			int[] indexes = new int[input[0].Length];
 
 			for (int i = 0; i < input.Length; i++)
