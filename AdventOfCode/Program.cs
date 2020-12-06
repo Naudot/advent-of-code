@@ -22,7 +22,8 @@ namespace AdventOfCode
 			//new Year2015.DayFour();
 			//new Year2015.DayFive();
 			//new Year2015.DaySix();
-			new Year2015.DaySeven();
+			//new Year2015.DaySeven();
+			new Year2015.DayEight();
 
 			new Year2016.DayOne();
 
