@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -226,11 +227,11 @@ namespace AdventOfCode.Year2015
 		{
 			MD5 hasher = MD5.Create();
 			int result = 0;
-			string stringResult = string.Empty;
 
 			// Convert the byte array to hexadecimal string
 			StringBuilder sb = new StringBuilder();
 
+			string stringResult;
 			do
 			{
 				sb.Clear();
@@ -252,11 +253,11 @@ namespace AdventOfCode.Year2015
 		{
 			MD5 hasher = MD5.Create();
 			int result = 0;
-			string stringResult = string.Empty;
 
 			// Convert the byte array to hexadecimal string
 			StringBuilder sb = new StringBuilder();
 
+			string stringResult;
 			do
 			{
 				sb.Clear();
@@ -496,12 +497,258 @@ namespace AdventOfCode.Year2015
 	{
 		protected override object ResolveFirstPart()
 		{
-			return string.Empty;
+			string[] inputs = File.ReadAllLines(GetResourcesPath());
+
+			//string[] inputs = new string[]
+			//{
+			//	"123 -> x",
+			//	"456 -> y",
+			//	"x AND y -> d",
+			//	"x OR y -> e",
+			//	"x LSHIFT 2 -> f",
+			//	"y RSHIFT 2 -> g",
+			//	"NOT x -> h",
+			//	"NOT y -> i"
+			//};
+
+			Dictionary<string, ushort> wires = new Dictionary<string, ushort>();
+
+			for (int i = 0; i < inputs.Length; i++)
+			{
+				string input = inputs[i];
+
+				if (input.Contains("AND"))
+				{
+					ProcessAnd(input, wires);
+				}
+				else if (input.Contains("OR"))
+				{
+					ProcessOr(input, wires);
+				}
+				else if (input.Contains("NOT"))
+				{
+					ProcessNot(input, wires);
+				}
+				else if (input.Contains("RSHIFT"))
+				{
+					ProcessRshift(input, wires);
+				}
+				else if (input.Contains("LSHIFT"))
+				{
+					ProcessLshift(input, wires);
+				}
+				else
+				{
+					ProcessBasic(input, wires);
+				}
+			}
+
+			return wires["a"];
 		}
 
 		protected override object ResolveSecondPart()
 		{
 			return string.Empty;
+		}
+
+		private void ProcessAnd(string input, Dictionary<string, ushort> wires)
+		{
+			string[] groups = input.Split(' ');
+
+			string targetWire = groups[4];
+
+			if (!wires.ContainsKey(targetWire))
+			{
+				wires.Add(targetWire, 0);
+			}
+
+			string leftValue = groups[0];
+			string rightValue = groups[2];
+
+			ushort usedLeftValue;
+			if (!ushort.TryParse(leftValue, out usedLeftValue))
+			{
+				if (!wires.ContainsKey(leftValue))
+				{
+					wires.Add(leftValue, 0);
+				}
+				usedLeftValue = wires[leftValue];
+			}
+
+			ushort usedRightValue;
+			if (!ushort.TryParse(rightValue, out usedRightValue))
+			{
+				if (!wires.ContainsKey(rightValue))
+				{
+					wires.Add(rightValue, 0);
+				}
+				usedRightValue = wires[rightValue];
+			}
+
+			wires[targetWire] = (ushort)(usedLeftValue & usedRightValue);
+		}
+
+		private void ProcessOr(string input, Dictionary<string, ushort> wires)
+		{
+			string[] groups = input.Split(' ');
+
+			string targetWire = groups[4];
+
+			if (!wires.ContainsKey(targetWire))
+			{
+				wires.Add(targetWire, 0);
+			}
+
+			string leftValue = groups[0];
+			string rightValue = groups[2];
+
+			ushort usedLeftValue;
+			if (!ushort.TryParse(leftValue, out usedLeftValue))
+			{
+				if (!wires.ContainsKey(leftValue))
+				{
+					wires.Add(leftValue, 0);
+				}
+				usedLeftValue = wires[leftValue];
+			}
+
+			ushort usedRightValue;
+			if (!ushort.TryParse(rightValue, out usedRightValue))
+			{
+				if (!wires.ContainsKey(rightValue))
+				{
+					wires.Add(rightValue, 0);
+				}
+				usedRightValue = wires[rightValue];
+			}
+
+			wires[targetWire] = (ushort)(usedLeftValue | usedRightValue);
+		}
+
+		private void ProcessNot(string input, Dictionary<string, ushort> wires)
+		{
+			string[] groups = input.Split(' ');
+
+			string targetWire = groups[3];
+
+			if (!wires.ContainsKey(targetWire))
+			{
+				wires.Add(targetWire, 0);
+			}
+
+			string rightValue = groups[1];
+
+			ushort usedRightValue;
+			if (!ushort.TryParse(rightValue, out usedRightValue))
+			{
+				if (!wires.ContainsKey(rightValue))
+				{
+					wires.Add(rightValue, 0);
+				}
+				usedRightValue = wires[rightValue];
+			}
+
+			wires[targetWire] = (ushort)(ushort.MaxValue - usedRightValue);
+		}
+
+		private void ProcessRshift(string input, Dictionary<string, ushort> wires)
+		{
+			string[] groups = input.Split(' ');
+
+			string targetWire = groups[4];
+
+			if (!wires.ContainsKey(targetWire))
+			{
+				wires.Add(targetWire, 0);
+			}
+
+			string leftValue = groups[0];
+			string rightValue = groups[2];
+
+			ushort usedLeftValue;
+			if (!ushort.TryParse(leftValue, out usedLeftValue))
+			{
+				if (!wires.ContainsKey(leftValue))
+				{
+					wires.Add(leftValue, 0);
+				}
+				usedLeftValue = wires[leftValue];
+			}
+
+			ushort usedRightValue;
+			if (!ushort.TryParse(rightValue, out usedRightValue))
+			{
+				if (!wires.ContainsKey(rightValue))
+				{
+					wires.Add(rightValue, 0);
+				}
+				usedRightValue = wires[rightValue];
+			}
+
+			wires[targetWire] = (ushort)(usedLeftValue >> usedRightValue);
+		}
+
+		private void ProcessLshift(string input, Dictionary<string, ushort> wires)
+		{
+			string[] groups = input.Split(' ');
+
+			string targetWire = groups[4];
+
+			if (!wires.ContainsKey(targetWire))
+			{
+				wires.Add(targetWire, 0);
+			}
+
+			string leftValue = groups[0];
+			string rightValue = groups[2];
+
+			ushort usedLeftValue;
+			if (!ushort.TryParse(leftValue, out usedLeftValue))
+			{
+				if (!wires.ContainsKey(leftValue))
+				{
+					wires.Add(leftValue, 0);
+				}
+				usedLeftValue = wires[leftValue];
+			}
+
+			ushort usedRightValue;
+			if (!ushort.TryParse(rightValue, out usedRightValue))
+			{
+				if (!wires.ContainsKey(rightValue))
+				{
+					wires.Add(rightValue, 0);
+				}
+				usedRightValue = wires[rightValue];
+			}
+
+			wires[targetWire] = (ushort)(usedLeftValue << usedRightValue);
+		}
+
+		private void ProcessBasic(string input, Dictionary<string, ushort> wires)
+		{
+			string[] groups = input.Split(' ');
+
+			string targetWire = groups[2];
+
+			if (!wires.ContainsKey(targetWire))
+			{
+				wires.Add(targetWire, 0);
+			}
+
+			string leftValue = groups[0];
+
+			ushort usedLeftValue;
+			if (!ushort.TryParse(leftValue, out usedLeftValue))
+			{
+				if (!wires.ContainsKey(leftValue))
+				{
+					wires.Add(leftValue, 0);
+				}
+				usedLeftValue = wires[leftValue];
+			}
+
+			wires[targetWire] = usedLeftValue;
 		}
 	}
 }
