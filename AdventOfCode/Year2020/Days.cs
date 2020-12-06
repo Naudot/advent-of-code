@@ -321,28 +321,19 @@ namespace AdventOfCode.Year2020
 			{
 				string seat = input[i];
 
-				int lowerRow = 0;
 				int upperRow = 127;
-				int lowerColumn = 0;
 				int upperColumn = 7;
 
+				// Not optimized and ugly method I first tried
 				for (int j = 0; j < seat.Length; j++)
 				{
 					if (seat[j] == 'F')
 					{
 						upperRow -= (int)Math.Pow(2, (6 - j));
 					}
-					else if (seat[j] == 'B')
-					{
-						lowerRow += (int)Math.Pow(2, (6 - j));
-					}
 					else if (seat[j] == 'L')
 					{
 						upperColumn -= (int)Math.Pow(2, (9 - j));
-					}
-					else if (seat[j] == 'R')
-					{
-						lowerColumn += (int)Math.Pow(2, (9 - j));
 					}
 				}
 
@@ -360,56 +351,120 @@ namespace AdventOfCode.Year2020
 		{
 			string[] input = File.ReadAllLines(GetResourcesPath());
 
-			bool[] seats = new bool[1024];
+			int[] seats = new int[input.Length];
 
 			for (int i = 0; i < input.Length; i++)
 			{
 				string seat = input[i];
 
-				int lowerRow = 0;
-				int upperRow = 127;
-				int lowerColumn = 0;
-				int upperColumn = 7;
+				int row = 0;
+				int column = 0;
 
 				for (int j = 0; j < seat.Length; j++)
 				{
-					if (seat[j] == 'F')
+					if (j <= 6)
 					{
-						upperRow -= (int)Math.Pow(2, (6 - j));
+						row <<= 1;
 					}
-					else if (seat[j] == 'B')
+					else
 					{
-						lowerRow += (int)Math.Pow(2, (6 - j));
+						column <<= 1;
 					}
-					else if (seat[j] == 'L')
+
+					if (seat[j] == 'B')
 					{
-						upperColumn -= (int)Math.Pow(2, (9 - j));
+						row |= 1;
 					}
 					else if (seat[j] == 'R')
 					{
-						lowerColumn += (int)Math.Pow(2, (9 - j));
+						column |= 1;
 					}
 				}
 
-				int value = upperRow * 8 + upperColumn;
-				seats[value] = true;
+				seats[i] = row * 8 + column;
 			}
 
-			bool hasFoundAtLeastOneOccupiedSeat = false;
+			Array.Sort(seats);
 
 			for (int i = 0; i < seats.Length; i++)
 			{
-				if (!seats[i] && hasFoundAtLeastOneOccupiedSeat)
+				if (seats[i] - seats[i + 1] < -1)
 				{
-					return i;
-				}
-				else if (seats[i])
-				{
-					hasFoundAtLeastOneOccupiedSeat = true;
+					return seats[i + 1] - 1;
 				}
 			}
 
 			return -1;
+		}
+	}
+
+	public class DaySix : Day2020
+	{
+		protected override object ResolveFirstPart()
+		{
+			string[] input = File.ReadAllLines(GetResourcesPath());
+
+			int result = 0;
+			bool[] cache = new bool[26];
+
+			for (int i = 0; i < input.Length; i++)
+			{
+				if (input[i].Length == 0)
+				{
+					Array.Clear(cache, 0, cache.Length);
+					continue;
+				}
+
+				for (int j = 0; j < input[i].Length; j++)
+				{
+					int charValue = input[i][j] - 97;
+					if (!cache[charValue])
+					{
+						result++;
+						cache[charValue] = true;
+					}
+				}
+			}
+
+			return result;
+		}
+
+		protected override object ResolveSecondPart()
+		{
+			string[] input = File.ReadAllLines(GetResourcesPath());
+
+			int result = 0;
+			int[] cache = new int[26];
+
+			int lineNumber = 0;
+
+			for (int i = 0; i < input.Length; i++)
+			{
+				bool isEndOfBlock = input[i].Length == 0;
+				lineNumber += isEndOfBlock ? 0 : 1;
+
+				for (int j = 0; j < input[i].Length; j++)
+				{
+					cache[input[i][j] - 97] += 1;
+				}
+
+				bool isEndOfFile = i + 1 == input.Length;
+				if (isEndOfBlock || isEndOfFile)
+				{
+					for (int j = 0; j < cache.Length; j++)
+					{
+						if (cache[j] == lineNumber)
+						{
+							result++;
+						}
+					}
+
+					Array.Clear(cache, 0, cache.Length);
+					lineNumber = 0;
+				}
+			}
+
+			return result;
 		}
 	}
 }
