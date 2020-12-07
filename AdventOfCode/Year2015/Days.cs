@@ -832,12 +832,117 @@ namespace AdventOfCode.Year2015
 	{
 		protected override object ResolveFirstPart()
 		{
-			return string.Empty;
+			string[] input = File.ReadAllLines(GetResourcesPath());
+
+			int stringCount = 0;
+			int literalCount = 0;
+
+			for (int i = 0; i < input.Length; i++)
+			{
+				stringCount += input[i].Length;
+				input[i] = Regex.Unescape(input[i]);
+				literalCount += input[i].Length - 2; // Remove the "
+			}
+
+			return stringCount - literalCount;
 		}
 
 		protected override object ResolveSecondPart()
 		{
-			return string.Empty;
+			string[] input = File.ReadAllLines(GetResourcesPath());
+
+			int stringCount = 0;
+			int literalCount = 0;
+
+			for (int i = 0; i < input.Length; i++)
+			{
+				stringCount += input[i].Length;
+
+				literalCount +=
+					input[i].Length +
+					input[i].Count(character => character == '\\') +
+					input[i].Count(character => character == '"') + 2;
+			}
+
+			return literalCount - stringCount;
 		}
 	}
+
+	//public class DayNine : Day2015
+	//{
+	//	//private List<Tuple<string, string, int>> mDistances = new List<Tuple<string, string, int>>();
+
+	//	//protected override object ResolveFirstPart()
+	//	//{
+	//	//	MatchCollection matchCollection = Regex.Matches(File.ReadAllText(GetResourcesPath()), @"(\S*) to (\S*) = (\S*)");
+
+	//	//	int result = 0;
+
+	//	//	List<string> cities = new List<string>();
+
+	//	//	for (int i = 0; i < matchCollection.Count; i++)
+	//	//	{
+	//	//		Match match = matchCollection[i];
+
+	//	//		string firstTown = match.Groups[1].Value;
+	//	//		string secondTown = match.Groups[2].Value;
+	//	//		int distance = int.Parse(match.Groups[3].Value);
+	//	//		mDistances.Add(new Tuple<string, string, int>(firstTown, secondTown, distance));
+
+	//	//		if (!cities.Contains(firstTown))
+	//	//		{
+	//	//			cities.Add(firstTown);
+	//	//		}
+	//	//		if (!cities.Contains(secondTown))
+	//	//		{
+	//	//			cities.Add(secondTown);
+	//	//		}
+	//	//	}
+
+	//	//	int shortestDistance = int.MaxValue;
+
+	//	//	for (int i = 0; i < mDistances.Count; i++)
+	//	//	{
+	//	//		int distance = GetRecursiveDistanceBetween(mDistances[i].Item1, mDistances[i].Item2);
+
+	//	//		if (distance < shortestDistance)
+	//	//		{
+	//	//			shortestDistance = distance;
+	//	//		}
+	//	//	}
+
+	//	//	return result;
+	//	//}
+
+	//	////private int GetRecursiveDistanceBetween(string firstCity, string secondCity)
+	//	////{
+	//	////}
+
+	//	//protected override object ResolveSecondPart()
+	//	//{
+	//	//	return string.Empty;
+	//	//}
+
+	//	//private int GetShortestDistance(List<string> cities)
+	//	//{
+	//	//	if (cities.Count == 2)
+	//	//	{
+	//	//		return GetDistanceBetween(cities[0], cities[1]);
+	//	//	}
+
+	//	//	int shortestDistance = 0;
+
+	//	//	for (int i = 0; i < cities.Count; i++)
+	//	//	{
+	//	//		shortestDistance += 
+	//	//	}
+
+	//	//	return shortestDistance;
+	//	//}
+
+	//	//private int GetDistanceBetween(string firstCity, string secondCity)
+	//	//{
+	//	//	return mDistances.FirstOrDefault(tuple => (tuple.Item1 == firstCity || tuple.Item2 == secondCity) && (tuple.Item1 == secondCity || tuple.Item2 == firstCity)).Item3;
+	//	//}
+	//}
 }
