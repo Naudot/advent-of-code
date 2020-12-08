@@ -26,22 +26,23 @@ namespace AdventOfCode
 			//new Year2015.DayEight();
 			//new Year2015.DayNine();
 
-			new Year2016.DayOne();
+			//new Year2016.DayOne();
 
-			new Year2017.DayOne();
+			//new Year2017.DayOne();
 
-			new Year2018.DayOne();
+			//new Year2018.DayOne();
 
-			new Year2019.DayOne();
-			new Year2019.DayTwo();
+			//new Year2019.DayOne();
+			//new Year2019.DayTwo();
 
-			new Year2020.DayOne();
-			new Year2020.DayTwo();
-			new Year2020.DayThree();
-			new Year2020.DayFour();
-			new Year2020.DayFive();
-			new Year2020.DaySix();
-			new Year2020.DaySeven();
+			//new Year2020.DayOne();
+			//new Year2020.DayTwo();
+			//new Year2020.DayThree();
+			//new Year2020.DayFour();
+			//new Year2020.DayFive();
+			//new Year2020.DaySix();
+			//new Year2020.DaySeven();
+			new Year2020.DayEight();
 
 			//Day2015.CalculateAndLogResults();
 			//Console.WriteLine();
