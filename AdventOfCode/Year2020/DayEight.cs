@@ -5,8 +5,6 @@ namespace AdventOfCode.Year2020
 {
 	public class DayEight : Day2020
 	{
-		#region Methods
-
 		protected override object ResolveFirstPart()
 		{
 			string[] input = File.ReadAllLines(GetResourcesPath());
@@ -100,7 +98,5 @@ namespace AdventOfCode.Year2020
 
 			return true;
 		}
-
-		#endregion
 	}
 }
