@@ -64,6 +64,7 @@ namespace AdventOfCode.Year2020
 
 		private void GetSimpleBagsData()
 		{
+			mBags.Clear();
 			MatchCollection matchCollection = Regex.Matches(File.ReadAllText(GetResourcesPath()), @"(.*) contain (no other bags.|.*)");
 
 			for (int i = 0; i < matchCollection.Count; i++)
@@ -84,6 +85,7 @@ namespace AdventOfCode.Year2020
 
 		private void GetAdvancedBagsData()
 		{
+			mAdvancedBags.Clear();
 			MatchCollection matchCollection = Regex.Matches(File.ReadAllText(GetResourcesPath()), @"(.*) contain (no other bags.|.*)");
 
 			for (int i = 0; i < matchCollection.Count; i++)

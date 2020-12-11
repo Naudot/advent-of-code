@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -62,7 +63,6 @@ namespace AdventOfCode.Year2020
 							result *= (1 + Fact(indexDifference - 1));
 						}
 					}
-
 					beginIndex = i + 1;
 				}
 			}
