@@ -58,7 +58,7 @@ namespace AdventOfCode.Year2020
 					// On my input, it happens to always be later buses which depart after the 523 bus so I check by using i - busID
 					if (sameDepartureBusIDFromRight >= 0 && int.TryParse(buses[sameDepartureBusIDFromRight], out newBusID))
 					{
-						Console.WriteLine("Bus " + busID + " is with " + newBusID);
+						// Console.WriteLine("Bus " + busID + " is with " + newBusID);
 						if (!steps.ContainsKey(sameDepartureBusIDFromRight))
 						{
 							steps.Add(sameDepartureBusIDFromRight, newBusID);
@@ -67,7 +67,7 @@ namespace AdventOfCode.Year2020
 					}
 					if (sameDepartureBusIDFromLeft < buses.Length && int.TryParse(buses[sameDepartureBusIDFromLeft], out newBusID))
 					{
-						Console.WriteLine("Bus " + busID + " is with " + newBusID);
+						// Console.WriteLine("Bus " + busID + " is with " + newBusID);
 						if (!steps.ContainsKey(sameDepartureBusIDFromLeft))
 						{
 							steps.Add(sameDepartureBusIDFromLeft, newBusID);
