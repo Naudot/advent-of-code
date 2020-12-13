@@ -39,28 +39,45 @@ namespace AdventOfCode.Year2020
 
 		protected override object ResolveSecondPart()
 		{
-			// 19 c'est l'index de 523
-			// je prends tous les bus qui partent en même temps que 523 et je les multiplie entre eux
 			string[] input = File.ReadAllLines(GetResourcesPath());
 			string[] buses = input[1].Split(',').ToArray();
-			Dictionary<int, int> busesIndexes = new Dictionary<int, int>();
 
-			Dictionary<int, int> steps = new Dictionary<int, int>();
+			Dictionary<int, int> busesIndexes = new Dictionary<int, int>(); // We keep each bus with his departure value
+			Dictionary<int, int> steps = new Dictionary<int, int>(); // I want to iterate over a value with the higher possible step
 
 			for (int i = 0; i < buses.Length; i++)
 			{
 				int busID;
-				if (int.TryParse(buses[i], out busID))
+				if (int.TryParse(buses[i], out busID)) // We do not process the "x"
 				{
 					busesIndexes.Add(busID, i);
-					if (i - busID >= 0)
+					int sameDepartureBusID = i - busID;
+					int newBusID;
+					// Check if a bus BusID has the same departure has another bus
+					// On my input, it happens to always be later buses which depart after the 523 bus so I check by using i - busID
+					if (sameDepartureBusID >= 0 && int.TryParse(buses[sameDepartureBusID], out newBusID))
 					{
-						Console.WriteLine("Bus " + busID + " is with " + buses[i - busID]);
+						// Console.WriteLine("Bus " + busID + " is with " + newBusID);
+						if (!steps.ContainsKey(sameDepartureBusID))
+						{
+							steps.Add(sameDepartureBusID, newBusID);
+						}
+						steps[sameDepartureBusID] *= busID;
 					}
 				}
 			}
 
-			int step = 9540043; // Le 523 part, 17 minutes après le 17 part, pareil pour le 29 et le 37
+			// The step is the multiplier between same bus id departuring at the same time
+			// E.g. : 523 * 17 * 29 * 37 because 17 29 and 37 are respectively departuring at 17 29 and 37 minutes from the 523
+			KeyValuePair<int, int> chosenStep = new KeyValuePair<int, int>(0, 0);
+
+			foreach (KeyValuePair<int, int> item in steps)
+			{
+				if (item.Value > chosenStep.Value)
+				{
+					chosenStep = item;
+				}
+			}
 
 			double resultTimestamp = 0;
 			bool isFound = false;
@@ -70,7 +87,9 @@ namespace AdventOfCode.Year2020
 				isFound = true;
 				foreach (KeyValuePair<int, int> bus in busesIndexes)
 				{
-					if ((resultTimestamp + bus.Value - 19) % bus.Key != 0)
+					// We must remove the chosen step key to properly check the timestamp for each bus
+					// E.g. : If my chosen step is 523 hence the 19th bus, I check each bus by removing 19 minutes
+					if ((resultTimestamp + bus.Value - chosenStep.Key) % bus.Key != 0)
 					{
 						isFound = false;
 						break;
@@ -79,11 +98,11 @@ namespace AdventOfCode.Year2020
 
 				if (!isFound)
 				{
-					resultTimestamp += step;
+					resultTimestamp += chosenStep.Value;
 				}
 			}
 
-			return resultTimestamp - 19;
+			return resultTimestamp - chosenStep.Key;
 		}
 	}
 }
