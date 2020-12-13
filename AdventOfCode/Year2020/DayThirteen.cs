@@ -51,24 +51,34 @@ namespace AdventOfCode.Year2020
 				if (int.TryParse(buses[i], out busID)) // We do not process the "x"
 				{
 					busesIndexes.Add(busID, i);
-					int sameDepartureBusID = i - busID;
+					int sameDepartureBusIDFromRight = i - busID;
+					int sameDepartureBusIDFromLeft = busID + i;
 					int newBusID;
 					// Check if a bus BusID has the same departure has another bus
 					// On my input, it happens to always be later buses which depart after the 523 bus so I check by using i - busID
-					if (sameDepartureBusID >= 0 && int.TryParse(buses[sameDepartureBusID], out newBusID))
+					if (sameDepartureBusIDFromRight >= 0 && int.TryParse(buses[sameDepartureBusIDFromRight], out newBusID))
 					{
-						// Console.WriteLine("Bus " + busID + " is with " + newBusID);
-						if (!steps.ContainsKey(sameDepartureBusID))
+						Console.WriteLine("Bus " + busID + " is with " + newBusID);
+						if (!steps.ContainsKey(sameDepartureBusIDFromRight))
 						{
-							steps.Add(sameDepartureBusID, newBusID);
+							steps.Add(sameDepartureBusIDFromRight, newBusID);
 						}
-						steps[sameDepartureBusID] *= busID;
+						steps[sameDepartureBusIDFromRight] *= busID;
+					}
+					if (sameDepartureBusIDFromLeft < buses.Length && int.TryParse(buses[sameDepartureBusIDFromLeft], out newBusID))
+					{
+						Console.WriteLine("Bus " + busID + " is with " + newBusID);
+						if (!steps.ContainsKey(sameDepartureBusIDFromLeft))
+						{
+							steps.Add(sameDepartureBusIDFromLeft, newBusID);
+						}
+						steps[sameDepartureBusIDFromLeft] *= busID;
 					}
 				}
 			}
 
 			// The step is the multiplier between same bus id departuring at the same time
-			// E.g. : 523 * 17 * 29 * 37 because 17 29 and 37 are respectively departuring at 17 29 and 37 minutes from the 523
+			// E.g. : 523 * 17 * 29 * 19 * 37 because 17 29 19 and 37 are respectively departuring at 17 29 and 37 minutes from the 523
 			KeyValuePair<int, int> chosenStep = new KeyValuePair<int, int>(0, 0);
 
 			foreach (KeyValuePair<int, int> item in steps)
