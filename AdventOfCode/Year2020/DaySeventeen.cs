@@ -10,8 +10,11 @@ namespace AdventOfCode.Year2020
 		private List<Tuple<int, int, int, bool>> mCubes = new List<Tuple<int, int, int, bool>>();
 		private List<Tuple<int, int, int, bool>> mCubesToAddOrChange = new List<Tuple<int, int, int, bool>>();
 
-		private List<Tuple<int, int, int, int, bool>> mHyperCubes = new List<Tuple<int, int, int, int, bool>>();
-		private List<Tuple<int, int, int, int, bool>> mHyperCubesToAddOrChange = new List<Tuple<int, int, int, int, bool>>();
+		private Dictionary<string, Tuple<int, int, int, int, bool>> mHyperCubesDic = new Dictionary<string, Tuple<int, int, int, int, bool>>();
+		private HashSet<string> mHyperCubesDicKeys = new HashSet<string>();
+
+		private Dictionary<string, Tuple<int, int, int, int, bool>> mHyperCubesToAddOrChangeDic = new Dictionary<string, Tuple<int, int, int, int, bool>>();
+		private HashSet<string> mHyperCubesToAddOrChangeDicKeys = new HashSet<string>();
 
 		protected override object ResolveFirstPart()
 		{
@@ -163,7 +166,8 @@ namespace AdventOfCode.Year2020
 
 		protected override object ResolveSecondPart()
 		{
-			mHyperCubes.Clear();
+			mHyperCubesDic.Clear();
+			mHyperCubesDicKeys.Clear();
 
 			string[] input = File.ReadAllLines(GetResourcesPath());
 
@@ -186,13 +190,17 @@ namespace AdventOfCode.Year2020
 
 						for (int k = -1; k < initialLine.Length + 1; k++) // X layer
 						{
+							string key = k + " " + j + " " + i + " " + l;
+
 							if (j < 0 || j >= input.Length || k < 0 || k >= initialLine.Length || i != 0 || l != 0)
 							{
-								mHyperCubes.Add(new Tuple<int, int, int, int, bool>(k, j, i, l, false));
+								mHyperCubesDic.Add(key, new Tuple<int, int, int, int, bool>(k, j, i, l, false));
+								mHyperCubesDicKeys.Add(key);
 							}
 							else
 							{
-								mHyperCubes.Add(new Tuple<int, int, int, int, bool>(k, j, i, l, initialLine[k] == '#'));
+								mHyperCubesDic.Add(key, new Tuple<int, int, int, int, bool>(k, j, i, l, initialLine[k] == '#'));
+								mHyperCubesDicKeys.Add(key);
 							}
 						}
 					}
@@ -202,39 +210,41 @@ namespace AdventOfCode.Year2020
 			for (int cycle = 0; cycle < 6; cycle++)
 			{
 				Console.WriteLine("Cycle " + cycle);
-				mHyperCubesToAddOrChange.Clear();
+				mHyperCubesToAddOrChangeDic.Clear();
+				mHyperCubesToAddOrChangeDicKeys.Clear();
 
-				for (int i = 0; i < mHyperCubes.Count; i++)
+				foreach (KeyValuePair<string, Tuple<int, int, int, int, bool>> item in mHyperCubesDic)
 				{
-					int activeNeighbors = CalculateInsaneNeighbors(mHyperCubes[i]);
+					string key = item.Value.Item1 + " " + item.Value.Item2 + " " + item.Value.Item3 + " "+  item.Value.Item4;
+					int activeNeighbors = CalculateInsaneNeighbors(item.Value);
 
-					if (activeNeighbors == 3 && !mHyperCubes[i].Item5)
+					if (activeNeighbors == 3 && !item.Value.Item5)
 					{
-						mHyperCubesToAddOrChange.Add(new Tuple<int, int, int, int, bool>(mHyperCubes[i].Item1, mHyperCubes[i].Item2, mHyperCubes[i].Item3, mHyperCubes[i].Item4, true));
+						mHyperCubesToAddOrChangeDic.Add(key, new Tuple<int, int, int, int, bool>(item.Value.Item1, item.Value.Item2, item.Value.Item3, item.Value.Item4, true));
+						mHyperCubesToAddOrChangeDicKeys.Add(key);
 					}
-					else if (mHyperCubes[i].Item5 && activeNeighbors != 2 && activeNeighbors != 3)
+					else if (item.Value.Item5 && activeNeighbors != 2 && activeNeighbors != 3)
 					{
-						mHyperCubesToAddOrChange.Add(new Tuple<int, int, int, int, bool>(mHyperCubes[i].Item1, mHyperCubes[i].Item2, mHyperCubes[i].Item3, mHyperCubes[i].Item4, false));
+						mHyperCubesToAddOrChangeDic.Add(key, new Tuple<int, int, int, int, bool>(item.Value.Item1, item.Value.Item2, item.Value.Item3, item.Value.Item4, false));
+						mHyperCubesToAddOrChangeDicKeys.Add(key);
 					}
 				}
 
-				for (int i = 0; i < mHyperCubesToAddOrChange.Count; i++)
+				foreach (KeyValuePair<string, Tuple<int, int, int, int, bool>> item in mHyperCubesToAddOrChangeDic)
 				{
-					Tuple<int, int, int, int, bool> cube = mHyperCubesToAddOrChange[i];
-					Tuple<int, int, int, int, bool> existingCube = mHyperCubes.Where(existing => existing.Item1 == cube.Item1 && existing.Item2 == cube.Item2 && existing.Item3 == cube.Item3 && existing.Item4 == cube.Item4).FirstOrDefault();
-
-					if (existingCube != null)
+					if (mHyperCubesDicKeys.Contains(item.Key))
 					{
-						mHyperCubes[mHyperCubes.IndexOf(existingCube)] = new Tuple<int, int, int, int, bool>(cube.Item1, cube.Item2, cube.Item3, cube.Item4, cube.Item5);
+						mHyperCubesDic[item.Key] = new Tuple<int, int, int, int, bool>(item.Value.Item1, item.Value.Item2, item.Value.Item3, item.Value.Item4, item.Value.Item5);
 					}
 					else
 					{
-						mHyperCubes.Add(new Tuple<int, int, int, int, bool>(cube.Item1, cube.Item2, cube.Item3, cube.Item4, cube.Item5));
+						mHyperCubesDic.Add(item.Key, new Tuple<int, int, int, int, bool>(item.Value.Item1, item.Value.Item2, item.Value.Item3, item.Value.Item4, item.Value.Item5));
+						mHyperCubesDicKeys.Add(item.Key);
 					}
 				}
 			}
 
-			return mHyperCubes.Where(item => item.Item5).Count();
+			return mHyperCubesDic.Where(item => item.Value.Item5).Count();
 		}
 
 		private int CalculateInsaneNeighbors(Tuple<int, int, int, int, bool> wantedCube)
@@ -259,15 +269,16 @@ namespace AdventOfCode.Year2020
 							int z = wantedCube.Item3 + i;
 							int w = wantedCube.Item4 + l;
 
-							Tuple<int, int, int, int, bool> neighbor = mHyperCubes.Where(cube => cube.Item1 == x && cube.Item2 == y && cube.Item3 == z && cube.Item4 == w).FirstOrDefault();
+							string key = x + " " + y + " " + z + " " + w;
 
-							if (neighbor != null)
+							if (mHyperCubesDicKeys.Contains(key))
 							{
-								activeNeighbors += neighbor.Item5 ? 1 : 0;
+								activeNeighbors += mHyperCubesDic[key].Item5 ? 1 : 0;
 							}
-							else
+							else if (!mHyperCubesToAddOrChangeDic.ContainsKey(key))
 							{
-								mHyperCubesToAddOrChange.Add(new Tuple<int, int, int, int, bool>(x, y, z, w, false));
+								mHyperCubesToAddOrChangeDicKeys.Add(key);
+								mHyperCubesToAddOrChangeDic.Add(key, new Tuple<int, int, int, int, bool>(x, y, z, w, false));
 							}
 						}
 					}

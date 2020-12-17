@@ -48,7 +48,7 @@ namespace AdventOfCode
 				Day<T> day = Days[i];
 				//day.ResolveFirstPart(); // Force the JIT pass
 				stopwatch.Restart();
-				object firstResult = day.ResolveFirstPart();
+				object firstResult = 0; // day.ResolveFirstPart();
 				stopwatch.Stop();
 				double firstTime = stopwatch.Elapsed.TotalMilliseconds * 1000;
 
