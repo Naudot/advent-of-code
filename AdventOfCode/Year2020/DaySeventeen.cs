@@ -2,13 +2,16 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace AdventOfCode.Year2020
 {
 	public class DaySeventeen : Day2020
 	{
-		private List<Tuple<int, int, int, bool>> mCubes = new List<Tuple<int, int, int, bool>>();
-		private List<Tuple<int, int, int, bool>> mCubesToAddOrChange = new List<Tuple<int, int, int, bool>>();
+		private static StringBuilder mStringBuilder = new StringBuilder();
+
+		private Dictionary<string, Tuple<int, int, int, bool>> mCubes = new Dictionary<string, Tuple<int, int, int, bool>>();
+		private Dictionary<string, Tuple<int, int, int, bool>> mCubesToAddOrChange = new Dictionary<string, Tuple<int, int, int, bool>>();
 
 		private Dictionary<string, Tuple<int, int, int, int, bool>> mHyperCubesDic = new Dictionary<string, Tuple<int, int, int, int, bool>>();
 		private Dictionary<string, Tuple<int, int, int, int, bool>> mHyperCubesToAddOrChangeDic = new Dictionary<string, Tuple<int, int, int, int, bool>>();
@@ -36,54 +39,53 @@ namespace AdventOfCode.Year2020
 
 					for (int k = -1; k < initialLine.Length + 1; k++) // X layer
 					{
+						string key = GetKey(k, j, i);
 						if (j < 0 || j >= input.Length || k < 0 || k >= initialLine.Length || i != 0)
 						{
-							mCubes.Add(new Tuple<int, int, int, bool>(k, j, i, false));
+							mCubes.Add(key, new Tuple<int, int, int, bool>(k, j, i, false));
 						}
 						else
 						{
-							mCubes.Add(new Tuple<int, int, int, bool>(k, j, i, initialLine[k] == '#'));
+							mCubes.Add(key, new Tuple<int, int, int, bool>(k, j, i, initialLine[k] == '#'));
 						}
 					}
 				}
-
 			}
 
 			for (int cycle = 0; cycle < 6; cycle++)
 			{
+				// Console.WriteLine("Cycle " + cycle + " of first part");
 				mCubesToAddOrChange.Clear();
 
-				for (int i = 0; i < mCubes.Count; i++)
+				foreach (KeyValuePair<string, Tuple<int, int, int, bool>> cube in mCubes)
 				{
-					int activeNeighbors = CalculateNeighbors(mCubes[i]);
+					string key = GetKey(cube.Value.Item1, cube.Value.Item2, cube.Value.Item3);
+					int activeNeighbors = CalculateNeighbors(cube.Value);
 
-					if (activeNeighbors == 3 && !mCubes[i].Item4)
+					if (activeNeighbors == 3 && !cube.Value.Item4)
 					{
-						mCubesToAddOrChange.Add(new Tuple<int, int, int, bool>(mCubes[i].Item1, mCubes[i].Item2, mCubes[i].Item3, true));
+						mCubesToAddOrChange.Add(key, new Tuple<int, int, int, bool>(cube.Value.Item1, cube.Value.Item2, cube.Value.Item3, true));
 					}
-					else if (mCubes[i].Item4 && activeNeighbors != 2 && activeNeighbors != 3)
+					else if (cube.Value.Item4 && activeNeighbors != 2 && activeNeighbors != 3)
 					{
-						mCubesToAddOrChange.Add(new Tuple<int, int, int, bool>(mCubes[i].Item1, mCubes[i].Item2, mCubes[i].Item3, false));
+						mCubesToAddOrChange.Add(key, new Tuple<int, int, int, bool>(cube.Value.Item1, cube.Value.Item2, cube.Value.Item3, false));
 					}
 				}
 
-				for (int i = 0; i < mCubesToAddOrChange.Count; i++)
+				foreach (KeyValuePair<string, Tuple<int, int, int, bool>> cube in mCubesToAddOrChange)
 				{
-					Tuple<int, int, int, bool> cube = mCubesToAddOrChange[i];
-					Tuple<int, int, int, bool> existingCube = mCubes.Where(existing => existing.Item1 == cube.Item1 && existing.Item2 == cube.Item2 && existing.Item3 == cube.Item3).FirstOrDefault();
-
-					if (existingCube != null)
+					if (mCubes.ContainsKey(cube.Key))
 					{
-						mCubes[mCubes.IndexOf(existingCube)] = new Tuple<int, int, int, bool>(cube.Item1, cube.Item2, cube.Item3, cube.Item4);
+						mCubes[cube.Key] = new Tuple<int, int, int, bool>(cube.Value.Item1, cube.Value.Item2, cube.Value.Item3, cube.Value.Item4);
 					}
 					else
 					{
-						mCubes.Add(new Tuple<int, int, int, bool>(cube.Item1, cube.Item2, cube.Item3, cube.Item4));
+						mCubes.Add(cube.Key, new Tuple<int, int, int, bool>(cube.Value.Item1, cube.Value.Item2, cube.Value.Item3, cube.Value.Item4));
 					}
 				}
 			}
 
-			return mCubes.Where(item => item.Item4).Count();
+			return mCubes.Where(item => item.Value.Item4).Count();
 		}
 
 		private int CalculateNeighbors(Tuple<int, int, int, bool> wantedCube)
@@ -105,15 +107,15 @@ namespace AdventOfCode.Year2020
 						int y = wantedCube.Item2 + j;
 						int z = wantedCube.Item3 + i;
 
-						Tuple<int, int, int, bool> neighbor = mCubes.Where(cube => cube.Item1 == x && cube.Item2 == y && cube.Item3 == z).FirstOrDefault();
+						string key = GetKey(x, y, z);
 
-						if (neighbor != null)
+						if (mCubes.ContainsKey(key))
 						{
-							activeNeighbors += neighbor.Item4 ? 1 : 0;
+							activeNeighbors += mCubes[key].Item4 ? 1 : 0;
 						}
-						else
+						else if (!mCubesToAddOrChange.ContainsKey(key))
 						{
-							mCubesToAddOrChange.Add(new Tuple<int, int, int, bool>(x, y, z, false));
+							mCubesToAddOrChange.Add(key, new Tuple<int, int, int, bool>(x, y, z, false));
 						}
 					}
 				}
@@ -147,7 +149,7 @@ namespace AdventOfCode.Year2020
 
 						for (int k = -1; k < initialLine.Length + 1; k++) // X layer
 						{
-							string key = k + " " + j + " " + i + " " + l;
+							string key = GetKey(k, j, i, l);
 
 							if (j < 0 || j >= input.Length || k < 0 || k >= initialLine.Length || i != 0 || l != 0)
 							{
@@ -164,12 +166,12 @@ namespace AdventOfCode.Year2020
 
 			for (int cycle = 0; cycle < 6; cycle++)
 			{
-				Console.WriteLine("Cycle " + cycle);
+				// Console.WriteLine("Cycle " + cycle + " of second part");
 				mHyperCubesToAddOrChangeDic.Clear();
 
 				foreach (KeyValuePair<string, Tuple<int, int, int, int, bool>> item in mHyperCubesDic)
 				{
-					string key = item.Value.Item1 + " " + item.Value.Item2 + " " + item.Value.Item3 + " "+  item.Value.Item4;
+					string key = GetKey(item.Value.Item1, item.Value.Item2, item.Value.Item3, item.Value.Item4);
 					int activeNeighbors = CalculateInsaneNeighbors(item.Value);
 
 					if (activeNeighbors == 3 && !item.Value.Item5)
@@ -220,7 +222,7 @@ namespace AdventOfCode.Year2020
 							int z = wantedCube.Item3 + i;
 							int w = wantedCube.Item4 + l;
 
-							string key = x + " " + y + " " + z + " " + w;
+							string key = GetKey(x, y, z, w);
 
 							if (mHyperCubesDic.ContainsKey(key))
 							{
@@ -236,6 +238,17 @@ namespace AdventOfCode.Year2020
 			}
 
 			return activeNeighbors;
+		}
+
+		private string GetKey(params int[] values)
+		{
+			mStringBuilder.Clear();
+			for (int i = 0; i < values.Length; i++)
+			{
+				mStringBuilder.Append(values[i]);
+				mStringBuilder.Append(' ');
+			}
+			return mStringBuilder.ToString();
 		}
 	}
 }
