@@ -50,7 +50,8 @@ namespace AdventOfCode
 			//new Year2020.DayThirteen();
 			//new Year2020.DayFourteen();
 			//new Year2020.DayFifteen();
-			new Year2020.DaySixteen();
+			//new Year2020.DaySixteen();
+			new Year2020.DaySeventeen();
 
 			//Day2015.CalculateAndLogResults();
 			//Console.WriteLine();
