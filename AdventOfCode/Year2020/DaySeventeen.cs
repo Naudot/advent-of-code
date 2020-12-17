@@ -11,10 +11,7 @@ namespace AdventOfCode.Year2020
 		private List<Tuple<int, int, int, bool>> mCubesToAddOrChange = new List<Tuple<int, int, int, bool>>();
 
 		private Dictionary<string, Tuple<int, int, int, int, bool>> mHyperCubesDic = new Dictionary<string, Tuple<int, int, int, int, bool>>();
-		private HashSet<string> mHyperCubesDicKeys = new HashSet<string>();
-
 		private Dictionary<string, Tuple<int, int, int, int, bool>> mHyperCubesToAddOrChangeDic = new Dictionary<string, Tuple<int, int, int, int, bool>>();
-		private HashSet<string> mHyperCubesToAddOrChangeDicKeys = new HashSet<string>();
 
 		protected override object ResolveFirstPart()
 		{
@@ -52,8 +49,6 @@ namespace AdventOfCode.Year2020
 
 			}
 
-			DrawCubes();
-
 			for (int cycle = 0; cycle < 6; cycle++)
 			{
 				mCubesToAddOrChange.Clear();
@@ -86,8 +81,6 @@ namespace AdventOfCode.Year2020
 						mCubes.Add(new Tuple<int, int, int, bool>(cube.Item1, cube.Item2, cube.Item3, cube.Item4));
 					}
 				}
-
-				DrawCubes();
 			}
 
 			return mCubes.Where(item => item.Item4).Count();
@@ -129,45 +122,9 @@ namespace AdventOfCode.Year2020
 			return activeNeighbors;
 		}
 
-		private void DrawCubes()
-		{
-			return;
-
-			int minX = mCubes.Aggregate((tuple, oldTuple) => tuple.Item1 < oldTuple.Item1 ? tuple : oldTuple).Item1;
-			int maxX = mCubes.Aggregate((tuple, oldTuple) => tuple.Item1 > oldTuple.Item1 ? tuple : oldTuple).Item1;
-			int minY = mCubes.Aggregate((tuple, oldTuple) => tuple.Item2 < oldTuple.Item2 ? tuple : oldTuple).Item2;
-			int maxY = mCubes.Aggregate((tuple, oldTuple) => tuple.Item2 > oldTuple.Item2 ? tuple : oldTuple).Item2;
-			int minZ = mCubes.Aggregate((tuple, oldTuple) => tuple.Item3 < oldTuple.Item3 ? tuple : oldTuple).Item3;
-			int maxZ = mCubes.Aggregate((tuple, oldTuple) => tuple.Item3 > oldTuple.Item3 ? tuple : oldTuple).Item3;
-
-			for (int i = minZ; i < maxZ + 1; i++) // Z layer
-			{
-				Console.WriteLine("z=" + i);
-				for (int j = minY; j < maxY + 1; j++) // Y layer
-				{
-					for (int k = minX; k < maxX + 1; k++) // X layer
-					{
-						Tuple<int, int, int, bool> neighbor = mCubes.Where(cube => cube.Item1 == k && cube.Item2 == j && cube.Item3 == i).FirstOrDefault();
-
-						if (neighbor != null)
-						{
-							Console.Write(neighbor.Item4 ? '#' : '.');
-						}
-						else
-						{
-							Console.Write('X');
-						}
-					}
-					Console.WriteLine();
-				}
-				Console.WriteLine();
-			}
-		}
-
 		protected override object ResolveSecondPart()
 		{
 			mHyperCubesDic.Clear();
-			mHyperCubesDicKeys.Clear();
 
 			string[] input = File.ReadAllLines(GetResourcesPath());
 
@@ -195,12 +152,10 @@ namespace AdventOfCode.Year2020
 							if (j < 0 || j >= input.Length || k < 0 || k >= initialLine.Length || i != 0 || l != 0)
 							{
 								mHyperCubesDic.Add(key, new Tuple<int, int, int, int, bool>(k, j, i, l, false));
-								mHyperCubesDicKeys.Add(key);
 							}
 							else
 							{
 								mHyperCubesDic.Add(key, new Tuple<int, int, int, int, bool>(k, j, i, l, initialLine[k] == '#'));
-								mHyperCubesDicKeys.Add(key);
 							}
 						}
 					}
@@ -211,7 +166,6 @@ namespace AdventOfCode.Year2020
 			{
 				Console.WriteLine("Cycle " + cycle);
 				mHyperCubesToAddOrChangeDic.Clear();
-				mHyperCubesToAddOrChangeDicKeys.Clear();
 
 				foreach (KeyValuePair<string, Tuple<int, int, int, int, bool>> item in mHyperCubesDic)
 				{
@@ -221,25 +175,22 @@ namespace AdventOfCode.Year2020
 					if (activeNeighbors == 3 && !item.Value.Item5)
 					{
 						mHyperCubesToAddOrChangeDic.Add(key, new Tuple<int, int, int, int, bool>(item.Value.Item1, item.Value.Item2, item.Value.Item3, item.Value.Item4, true));
-						mHyperCubesToAddOrChangeDicKeys.Add(key);
 					}
 					else if (item.Value.Item5 && activeNeighbors != 2 && activeNeighbors != 3)
 					{
 						mHyperCubesToAddOrChangeDic.Add(key, new Tuple<int, int, int, int, bool>(item.Value.Item1, item.Value.Item2, item.Value.Item3, item.Value.Item4, false));
-						mHyperCubesToAddOrChangeDicKeys.Add(key);
 					}
 				}
 
 				foreach (KeyValuePair<string, Tuple<int, int, int, int, bool>> item in mHyperCubesToAddOrChangeDic)
 				{
-					if (mHyperCubesDicKeys.Contains(item.Key))
+					if (mHyperCubesDic.ContainsKey(item.Key))
 					{
 						mHyperCubesDic[item.Key] = new Tuple<int, int, int, int, bool>(item.Value.Item1, item.Value.Item2, item.Value.Item3, item.Value.Item4, item.Value.Item5);
 					}
 					else
 					{
 						mHyperCubesDic.Add(item.Key, new Tuple<int, int, int, int, bool>(item.Value.Item1, item.Value.Item2, item.Value.Item3, item.Value.Item4, item.Value.Item5));
-						mHyperCubesDicKeys.Add(item.Key);
 					}
 				}
 			}
@@ -271,13 +222,12 @@ namespace AdventOfCode.Year2020
 
 							string key = x + " " + y + " " + z + " " + w;
 
-							if (mHyperCubesDicKeys.Contains(key))
+							if (mHyperCubesDic.ContainsKey(key))
 							{
 								activeNeighbors += mHyperCubesDic[key].Item5 ? 1 : 0;
 							}
 							else if (!mHyperCubesToAddOrChangeDic.ContainsKey(key))
 							{
-								mHyperCubesToAddOrChangeDicKeys.Add(key);
 								mHyperCubesToAddOrChangeDic.Add(key, new Tuple<int, int, int, int, bool>(x, y, z, w, false));
 							}
 						}
