@@ -50,6 +50,7 @@
     <Compile Include="Utils\DayUtils.cs" />
     <Compile Include="Year2015\Days.cs" />
     <Compile Include="Year2020\DayEight.cs" />
+    <Compile Include="Year2020\DayEighteen.cs" />
     <Compile Include="Year2020\DayEleven.cs" />
     <Compile Include="Year2020\DayFifteen.cs" />
     <Compile Include="Year2020\DayFourteen.cs" />
@@ -112,6 +113,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Year2020\Resources\inputDayEight.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Year2020\Resources\inputDayEighteen.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Year2020\Resources\inputDayEleven.txt">
