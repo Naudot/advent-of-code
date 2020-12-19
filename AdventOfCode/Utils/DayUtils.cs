@@ -46,7 +46,7 @@ namespace AdventOfCode
 			for (int i = 0; i < Days.Count; i++)
 			{
 				Day<T> day = Days[i];
-				//day.ResolveFirstPart(); // Force the JIT pass
+				day.ResolveFirstPart(); // Force the JIT pass
 				stopwatch.Restart();
 				object firstResult = day.ResolveFirstPart();
 				stopwatch.Stop();
