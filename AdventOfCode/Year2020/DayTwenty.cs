@@ -6,12 +6,13 @@ using System.Text.RegularExpressions;
 
 namespace AdventOfCode.Year2020
 {
-	public class Tile
+	public class Tile : IComparable
 	{
 		#region Fields
 
 		public int PuzzleIndex = -1;
 		public int CurrentState = 0;
+		public bool[,] Content = new bool[DayTwenty.SQUARE_SIZE, DayTwenty.SQUARE_SIZE];
 
 		public ulong ID;
 		public bool[] TopBorder = new bool[DayTwenty.SQUARE_SIZE];
@@ -25,7 +26,7 @@ namespace AdventOfCode.Year2020
 		public Tile LeftTile;
 
 		// Allow array manipulations in flip and rotate methods without reallocating arrays
-		private bool[] mTmp = new bool[10];
+		private bool[] mTmp = new bool[DayTwenty.SQUARE_SIZE];
 		private bool mIsSwapped = false;
 		private bool mVerticalFlip = false;
 		private bool mHorizontalFlip = false;
@@ -196,25 +197,39 @@ namespace AdventOfCode.Year2020
 				{
 					mTmp[j] = LeftBorder[j];
 				}
-
 				for (int j = 0; j < DayTwenty.SQUARE_SIZE; j++)
 				{
 					LeftBorder[j] = BottomBorder[j];
 				}
-
 				for (int j = 0; j < DayTwenty.SQUARE_SIZE; j++)
 				{
 					BottomBorder[j] = RightBorder[DayTwenty.SQUARE_SIZE - 1 - j];
 				}
-
 				for (int j = 0; j < DayTwenty.SQUARE_SIZE; j++)
 				{
 					RightBorder[j] = TopBorder[j];
 				}
-
 				for (int j = 0; j < DayTwenty.SQUARE_SIZE; j++)
 				{
 					TopBorder[j] = mTmp[DayTwenty.SQUARE_SIZE - 1 - j];
+				}
+
+				bool[,] tmp = new bool[DayTwenty.SQUARE_SIZE, DayTwenty.SQUARE_SIZE];
+
+				for (int j = 0; j < DayTwenty.SQUARE_SIZE; j++)
+				{
+					for (int k = 0; k < DayTwenty.SQUARE_SIZE; k++)
+					{
+						tmp[j, k] = Content[j, k];
+					}
+				}
+
+				for (int j = DayTwenty.SQUARE_SIZE - 1; j >= 0; --j)
+				{
+					for (int k = 0; k < DayTwenty.SQUARE_SIZE; ++k)
+					{
+						Content[k, DayTwenty.SQUARE_SIZE - 1 - j] = tmp[j, k];
+					}
 				}
 			}
 		}
@@ -290,6 +305,36 @@ namespace AdventOfCode.Year2020
 					BottomBorder[i] = mTmp[DayTwenty.SQUARE_SIZE - 1 - i];
 				}
 			}
+
+			bool[,] tmp = new bool[DayTwenty.SQUARE_SIZE, DayTwenty.SQUARE_SIZE];
+			for (int i = 0; i < DayTwenty.SQUARE_SIZE; i++)
+			{
+				for (int j = 0; j < DayTwenty.SQUARE_SIZE; j++)
+				{
+					tmp[i, j] = Content[i, j];
+				}
+			}
+
+			if (vertical)
+			{
+				for (int i = 0; i < DayTwenty.SQUARE_SIZE; i++)
+				{
+					for (int j = 0; j < DayTwenty.SQUARE_SIZE; j++)
+					{
+						Content[i, j] = tmp[9 - i, j];
+					}
+				}
+			}
+			else
+			{
+				for (int i = 0; i < DayTwenty.SQUARE_SIZE; i++)
+				{
+					for (int j = 0; j < DayTwenty.SQUARE_SIZE; j++)
+					{
+						Content[i, j] = tmp[i, 9 - j];
+					}
+				}
+			}
 		}
 
 		public void Clear()
@@ -317,6 +362,16 @@ namespace AdventOfCode.Year2020
 			}
 		}
 
+		public int CompareTo(object obj)
+		{
+			if (obj is Tile)
+			{
+				return ((Tile)obj).PuzzleIndex.CompareTo(PuzzleIndex) == 1 ? -1 : 1;
+			}
+
+			return 0;
+		}
+
 		#endregion
 	}
 
@@ -324,18 +379,27 @@ namespace AdventOfCode.Year2020
 	{
 		public const int SQUARE_SIZE = 10;
 		public const int PUZZLE_SIZE = 12;
+		public const int SIZE = SQUARE_SIZE * PUZZLE_SIZE;
+		private const int CUSTOM_SIZE = (SQUARE_SIZE - 2) * PUZZLE_SIZE;
 
 		private List<Tile> mTiles = new List<Tile>();
 		private Dictionary<ulong, Tile> mLookedTiles = new Dictionary<ulong, Tile>();
 		private int mCurrentColumn = 0;
 		private int mCurrentRow = 0;
+		private bool mGoingRight = true;
 
 		protected override object ResolveFirstPart()
 		{
+			for (int i = 0; i < mTiles.Count; i++)
+			{
+				mTiles[i].Clear();
+			}
+
+			mTiles.Clear();
+			mLookedTiles.Clear();
 			mCurrentColumn = 0;
 			mCurrentRow = 0;
-			mLookedTiles.Clear();
-			mTiles.Clear();
+			mGoingRight = true;
 
 			MatchCollection tiles = Regex.Matches(File.ReadAllText(GetResourcesPath()), @"Tile (\d*):\n([.#\n]*)");
 
@@ -348,7 +412,7 @@ namespace AdventOfCode.Year2020
 
 				for (int j = 0; j < content.Length; j++)
 				{
-					if (j < 10) // TopBorder
+					if (j < SQUARE_SIZE) // TopBorder
 					{
 						tile.TopBorder[j] = content[j] == '#';
 					}
@@ -356,23 +420,30 @@ namespace AdventOfCode.Year2020
 					{
 						tile.BottomBorder[j - 90] = content[j] == '#';
 					}
-					if (j % 10 == 0) // LeftBorder
+					if (j % SQUARE_SIZE == 0) // LeftBorder
 					{
-						tile.LeftBorder[j / 10] = content[j] == '#';
+						tile.LeftBorder[j / SQUARE_SIZE] = content[j] == '#';
 					}
-					if (j % 10 == 9) // RightBorder
+					if (j % SQUARE_SIZE == 9) // RightBorder
 					{
-						tile.RightBorder[(j - 9) / 10] = content[j] == '#';
+						tile.RightBorder[(j - 9) / SQUARE_SIZE] = content[j] == '#';
 					}
+
+					int width = j % SQUARE_SIZE;
+					int height = j / SQUARE_SIZE;
+					tile.Content[height, width] = content[j] == '#';
 				}
 
 				mTiles.Add(tile);
 			}
 
-			Console.WriteLine("Testing " + mTiles[55].ID + " at state 6");
+			// The 55 and 6 are precomputed
 			mTiles[55].SetState(6);
 			ProcessHighIQAlgorithm(mTiles[55]);
-			mTiles[55].Clear();
+
+			// For the exemple
+			//mTiles[1].SetState(7);
+			//ProcessHighIQAlgorithm(mTiles[1]);
 
 			// 0 = 1117 Index 55
 			// 11 = 1543
@@ -385,38 +456,186 @@ namespace AdventOfCode.Year2020
 				Console.WriteLine("topLeft not found");
 				return -1;
 			}
-			Console.WriteLine("topLeft : " + topLeft.ID);
 			Tile topRight = mTiles.FirstOrDefault(tile => tile.PuzzleIndex == PUZZLE_SIZE - 1);
 			if (topRight == null)
 			{
 				Console.WriteLine("topRight not found");
 				return -1;
 			}
-			Console.WriteLine("topRight: " + topRight.ID);
 			Tile bottomRight = mTiles.FirstOrDefault(tile => tile.PuzzleIndex == (PUZZLE_SIZE - 1) * PUZZLE_SIZE);
 			if (bottomRight == null)
 			{
 				Console.WriteLine("bottomRight not found");
 				return -1;
 			}
-			Console.WriteLine("bottomRight: " + bottomRight.ID);
 			Tile bottomLeft = mTiles.FirstOrDefault(tile => tile.PuzzleIndex == (PUZZLE_SIZE - 1) * PUZZLE_SIZE + (PUZZLE_SIZE - 1));
 			if (bottomLeft == null)
 			{
 				Console.WriteLine("bottomLeft not found");
 				return -1;
 			}
-			Console.WriteLine("bottomLeft: " + bottomLeft.ID);
 
 			return topLeft.ID * topRight.ID * bottomRight.ID * bottomLeft.ID;
 		}
 
-		private bool mGoingRight = true;
+		protected override object ResolveSecondPart()
+		{
+			bool[,] elements = new bool[CUSTOM_SIZE, CUSTOM_SIZE];
+			mTiles.Sort();
+			mTiles[0].Draw();
+
+			for (int i = 0; i < mTiles.Count; i++)
+			{
+				Tile tile = mTiles[i];
+
+				int widthOffset = (SQUARE_SIZE - 2) * (i % PUZZLE_SIZE);
+				int heightOffset = (SQUARE_SIZE - 2) * (i / PUZZLE_SIZE);
+
+				for (int j = 0; j < SQUARE_SIZE; j++) // Height
+				{
+					if (j == 0) continue;
+					if (j == SQUARE_SIZE - 1) continue;
+
+					for (int k = 0; k < SQUARE_SIZE; k++) // Width
+					{
+						if (k == 0) continue;
+						if (k == SQUARE_SIZE - 1) continue;
+
+						elements[j + heightOffset - 1, k + widthOffset - 1] = tile.Content[j, k]; // - 1 for the removed borders
+					}
+				}
+			}
+
+			int result = 0;
+			int sharpFound = 0;
+
+			for (int state = 0; state < 8; state++)
+			{
+				if (result != 0)
+				{
+					result = sharpFound - result * 15;
+					break;
+				}
+
+				sharpFound = 0;
+
+				bool flipVertical = (state & 1) == 1;
+				bool flipHorizontal = (state & 2) == 2;
+				bool swap = (state & 4) == 4;
+				
+				bool[,] tmp = new bool[CUSTOM_SIZE, CUSTOM_SIZE];
+
+				// Flip vertical
+				if (flipVertical)
+				{
+					for (int i = 0; i < CUSTOM_SIZE; i++)
+					{
+						for (int j = 0; j < CUSTOM_SIZE; j++)
+						{
+							tmp[i, j] = elements[i, j];
+						}
+					}
+					for (int i = 0; i < CUSTOM_SIZE; i++)
+					{
+						for (int j = 0; j < CUSTOM_SIZE; j++)
+						{
+							elements[i, j] = tmp[CUSTOM_SIZE - 1 - i, j];
+						}
+					}
+				}
+
+				if (flipHorizontal)
+				{
+					// Flip horizontal
+					tmp = new bool[CUSTOM_SIZE, CUSTOM_SIZE];
+					for (int i = 0; i < CUSTOM_SIZE; i++)
+					{
+						for (int j = 0; j < CUSTOM_SIZE; j++)
+						{
+							tmp[i, j] = elements[i, j];
+						}
+					}
+
+					for (int i = 0; i < CUSTOM_SIZE; i++)
+					{
+						for (int j = 0; j < CUSTOM_SIZE; j++)
+						{
+							elements[i, j] = tmp[i, CUSTOM_SIZE - 1 - j];
+						}
+					}
+				}
+
+				if (swap)
+				{
+					// Swap
+					tmp = new bool[CUSTOM_SIZE, CUSTOM_SIZE];
+					for (int i = 0; i < CUSTOM_SIZE; i++)
+					{
+						for (int j = 0; j < CUSTOM_SIZE; j++)
+						{
+							tmp[i, j] = elements[i, j];
+						}
+					}
+
+					for (int j = CUSTOM_SIZE - 1; j >= 0; --j)
+					{
+						for (int k = 0; k < CUSTOM_SIZE; ++k)
+						{
+							elements[k, CUSTOM_SIZE - 1 - j] = tmp[j, k];
+						}
+					}
+				}
+
+				for (int i = 0; i < CUSTOM_SIZE; i++) // Height
+				{
+					for (int j = 0; j < CUSTOM_SIZE; j++) // Width
+					{
+						bool isSharp = elements[i, j];
+						if (isSharp)
+						{
+							sharpFound++;
+							result += HasSeeMonsterPattern(elements, i, j) ? 1 : 0;
+						}
+						Console.Write(isSharp ? '#' : '.');
+					}
+					Console.WriteLine();
+				}
+
+				Console.WriteLine();
+				Console.WriteLine("Found monsters " + result);
+				Console.WriteLine();
+				Console.WriteLine();
+			}
+
+			return result;
+		}
+
+		private bool HasSeeMonsterPattern(bool[,] elements, int i, int j)
+		{
+			if (i < 1 || i >= CUSTOM_SIZE - 1 || j > CUSTOM_SIZE - 1 - 19)
+			{
+				return false;
+			}
+
+			return elements[i, j]
+				&& elements[i + 1, j + 1]
+				&& elements[i + 1, j + 4]
+				&& elements[i, j + 5]
+				&& elements[i, j + 6]
+				&& elements[i + 1, j + 7]
+				&& elements[i + 1, j + 10]
+				&& elements[i, j + 11]
+				&& elements[i, j + 12]
+				&& elements[i + 1, j + 13]
+				&& elements[i + 1, j + 16]
+				&& elements[i, j + 17]
+				&& elements[i - 1, j + 18]
+				&& elements[i, j + 18]
+				&& elements[i, j + 19];
+		}
 
 		private bool ProcessHighIQAlgorithm(Tile currentTile)
 		{
-			//Console.WriteLine("Processing " + currentTile.ID);
-
 			mLookedTiles.Add(currentTile.ID, currentTile);
 			bool foundRight = false;
 			bool foundBottom = false;
@@ -435,7 +654,7 @@ namespace AdventOfCode.Year2020
 
 					bool lookForRight = mCurrentColumn != PUZZLE_SIZE - 1 && mGoingRight;
 					bool lookForLeft = mCurrentColumn != 0 && !mGoingRight;
-					bool lookForBottom = mCurrentRow != PUZZLE_SIZE - 1 && 
+					bool lookForBottom = mCurrentRow != PUZZLE_SIZE - 1 &&
 						((mGoingRight && mCurrentColumn == PUZZLE_SIZE - 1) || (!mGoingRight && mCurrentColumn == 0));
 
 					if (lookForRight && currentTile.AssignRight(mTiles[i]))
@@ -503,11 +722,6 @@ namespace AdventOfCode.Year2020
 			currentTile.Clear();
 			mLookedTiles.Remove(currentTile.ID);
 			return false;
-		}
-
-		protected override object ResolveSecondPart()
-		{
-			return string.Empty;
 		}
 	}
 }
