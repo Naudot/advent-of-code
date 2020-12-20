@@ -1,20 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace AdventOfCode.Year2020
 {
 	public class Tile
 	{
-		// Allow array manipulations in flip and rotate methods without reallocating arrays
-		private bool[] mTmp = new bool[10];
-		private int mCurrentState = 0;
-		private bool mIsSwapped = false;
-		private bool mVerticalFlip = false;
-		private bool mHorizontalFlip = false;
+		#region Fields
 
-		public int ID;
+		public int CurrentState = 0;
+
+		public ulong ID;
 		public bool[] TopBorder = new bool[DayTwenty.SQUARE_SIZE];
 		public bool[] RightBorder = new bool[DayTwenty.SQUARE_SIZE];
 		public bool[] BottomBorder = new bool[DayTwenty.SQUARE_SIZE];
@@ -25,12 +23,22 @@ namespace AdventOfCode.Year2020
 		public Tile BottomTile;
 		public Tile LeftTile;
 
+		// Allow array manipulations in flip and rotate methods without reallocating arrays
+		private bool[] mTmp = new bool[10];
+		private bool mIsSwapped = false;
+		private bool mVerticalFlip = false;
+		private bool mHorizontalFlip = false;
+
+		#endregion
+
+		#region Methods
+
 		/// <summary>
 		/// Please use this method with state from 0 to 15
 		/// </summary>
 		public void SetState(int state)
 		{
-			mCurrentState = state;
+			CurrentState = state;
 
 			bool isSwapped = (state & 1) == 1;
 			bool mustVerticalFlip = (state & 2) == 2;
@@ -57,7 +65,7 @@ namespace AdventOfCode.Year2020
 
 		public void Draw()
 		{
-			Console.WriteLine("Tile " + ID + ": Etat " + mCurrentState);
+			Console.WriteLine("Tile " + ID + ": Etat " + CurrentState);
 			for (int i = 0; i < DayTwenty.SQUARE_SIZE; i++)
 			{
 				for (int j = 0; j < DayTwenty.SQUARE_SIZE; j++)
@@ -143,6 +151,10 @@ namespace AdventOfCode.Year2020
 			TopTile = other;
 			return true;
 		}
+
+		#endregion
+
+		#region Implementation
 
 		/// <summary>
 		/// Rotate the tile clockwise.
@@ -250,15 +262,18 @@ namespace AdventOfCode.Year2020
 				}
 			}
 		}
+
+		#endregion
 	}
 
 	public class DayTwenty : Day2020
 	{
 		public const int SQUARE_SIZE = 10;
-
 		public const int PUZZLE_SIZE = 12;
 
 		private List<Tile> mTiles = new List<Tile>();
+		private int mCurrentColumn;
+		private int mCurrentRow;
 
 		protected override object ResolveFirstPart()
 		{
@@ -270,7 +285,7 @@ namespace AdventOfCode.Year2020
 			{
 				Match match = tiles[i];
 				Tile tile = new Tile();
-				tile.ID = int.Parse(match.Groups[1].Value);
+				tile.ID = ulong.Parse(match.Groups[1].Value);
 				string content = match.Groups[2].Value.Replace("\n", string.Empty);
 
 				for (int j = 0; j < content.Length; j++)
@@ -315,59 +330,102 @@ namespace AdventOfCode.Year2020
 			//mTiles[0].SetState(7);
 			//mTiles[0].Draw();
 
-			ulong result = 1;
-
-			int currentColumn = 0; // i or width
-			int currentRow = 0; // j or height
-
-			while (currentColumn != PUZZLE_SIZE && currentColumn != PUZZLE_SIZE)
+			for (int i = 0; i < mTiles.Count; i++)
 			{
-				for (int i = 0; i < mTiles.Count; i++)
+				ProcessHighIQAlgorithm(mTiles[i]);
+
+				if (mCurrentColumn == 11 && mCurrentRow == 11)
 				{
-					Tile current = mTiles[i];
-
-					for (int j = 0; j < mTiles.Count; j++)
-					{
-						Tile other = mTiles[j];
-
-						if (other == current)
-						{
-							continue;
-						}
-
-						if (currentRow == 0)
-						{
-
-						}
-
-						if (currentColumn == 0)
-						{
-
-						}
-					}
+					break;
 				}
 			}
 
-			return result;
+			Tile topLeft = mTiles.FirstOrDefault(tile => tile.TopTile == null && tile.LeftTile == null);
+			if (topLeft == null)
+			{
+				Console.WriteLine("topLeft not found");
+				return -1;
+			}
+			Tile topRight = mTiles.FirstOrDefault(tile => tile.TopTile == null && tile.RightTile == null);
+			if (topRight == null)
+			{
+				Console.WriteLine("topRight not found");
+				return -1;
+			}
+			Tile bottomRight = mTiles.FirstOrDefault(tile => tile.RightTile == null && tile.BottomTile == null);
+			if (bottomRight == null)
+			{
+				Console.WriteLine("bottomRight not found");
+				return -1;
+			}
+			Tile bottomLeft = mTiles.FirstOrDefault(tile => tile.LeftTile == null && tile.BottomTile == null);
+			if (bottomLeft == null)
+			{
+				Console.WriteLine("bottomLeft not found");
+				return -1;
+			}
+
+			return topLeft.ID * topRight.ID * bottomRight.ID * bottomLeft.ID;
 		}
 
-		private void Test()
+		private bool ProcessHighIQAlgorithm(Tile currentTile)
 		{
+			// On part d'une tile
+			if (mCurrentColumn == 0 && mCurrentRow == 0) // We want right and bottom tiles
+			{
+
+			}
+			else if (mCurrentColumn == PUZZLE_SIZE - 1 && mCurrentRow == PUZZLE_SIZE - 1) // We want top and left tiles
+			{
+
+			}
+			else if (mCurrentColumn > 0 && mCurrentColumn < PUZZLE_SIZE - 1)
+			{
+				if (mCurrentRow == 0) // We want left, bottom, right
+				{
+
+				}
+				else if (mCurrentRow == PUZZLE_SIZE - 1) // We want left, top, right
+				{
+
+				}
+			}
+			else if (mCurrentColumn > 0 && mCurrentColumn < PUZZLE_SIZE - 1)
+			{
+				if (mCurrentRow == 0) // We want left, bottom, right
+				{
+
+				}
+				else if (mCurrentRow == PUZZLE_SIZE - 1) // We want left, top, right
+				{
+
+				}
+			}
+			else if (mCurrentRow > 0 && mCurrentRow < PUZZLE_SIZE - 1)
+			{
+				if (mCurrentColumn == 0) // We want top, bottom, right
+				{
+
+				}
+				else if (mCurrentColumn == PUZZLE_SIZE - 1) // We want top, bottom, left
+				{
+
+				}
+			}
+			else if (mCurrentColumn > 0 && mCurrentColumn < PUZZLE_SIZE - 1 && mCurrentRow > 0 && mCurrentRow < PUZZLE_SIZE - 1) // We want top, right, bottom, left
+			{
+
+			}
+
+			return false;
 			/*
 			 Il faut conserver l'état du carré
 			 Pour chaque tile, on vérifie si une des autres tiles correspond dans un de ses 16 positions (4 rotate et 4 flips):
-				Notre condition dépend de notre column et row actuelle
-					si on est en column et row 0, on veut deux tiles pour right et bottom
-					si on est en column et row 11, on veut deux tiles pour top et left
-
-					si on est en column ]0,11[ et row 0  on veut left, right, bottom
-					si on est en column ]0,11[ et row 11  on veut left, right, top
-
-					si on est en column 0 et row ]0, 11[ on veut top, bottom, right
-					si on est en column 11 et row ]0, 11[ on veut top, bottom, left
-
+				Notre condition dépend de notre column et row actuels
+					Voir conditions
 					si on est à l'intérieur on veut les quatre
 				Si aucune des conditions ne match, cela veut dire que notre tile est mal placée
+				On revient process la tile d'avant en tournant les tiles subséquentes dans leurs états non faits
 			Si une tile correspond à notre condition, selon notre condition on avance et on rappelle l'algo pour la tile que l'on a trouvé
 			Je les cherche de gauche à droite et de haut en bas
 			 */
