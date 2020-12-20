@@ -9,6 +9,7 @@ namespace AdventOfCode.Year2020
 	{
 		// Allow array manipulations in flip and rotate methods without reallocating arrays
 		private bool[] mTmp = new bool[10];
+		private int mCurrentState = 0;
 		private bool mIsSwapped = false;
 		private bool mVerticalFlip = false;
 		private bool mHorizontalFlip = false;
@@ -29,6 +30,8 @@ namespace AdventOfCode.Year2020
 		/// </summary>
 		public void SetState(int state)
 		{
+			mCurrentState = state;
+
 			bool isSwapped = (state & 1) == 1;
 			bool mustVerticalFlip = (state & 2) == 2;
 			bool mustHorizonalFlip = (state & 4) == 4;
@@ -54,7 +57,7 @@ namespace AdventOfCode.Year2020
 
 		public void Draw()
 		{
-			Console.WriteLine("Tile " + ID + ":");
+			Console.WriteLine("Tile " + ID + ": Etat " + mCurrentState);
 			for (int i = 0; i < DayTwenty.SQUARE_SIZE; i++)
 			{
 				for (int j = 0; j < DayTwenty.SQUARE_SIZE; j++)
@@ -146,7 +149,7 @@ namespace AdventOfCode.Year2020
 		/// </summary>
 		private void Swap(bool back)
 		{
-			if (!back)
+			for (int i = 0; i < (back ? 3 : 1); i++)
 			{
 				for (int j = 0; j < DayTwenty.SQUARE_SIZE; j++)
 				{
@@ -166,33 +169,6 @@ namespace AdventOfCode.Year2020
 				for (int j = 0; j < DayTwenty.SQUARE_SIZE; j++)
 				{
 					RightBorder[j] = TopBorder[j];
-				}
-
-				for (int j = 0; j < DayTwenty.SQUARE_SIZE; j++)
-				{
-					TopBorder[j] = mTmp[DayTwenty.SQUARE_SIZE - 1 - j];
-				}
-			}
-			else
-			{
-				for (int j = 0; j < DayTwenty.SQUARE_SIZE; j++)
-				{
-					mTmp[j] = RightBorder[j];
-				}
-
-				for (int j = 0; j < DayTwenty.SQUARE_SIZE; j++)
-				{
-					RightBorder[j] = BottomBorder[j];
-				}
-
-				for (int j = 0; j < DayTwenty.SQUARE_SIZE; j++)
-				{
-					BottomBorder[j] = LeftBorder[DayTwenty.SQUARE_SIZE - 1 - j];
-				}
-
-				for (int j = 0; j < DayTwenty.SQUARE_SIZE; j++)
-				{
-					LeftBorder[j] = TopBorder[j];
 				}
 
 				for (int j = 0; j < DayTwenty.SQUARE_SIZE; j++)
@@ -320,6 +296,25 @@ namespace AdventOfCode.Year2020
 				mTiles.Add(tile);
 			}
 
+			// Tests all states of the first tile for debug purpose
+			//mTiles[0].Draw();
+			//mTiles[0].SetState(0);
+			//mTiles[0].Draw();
+			//mTiles[0].SetState(1);
+			//mTiles[0].Draw();
+			//mTiles[0].SetState(2);
+			//mTiles[0].Draw();
+			//mTiles[0].SetState(3);
+			//mTiles[0].Draw();
+			//mTiles[0].SetState(4);
+			//mTiles[0].Draw();
+			//mTiles[0].SetState(5);
+			//mTiles[0].Draw();
+			//mTiles[0].SetState(6);
+			//mTiles[0].Draw();
+			//mTiles[0].SetState(7);
+			//mTiles[0].Draw();
+
 			ulong result = 1;
 
 			int currentColumn = 0; // i or width
@@ -359,7 +354,7 @@ namespace AdventOfCode.Year2020
 		private void Test()
 		{
 			/*
-			 Il faut conserver la rotation et le flip 
+			 Il faut conserver l'état du carré
 			 Pour chaque tile, on vérifie si une des autres tiles correspond dans un de ses 16 positions (4 rotate et 4 flips):
 				Notre condition dépend de notre column et row actuelle
 					si on est en column et row 0, on veut deux tiles pour right et bottom
