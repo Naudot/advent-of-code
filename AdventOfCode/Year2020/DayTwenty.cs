@@ -506,109 +506,120 @@ namespace AdventOfCode.Year2020
 				}
 			}
 
+			int state = 4; // Precomputeds
 			int result = 0;
 			int sharpFound = 0;
 
-			for (int state = 0; state < 8; state++)
-			{
-				if (result != 0)
-				{
-					result = sharpFound - result * 15;
-					break;
-				}
-
-				sharpFound = 0;
-
-				bool flipVertical = (state & 1) == 1;
-				bool flipHorizontal = (state & 2) == 2;
-				bool swap = (state & 4) == 4;
+			bool flipVertical = (state & 1) == 1;
+			bool flipHorizontal = (state & 2) == 2;
+			bool swap = (state & 4) == 4;
 				
-				bool[,] tmp = new bool[CUSTOM_SIZE, CUSTOM_SIZE];
+			bool[,] tmp = new bool[CUSTOM_SIZE, CUSTOM_SIZE];
 
-				// Flip vertical
-				if (flipVertical)
+			// Flip vertical
+			if (flipVertical)
+			{
+				for (int i = 0; i < CUSTOM_SIZE; i++)
 				{
-					for (int i = 0; i < CUSTOM_SIZE; i++)
+					for (int j = 0; j < CUSTOM_SIZE; j++)
 					{
-						for (int j = 0; j < CUSTOM_SIZE; j++)
-						{
-							tmp[i, j] = elements[i, j];
-						}
+						tmp[i, j] = elements[i, j];
 					}
-					for (int i = 0; i < CUSTOM_SIZE; i++)
+				}
+				for (int i = 0; i < CUSTOM_SIZE; i++)
+				{
+					for (int j = 0; j < CUSTOM_SIZE; j++)
 					{
-						for (int j = 0; j < CUSTOM_SIZE; j++)
-						{
-							elements[i, j] = tmp[CUSTOM_SIZE - 1 - i, j];
-						}
+						elements[i, j] = tmp[CUSTOM_SIZE - 1 - i, j];
+					}
+				}
+			}
+
+			if (flipHorizontal)
+			{
+				// Flip horizontal
+				tmp = new bool[CUSTOM_SIZE, CUSTOM_SIZE];
+				for (int i = 0; i < CUSTOM_SIZE; i++)
+				{
+					for (int j = 0; j < CUSTOM_SIZE; j++)
+					{
+						tmp[i, j] = elements[i, j];
 					}
 				}
 
-				if (flipHorizontal)
+				for (int i = 0; i < CUSTOM_SIZE; i++)
 				{
-					// Flip horizontal
-					tmp = new bool[CUSTOM_SIZE, CUSTOM_SIZE];
-					for (int i = 0; i < CUSTOM_SIZE; i++)
+					for (int j = 0; j < CUSTOM_SIZE; j++)
 					{
-						for (int j = 0; j < CUSTOM_SIZE; j++)
-						{
-							tmp[i, j] = elements[i, j];
-						}
+						elements[i, j] = tmp[i, CUSTOM_SIZE - 1 - j];
 					}
+				}
+			}
 
-					for (int i = 0; i < CUSTOM_SIZE; i++)
+			if (swap)
+			{
+				// Swap
+				tmp = new bool[CUSTOM_SIZE, CUSTOM_SIZE];
+				for (int i = 0; i < CUSTOM_SIZE; i++)
+				{
+					for (int j = 0; j < CUSTOM_SIZE; j++)
 					{
-						for (int j = 0; j < CUSTOM_SIZE; j++)
-						{
-							elements[i, j] = tmp[i, CUSTOM_SIZE - 1 - j];
-						}
+						tmp[i, j] = elements[i, j];
 					}
 				}
 
-				if (swap)
+				for (int j = CUSTOM_SIZE - 1; j >= 0; --j)
 				{
-					// Swap
-					tmp = new bool[CUSTOM_SIZE, CUSTOM_SIZE];
-					for (int i = 0; i < CUSTOM_SIZE; i++)
+					for (int k = 0; k < CUSTOM_SIZE; ++k)
 					{
-						for (int j = 0; j < CUSTOM_SIZE; j++)
-						{
-							tmp[i, j] = elements[i, j];
-						}
-					}
-
-					for (int j = CUSTOM_SIZE - 1; j >= 0; --j)
-					{
-						for (int k = 0; k < CUSTOM_SIZE; ++k)
-						{
-							elements[k, CUSTOM_SIZE - 1 - j] = tmp[j, k];
-						}
+						elements[k, CUSTOM_SIZE - 1 - j] = tmp[j, k];
 					}
 				}
+			}
 
-				for (int i = 0; i < CUSTOM_SIZE; i++) // Height
+			for (int i = 0; i < CUSTOM_SIZE; i++) // Height
+			{
+				for (int j = 0; j < CUSTOM_SIZE; j++) // Width
 				{
-					for (int j = 0; j < CUSTOM_SIZE; j++) // Width
+					bool isSharp = elements[i, j];
+					if (isSharp)
 					{
-						bool isSharp = elements[i, j];
-						if (isSharp)
-						{
-							sharpFound++;
-							result += HasSeeMonsterPattern(elements, i, j) ? 1 : 0;
-						}
-						Console.Write(isSharp ? '#' : '.');
+						sharpFound++;
+						result += HasSeeMonsterPattern(elements, i, j) ? 1 : 0;
 					}
-					Console.WriteLine();
 				}
+			}
 
-				Console.WriteLine();
-				Console.WriteLine("Found monsters " + result);
-				Console.WriteLine();
+			for (int i = 0; i < CUSTOM_SIZE; i++) // Height
+			{
+				for (int j = 0; j < CUSTOM_SIZE; j++) // Width
+				{
+					bool isMonster = mMonsterParts.FirstOrDefault(tuple => tuple.Item1 == i && tuple.Item2 == j) != null;
+					if (isMonster)
+					{
+						Console.ForegroundColor = ConsoleColor.Magenta;
+					}
+					else
+					{
+						Console.ForegroundColor = ConsoleColor.White;
+					}
+
+					bool isSharp = elements[i, j];
+					Console.Write(isSharp ? (isMonster ? '#' : '#' ): '.');
+				}
 				Console.WriteLine();
 			}
 
+			Console.WriteLine();
+			Console.WriteLine("Found monsters " + result);
+			Console.WriteLine();
+			Console.WriteLine();
+
+			result = sharpFound - result * 15;
 			return result;
 		}
+
+		List<Tuple<int, int>> mMonsterParts = new List<Tuple<int, int>>();
 
 		private bool HasSeeMonsterPattern(bool[,] elements, int i, int j)
 		{
@@ -617,7 +628,7 @@ namespace AdventOfCode.Year2020
 				return false;
 			}
 
-			return elements[i, j]
+			if (elements[i, j]
 				&& elements[i + 1, j + 1]
 				&& elements[i + 1, j + 4]
 				&& elements[i, j + 5]
@@ -631,7 +642,26 @@ namespace AdventOfCode.Year2020
 				&& elements[i, j + 17]
 				&& elements[i - 1, j + 18]
 				&& elements[i, j + 18]
-				&& elements[i, j + 19];
+				&& elements[i, j + 19])
+			{
+				mMonsterParts.Add(new Tuple<int, int>(i, j));
+				mMonsterParts.Add(new Tuple<int, int>(i + 1, j + 1));
+				mMonsterParts.Add(new Tuple<int, int>(i + 1, j + 4));
+				mMonsterParts.Add(new Tuple<int, int>(i, j + 5));
+				mMonsterParts.Add(new Tuple<int, int>(i, j + 6));
+				mMonsterParts.Add(new Tuple<int, int>(i + 1, j + 7));
+				mMonsterParts.Add(new Tuple<int, int>(i + 1, j + 10));
+				mMonsterParts.Add(new Tuple<int, int>(i, j + 11));
+				mMonsterParts.Add(new Tuple<int, int>(i, j + 12));
+				mMonsterParts.Add(new Tuple<int, int>(i + 1, j + 13));
+				mMonsterParts.Add(new Tuple<int, int>(i + 1, j + 16));
+				mMonsterParts.Add(new Tuple<int, int>(i, j + 17));
+				mMonsterParts.Add(new Tuple<int, int>(i - 1, j + 18));
+				mMonsterParts.Add(new Tuple<int, int>(i, j + 18));
+				mMonsterParts.Add(new Tuple<int, int>(i, j + 19));
+			}
+
+			return false;
 		}
 
 		private bool ProcessHighIQAlgorithm(Tile currentTile)
