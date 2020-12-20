@@ -10,6 +10,7 @@ namespace AdventOfCode.Year2020
 	{
 		#region Fields
 
+		public int PuzzleIndex = -1;
 		public int CurrentState = 0;
 
 		public ulong ID;
@@ -100,17 +101,18 @@ namespace AdventOfCode.Year2020
 		{
 			if (TopTile != null)
 			{
-				return true;
+				return TopTile == other;
 			}
 
 			for (int i = 0; i < DayTwenty.SQUARE_SIZE; i++)
 			{
-				if (TopBorder[i] != other.TopBorder[i])
+				if (TopBorder[i] != other.BottomBorder[i])
 				{
 					return false;
 				}
 			}
 
+			//Console.WriteLine("Assigning " + other.ID + " to " + ID + " top");
 			TopTile = other;
 			TopTile.BottomTile = this;
 			return true;
@@ -120,17 +122,18 @@ namespace AdventOfCode.Year2020
 		{
 			if (RightTile != null)
 			{
-				return true;
+				return RightTile == other;
 			}
 
 			for (int i = 0; i < DayTwenty.SQUARE_SIZE; i++)
 			{
-				if (RightBorder[i] != other.RightBorder[i])
+				if (RightBorder[i] != other.LeftBorder[i])
 				{
 					return false;
 				}
 			}
 
+			//Console.WriteLine("Assigning " + other.ID + " to " + ID + " right");
 			RightTile = other;
 			RightTile.LeftTile = this;
 			return true;
@@ -140,17 +143,18 @@ namespace AdventOfCode.Year2020
 		{
 			if (BottomTile != null)
 			{
-				return true;
+				return BottomTile == other;
 			}
 
 			for (int i = 0; i < DayTwenty.SQUARE_SIZE; i++)
 			{
-				if (BottomBorder[i] != other.BottomBorder[i])
+				if (BottomBorder[i] != other.TopBorder[i])
 				{
 					return false;
 				}
 			}
 
+			//Console.WriteLine("Assigning " + other.ID + " to " + ID + " bottom");
 			BottomTile = other;
 			BottomTile.TopTile = this;
 			return true;
@@ -160,17 +164,18 @@ namespace AdventOfCode.Year2020
 		{
 			if (LeftTile != null)
 			{
-				return true;
+				return LeftTile == other;
 			}
 
 			for (int i = 0; i < DayTwenty.SQUARE_SIZE; i++)
 			{
-				if (LeftBorder[i] != other.LeftBorder[i])
+				if (LeftBorder[i] != other.RightBorder[i])
 				{
 					return false;
 				}
 			}
 
+			//Console.WriteLine("Assigning " + other.ID + " to " + ID + " left");
 			LeftTile = other;
 			LeftTile.RightTile = this;
 			return true;
@@ -364,150 +369,131 @@ namespace AdventOfCode.Year2020
 				mTiles.Add(tile);
 			}
 
-			// Tests all states of the first tile for debug purpose
-			//mTiles[0].Draw();
-			//mTiles[0].SetState(0);
-			//mTiles[0].Draw();
-			//mTiles[0].SetState(1);
-			//mTiles[0].Draw();
-			//mTiles[0].SetState(2);
-			//mTiles[0].Draw();
-			//mTiles[0].SetState(3);
-			//mTiles[0].Draw();
-			//mTiles[0].SetState(4);
-			//mTiles[0].Draw();
-			//mTiles[0].SetState(5);
-			//mTiles[0].Draw();
-			//mTiles[0].SetState(6);
-			//mTiles[0].Draw();
-			//mTiles[0].SetState(7);
-			//mTiles[0].Draw();
+			Console.WriteLine("Testing " + mTiles[55].ID + " at state 6");
+			mTiles[55].SetState(6);
+			ProcessHighIQAlgorithm(mTiles[55]);
+			mTiles[55].Clear();
 
-			for (int i = 0; i < mTiles.Count; i++)
-			{
-				if (ProcessHighIQAlgorithm(mTiles[i]))
-				{
-					break;
-				}
-			}
+			// 0 = 1117 Index 55
+			// 11 = 1543
+			// 143 = 1213
+			// 132 = 1291
 
-			Tile topLeft = mTiles.FirstOrDefault(tile => tile.TopTile == null && tile.LeftTile == null);
+			Tile topLeft = mTiles.FirstOrDefault(tile => tile.PuzzleIndex == 0);
 			if (topLeft == null)
 			{
 				Console.WriteLine("topLeft not found");
 				return -1;
 			}
-			Tile topRight = mTiles.FirstOrDefault(tile => tile.TopTile == null && tile.RightTile == null);
+			Console.WriteLine("topLeft : " + topLeft.ID);
+			Tile topRight = mTiles.FirstOrDefault(tile => tile.PuzzleIndex == PUZZLE_SIZE - 1);
 			if (topRight == null)
 			{
 				Console.WriteLine("topRight not found");
 				return -1;
 			}
-			Tile bottomRight = mTiles.FirstOrDefault(tile => tile.RightTile == null && tile.BottomTile == null);
+			Console.WriteLine("topRight: " + topRight.ID);
+			Tile bottomRight = mTiles.FirstOrDefault(tile => tile.PuzzleIndex == (PUZZLE_SIZE - 1) * PUZZLE_SIZE);
 			if (bottomRight == null)
 			{
 				Console.WriteLine("bottomRight not found");
 				return -1;
 			}
-			Tile bottomLeft = mTiles.FirstOrDefault(tile => tile.LeftTile == null && tile.BottomTile == null);
+			Console.WriteLine("bottomRight: " + bottomRight.ID);
+			Tile bottomLeft = mTiles.FirstOrDefault(tile => tile.PuzzleIndex == (PUZZLE_SIZE - 1) * PUZZLE_SIZE + (PUZZLE_SIZE - 1));
 			if (bottomLeft == null)
 			{
 				Console.WriteLine("bottomLeft not found");
 				return -1;
 			}
+			Console.WriteLine("bottomLeft: " + bottomLeft.ID);
 
 			return topLeft.ID * topRight.ID * bottomRight.ID * bottomLeft.ID;
 		}
 
+		private bool mGoingRight = true;
+
 		private bool ProcessHighIQAlgorithm(Tile currentTile)
 		{
+			//Console.WriteLine("Processing " + currentTile.ID);
+
 			mLookedTiles.Add(currentTile.ID, currentTile);
-			bool foundTop = false;
 			bool foundRight = false;
 			bool foundBottom = false;
 			bool foundLeft = false;
 
-			for (int state = 0; state < 8; state++)
+			for (int i = 0; i < mTiles.Count; i++)
 			{
-				for (int i = 0; i < mTiles.Count; i++)
+				if (mLookedTiles.ContainsKey(mTiles[i].ID) && mLookedTiles.Count != mTiles.Count)
 				{
-					if (mLookedTiles.ContainsKey(mTiles[i].ID))
-					{
-						continue;
-					}
+					continue;
+				}
 
+				for (int state = 0; state < 8; state++)
+				{
 					mTiles[i].SetState(state);
 
-					bool lookForTop = mCurrentRow != 0;
-					bool lookForRight = mCurrentColumn != PUZZLE_SIZE - 1;
-					bool lookForBottom = mCurrentRow != PUZZLE_SIZE - 1;
-					bool lookForLeft = mCurrentColumn != 0;
+					bool lookForRight = mCurrentColumn != PUZZLE_SIZE - 1 && mGoingRight;
+					bool lookForLeft = mCurrentColumn != 0 && !mGoingRight;
+					bool lookForBottom = mCurrentRow != PUZZLE_SIZE - 1 && 
+						((mGoingRight && mCurrentColumn == PUZZLE_SIZE - 1) || (!mGoingRight && mCurrentColumn == 0));
 
-					if (lookForTop && currentTile.AssignTop(mTiles[i]))
-					{
-						foundTop = true;
-					}
 					if (lookForRight && currentTile.AssignRight(mTiles[i]))
 					{
 						foundRight = true;
 					}
-					if (lookForBottom && currentTile.AssignBottom(mTiles[i]))
+					else if (lookForBottom && currentTile.AssignBottom(mTiles[i]))
 					{
 						foundBottom = true;
 					}
-					if (lookForLeft && currentTile.AssignLeft(mTiles[i]))
+					else if (lookForLeft && currentTile.AssignLeft(mTiles[i]))
 					{
 						foundLeft = true;
 					}
 
-					// End case
-					if (lookForTop && lookForLeft && !lookForBottom && !lookForRight 
-						&& foundTop && foundLeft)
+					if ((mGoingRight && !lookForRight && !lookForBottom)
+						|| (!mGoingRight && !lookForLeft && !lookForBottom))
 					{
+						currentTile.PuzzleIndex = PUZZLE_SIZE * mCurrentRow + mCurrentColumn;
 						return true;
 					}
 
-					// Top left case (begin case)
-					if (!lookForTop && lookForRight && lookForBottom && !lookForLeft)
+					// Looking for right case
+					if (lookForRight && foundRight)
 					{
-						if (foundRight && foundBottom)
+						mCurrentColumn++;
+						if (ProcessHighIQAlgorithm(currentTile.RightTile))
 						{
-							mCurrentColumn++;
-							if (ProcessHighIQAlgorithm(currentTile.RightTile))
-							{
-								return true;
-							}
 							mCurrentColumn--;
+							currentTile.PuzzleIndex = PUZZLE_SIZE * mCurrentRow + mCurrentColumn;
+							return true;
 						}
+						mCurrentColumn--;
 					}
-					// Top row case
-					if (!lookForTop && lookForRight && lookForBottom && lookForLeft)
+					else if (lookForBottom && foundBottom)
 					{
-						if (foundRight && foundBottom && foundLeft)
+						mCurrentRow++;
+						mGoingRight = !mGoingRight;
+						if (ProcessHighIQAlgorithm(currentTile.BottomTile))
 						{
-							mCurrentColumn++;
-							if (ProcessHighIQAlgorithm(currentTile.BottomTile))
-							{
-								return true;
-							}
-							mCurrentColumn--;
-						}
-					}
-					// Top right case
-					if (!lookForTop && !lookForRight && lookForBottom && lookForLeft)
-					{
-						if (foundBottom && foundLeft)
-						{
-							mCurrentRow++;
-							if (ProcessHighIQAlgorithm(currentTile.BottomTile))
-							{
-								return true;
-							}
 							mCurrentRow--;
+							currentTile.PuzzleIndex = PUZZLE_SIZE * mCurrentRow + mCurrentColumn;
+							return true;
 						}
+						mCurrentRow--;
+					}
+					else if (lookForLeft && foundLeft)
+					{
+						mCurrentColumn--;
+						if (ProcessHighIQAlgorithm(currentTile.LeftTile))
+						{
+							mCurrentColumn++;
+							currentTile.PuzzleIndex = PUZZLE_SIZE * mCurrentRow + mCurrentColumn;
+							return true;
+						}
+						mCurrentColumn++;
 					}
 
-					foundTop = false;
 					foundRight = false;
 					foundBottom = false;
 					foundLeft = false;
