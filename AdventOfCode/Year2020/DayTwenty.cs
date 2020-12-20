@@ -263,6 +263,15 @@ namespace AdventOfCode.Year2020
 			}
 		}
 
+		public void Clear()
+		{
+			SetState(0);
+			TopTile = null;
+			RightTile = null;
+			BottomTile = null;
+			LeftTile = null;
+		}
+
 		#endregion
 	}
 
@@ -272,11 +281,15 @@ namespace AdventOfCode.Year2020
 		public const int PUZZLE_SIZE = 12;
 
 		private List<Tile> mTiles = new List<Tile>();
-		private int mCurrentColumn;
-		private int mCurrentRow;
+		private Dictionary<ulong, Tile> mLookedTiles = new Dictionary<ulong, Tile>();
+		private int mCurrentColumn = 0;
+		private int mCurrentRow = 0;
 
 		protected override object ResolveFirstPart()
 		{
+			mCurrentColumn = 0;
+			mCurrentRow = 0;
+			mLookedTiles.Clear();
 			mTiles.Clear();
 
 			MatchCollection tiles = Regex.Matches(File.ReadAllText(GetResourcesPath()), @"Tile (\d*):\n([.#\n]*)");
@@ -332,9 +345,7 @@ namespace AdventOfCode.Year2020
 
 			for (int i = 0; i < mTiles.Count; i++)
 			{
-				ProcessHighIQAlgorithm(mTiles[i]);
-
-				if (mCurrentColumn == 11 && mCurrentRow == 11)
+				if (ProcessHighIQAlgorithm(mTiles[i]))
 				{
 					break;
 				}
@@ -370,14 +381,51 @@ namespace AdventOfCode.Year2020
 
 		private bool ProcessHighIQAlgorithm(Tile currentTile)
 		{
-			// On part d'une tile
+			mLookedTiles.Add(currentTile.ID, currentTile);
+			int state = 0;
+			bool foundRight = false;
+			bool foundBottom = false;
+			bool foundLeft = false;
+			bool foundTop = false;
+
 			if (mCurrentColumn == 0 && mCurrentRow == 0) // We want right and bottom tiles
 			{
+				for (int j = 0; j < 8; j++)
+				{
+					state = j;
+					for (int i = 0; i < mTiles.Count; i++)
+					{
+						if (mLookedTiles.ContainsKey(mTiles[i].ID))
+						{
+							continue;
+						}
 
-			}
-			else if (mCurrentColumn == PUZZLE_SIZE - 1 && mCurrentRow == PUZZLE_SIZE - 1) // We want top and left tiles
-			{
+						mTiles[i].SetState(state);
 
+						if (currentTile.AssignRight(mTiles[i]))
+						{
+							foundRight = true;
+						}
+						if (currentTile.AssignBottom(mTiles[i]))
+						{
+							foundBottom = true;
+						}
+
+						if (foundRight && foundBottom)
+						{
+							mCurrentColumn++;
+							if (ProcessHighIQAlgorithm(currentTile.RightTile))
+							{
+								return true;
+							}
+							mCurrentColumn--;
+							foundRight = false;
+							foundBottom = false;
+							mLookedTiles.Remove(mTiles[i].ID);
+							mTiles[i].Clear();
+						}
+					}
+				}
 			}
 			else if (mCurrentColumn > 0 && mCurrentColumn < PUZZLE_SIZE - 1)
 			{
@@ -389,14 +437,7 @@ namespace AdventOfCode.Year2020
 				{
 
 				}
-			}
-			else if (mCurrentColumn > 0 && mCurrentColumn < PUZZLE_SIZE - 1)
-			{
-				if (mCurrentRow == 0) // We want left, bottom, right
-				{
-
-				}
-				else if (mCurrentRow == PUZZLE_SIZE - 1) // We want left, top, right
+				else if (mCurrentRow > 0 && mCurrentRow < PUZZLE_SIZE - 1) // We want top, right, bottom, left
 				{
 
 				}
@@ -411,10 +452,15 @@ namespace AdventOfCode.Year2020
 				{
 
 				}
-			}
-			else if (mCurrentColumn > 0 && mCurrentColumn < PUZZLE_SIZE - 1 && mCurrentRow > 0 && mCurrentRow < PUZZLE_SIZE - 1) // We want top, right, bottom, left
-			{
+				else if (mCurrentColumn > 0 && mCurrentColumn < PUZZLE_SIZE - 1) // We want top, right, bottom, left
+				{
 
+				}
+			}
+			else if (mCurrentColumn == PUZZLE_SIZE - 1 && mCurrentRow == PUZZLE_SIZE - 1) // We want top and left tiles
+			{
+				// TODO : tout
+				return true;
 			}
 
 			return false;
