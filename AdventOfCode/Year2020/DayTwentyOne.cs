@@ -33,7 +33,6 @@ namespace AdventOfCode.Year2020
 			for (int i = 0; i < foods.Length; i++)
 			{
 				string food = foods[i];
-
 				string[] elements = food.Split('(');
 				string[] ingredients = elements[0].TrimEnd(' ').Split(' ');
 				string[] allergenes = elements[1].Replace("contains ", string.Empty).Replace(")", string.Empty).Replace(" ", string.Empty).Split(',');
@@ -66,7 +65,6 @@ namespace AdventOfCode.Year2020
 			for (int i = 0; i < foods.Length; i++)
 			{
 				string food = foods[i];
-
 				string[] elements = food.Split('(');
 				string[] ingredients = elements[0].TrimEnd(' ').Split(' ');
 				string[] allergenes = elements[1].Replace("contains ", string.Empty).Replace(")", string.Empty).Replace(" ", string.Empty).Split(',');
@@ -98,14 +96,74 @@ namespace AdventOfCode.Year2020
 				}
 			}
 
-			// 4122 answer too high
-
 			return mIngredients.Where(ing => ing.Value.PossibleAllergenes.Count == 0).Sum(ing => ing.Value.Encounter);
 		}
 
 		protected override object ResolveSecondPart()
 		{
-			return string.Empty;
+			// Remove useless ingredients
+			List<string> ingredientsToRemove = new List<string>();
+			foreach (KeyValuePair<string, IngredientInfo> ingredient in mIngredients)
+			{
+				if (ingredient.Value.PossibleAllergenes.Count == 0)
+				{
+					ingredientsToRemove.Add(ingredient.Key);
+				}
+			}
+			for (int i = 0; i < ingredientsToRemove.Count; i++)
+			{
+				mIngredients.Remove(ingredientsToRemove[i]);
+			}
+
+			string result = string.Empty;
+
+			bool isGood = false;
+			while (!isGood)
+			{
+				isGood = true;
+				foreach (KeyValuePair<string, IngredientInfo> ingredient in mIngredients)
+				{
+					IngredientInfo ingredientInfo = ingredient.Value;
+
+					if (ingredientInfo.PossibleAllergenes.Count == 1)
+					{
+						foreach (KeyValuePair<string, IngredientInfo> otherIngredient in mIngredients)
+						{
+							if (otherIngredient.Key == ingredient.Key) continue;
+
+							string allergene = ingredientInfo.PossibleAllergenes[0];
+							if (otherIngredient.Value.PossibleAllergenes.Contains(allergene))
+							{
+								otherIngredient.Value.PossibleAllergenes.Remove(allergene);
+							}
+						}
+					}
+					else
+					{
+						isGood = false;
+					}
+				}
+			}
+
+			List<KeyValuePair<string, IngredientInfo>> toSort = mIngredients.ToList();
+			toSort.Sort(CompareAllergenes);
+
+			for (int i = 0; i < toSort.Count; i++)
+			{
+				result += toSort[i].Key;
+
+				if (i != toSort.Count - 1)
+				{
+					result += ',';
+				}
+			}
+
+			return result;
+		}
+
+		private int CompareAllergenes(KeyValuePair<string, IngredientInfo> pair1, KeyValuePair<string, IngredientInfo> pair2)
+		{
+			return pair1.Value.PossibleAllergenes[0].CompareTo(pair2.Value.PossibleAllergenes[0]);
 		}
 	}
 }
