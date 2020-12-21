@@ -491,12 +491,12 @@ namespace AdventOfCode.Year2020
 				int widthOffset = (SQUARE_SIZE - 2) * (i % PUZZLE_SIZE);
 				int heightOffset = (SQUARE_SIZE - 2) * (i / PUZZLE_SIZE);
 
-				for (int j = 0; j < SQUARE_SIZE; j++) // Height
+				for (int j = 0; j < SQUARE_SIZE - 2; j++) // Height
 				{
 					if (j == 0) continue;
 					if (j == SQUARE_SIZE - 1) continue;
 
-					for (int k = 0; k < SQUARE_SIZE; k++) // Width
+					for (int k = 0; k < SQUARE_SIZE - 2; k++) // Width
 					{
 						if (k == 0) continue;
 						if (k == SQUARE_SIZE - 1) continue;
@@ -644,6 +644,7 @@ namespace AdventOfCode.Year2020
 				&& elements[i, j + 18]
 				&& elements[i, j + 19])
 			{
+				Console.WriteLine("Found monster x :  " + j + " y : " + i);
 				mMonsterParts.Add(new Tuple<int, int>(i, j));
 				mMonsterParts.Add(new Tuple<int, int>(i + 1, j + 1));
 				mMonsterParts.Add(new Tuple<int, int>(i + 1, j + 4));
@@ -659,6 +660,7 @@ namespace AdventOfCode.Year2020
 				mMonsterParts.Add(new Tuple<int, int>(i - 1, j + 18));
 				mMonsterParts.Add(new Tuple<int, int>(i, j + 18));
 				mMonsterParts.Add(new Tuple<int, int>(i, j + 19));
+				return true;
 			}
 
 			return false;

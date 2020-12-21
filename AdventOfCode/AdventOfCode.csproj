@@ -70,6 +70,7 @@
     <Compile Include="Year2020\DayThirteen.cs" />
     <Compile Include="Year2020\DayTwelve.cs" />
     <Compile Include="Year2020\DayTwenty.cs" />
+    <Compile Include="Year2020\DayTwentyOne.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -166,6 +167,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Year2020\Resources\inputDayTwenty.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Year2020\Resources\inputDayTwentyOne.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Year2020\Resources\inputDayTwo.txt">

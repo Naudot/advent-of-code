@@ -52,7 +52,7 @@ namespace AdventOfCode
 				stopwatch.Stop();
 				double firstTime = stopwatch.Elapsed.TotalMilliseconds * 1000;
 
-				//day.ResolveSecondPart(); // Force the JIT pass
+				day.ResolveSecondPart(); // Force the JIT pass
 				stopwatch.Restart();
 				object secondResult = day.ResolveSecondPart();
 				stopwatch.Stop();
