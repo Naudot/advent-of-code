@@ -18,10 +18,6 @@ namespace AdventOfCode.Year2020
 			List<int> inputs = new List<int>() { 9, 5, 2, 4, 3, 8, 7, 1, 6 };
 			//List<int> inputs = new List<int>() { 3, 8, 9, 1, 2, 5, 4, 6 ,7 }; // Exemple
 			
-			int moveCount = 100;
-			int lowestValue = inputs.Min();
-			int highestValue = inputs.Max();
-
 			List<ClockwiseValue> values = new List<ClockwiseValue>();
 
 			for (int i = 0; i < inputs.Count; i++)
@@ -29,6 +25,39 @@ namespace AdventOfCode.Year2020
 				values.Add(new ClockwiseValue() { Value = inputs[i] });
 			}
 
+			for (int i = 0; i < values.Count; i++)
+			{
+				if (i == values.Count - 1)
+				{
+					values[i].Next = values[0];
+				}
+				else
+				{
+					values[i].Next = values[i + 1];
+				}
+			}
+
+			ProcessGame(values, 100, inputs.Min(), inputs.Max());
+
+			ClockwiseValue departure = values.FirstOrDefault(cup => cup.Value == 1).Next;
+			string result = departure.Value.ToString();
+			ClockwiseValue tmp2 = departure.Next;
+			while (tmp2.Value != 1)
+			{
+				result += tmp2.Value;
+				tmp2 = tmp2.Next;
+			}
+
+			return result;
+		}
+
+		protected override object ResolveSecondPart()
+		{
+			return string.Empty;
+		}
+
+		private void ProcessGame(List<ClockwiseValue> values, int moveCount, int lowestValue, int highestValue)
+		{
 			for (int i = 0; i < values.Count; i++)
 			{
 				if (i == values.Count - 1)
@@ -52,7 +81,7 @@ namespace AdventOfCode.Year2020
 				ClockwiseValue tmp = currentCup.Next;
 				while (tmp != currentCup)
 				{
-					cups += tmp .Value + " ";
+					cups += tmp.Value + " ";
 					tmp = tmp.Next;
 				}
 
@@ -105,22 +134,6 @@ namespace AdventOfCode.Year2020
 				destinationCup.Next = firstCup;
 				currentCup = currentCup.Next;
 			}
-
-			ClockwiseValue departure = values.FirstOrDefault(cup => cup.Value == 1).Next;
-			string result = departure.Value.ToString();
-			ClockwiseValue tmp2 = departure.Next;
-			while (tmp2.Value != 1)
-			{
-				result += tmp2.Value;
-				tmp2 = tmp2.Next;
-			}
-
-			return result;
-		}
-
-		protected override object ResolveSecondPart()
-		{
-			return string.Empty;
 		}
 	}
 }
