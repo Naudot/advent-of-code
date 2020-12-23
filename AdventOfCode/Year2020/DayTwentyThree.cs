@@ -79,15 +79,23 @@ namespace AdventOfCode.Year2020
 				}
 			}
 
-			ProcessGame(values, 10000000, inputs.Min(), inputs.Max());
+			ProcessGame(values, 10000000, 1, 1000000);
 
 			ClockwiseValue first = values.FirstOrDefault(cup => cup.Value == 1).Next;
 			ClockwiseValue second = first.Next;
-			return first.Value * second.Value;
+			return (ulong)first.Value * (ulong)second.Value;
 		}
 
 		private void ProcessGame(List<ClockwiseValue> values, int moveCount, int lowestValue, int highestValue)
 		{
+			// Hashmap for direct access to clockwise value
+			Dictionary<int, ClockwiseValue> pairs = new Dictionary<int, ClockwiseValue>();
+
+			for (int i = 0; i < values.Count; i++)
+			{
+				pairs.Add(values[i].Value, values[i]);
+			}
+
 			ClockwiseValue currentCup = values[0];
 
 			for (int i = 0; i < moveCount; i++)
@@ -145,7 +153,7 @@ namespace AdventOfCode.Year2020
 				}
 
 				//Console.WriteLine("destination: " + destinationCupValue);
-				ClockwiseValue destinationCup = values.FirstOrDefault(cup => cup.Value == destinationCupValue);
+				ClockwiseValue destinationCup = pairs[destinationCupValue];
 
 				currentCup.Next = thirdCup.Next;
 				thirdCup.Next = destinationCup.Next;
