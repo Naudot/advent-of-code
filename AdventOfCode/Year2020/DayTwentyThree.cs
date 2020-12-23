@@ -95,13 +95,13 @@ namespace AdventOfCode.Year2020
 				//Console.WriteLine();
 				//Console.WriteLine("-- move " + (i + 1) + " --");
 
-				string cups = "(" + currentCup.Value + ") ";
-				ClockwiseValue tmp = currentCup.Next;
-				while (tmp != currentCup)
-				{
-					cups += tmp.Value + " ";
-					tmp = tmp.Next;
-				}
+				//string cups = "(" + currentCup.Value + ") ";
+				//ClockwiseValue tmp = currentCup.Next;
+				//while (tmp != currentCup)
+				//{
+				//	cups += tmp.Value + " ";
+				//	tmp = tmp.Next;
+				//}
 
 				//Console.WriteLine("cups: " + cups);
 
