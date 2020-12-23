@@ -53,11 +53,20 @@ namespace AdventOfCode.Year2020
 
 		protected override object ResolveSecondPart()
 		{
-			return string.Empty;
-		}
+			List<int> inputs = new List<int>() { 9, 5, 2, 4, 3, 8, 7, 1, 6 };
+			//List<int> inputs = new List<int>() { 3, 8, 9, 1, 2, 5, 4, 6 ,7 }; // Exemple
 
-		private void ProcessGame(List<ClockwiseValue> values, int moveCount, int lowestValue, int highestValue)
-		{
+			List<ClockwiseValue> values = new List<ClockwiseValue>();
+
+			for (int i = 0; i < inputs.Count; i++)
+			{
+				values.Add(new ClockwiseValue() { Value = inputs[i] });
+			}
+			for (int i = inputs.Count; i < 1000000; i++)
+			{
+				values.Add(new ClockwiseValue() { Value = i + 1 });
+			}
+
 			for (int i = 0; i < values.Count; i++)
 			{
 				if (i == values.Count - 1)
@@ -70,12 +79,21 @@ namespace AdventOfCode.Year2020
 				}
 			}
 
+			ProcessGame(values, 10000000, inputs.Min(), inputs.Max());
+
+			ClockwiseValue first = values.FirstOrDefault(cup => cup.Value == 1).Next;
+			ClockwiseValue second = first.Next;
+			return first.Value * second.Value;
+		}
+
+		private void ProcessGame(List<ClockwiseValue> values, int moveCount, int lowestValue, int highestValue)
+		{
 			ClockwiseValue currentCup = values[0];
 
 			for (int i = 0; i < moveCount; i++)
 			{
-				Console.WriteLine();
-				Console.WriteLine("-- move " + (i + 1) + " --");
+				//Console.WriteLine();
+				//Console.WriteLine("-- move " + (i + 1) + " --");
 
 				string cups = "(" + currentCup.Value + ") ";
 				ClockwiseValue tmp = currentCup.Next;
@@ -85,7 +103,7 @@ namespace AdventOfCode.Year2020
 					tmp = tmp.Next;
 				}
 
-				Console.WriteLine("cups: " + cups);
+				//Console.WriteLine("cups: " + cups);
 
 				ClockwiseValue firstCup = currentCup.Next;
 				ClockwiseValue secondCup = firstCup.Next;
@@ -95,7 +113,7 @@ namespace AdventOfCode.Year2020
 				int secondCupValue = secondCup.Value;
 				int thirdCupValue = thirdCup.Value;
 
-				Console.WriteLine("pick up: " + firstCupValue + "," + secondCupValue + "," + thirdCupValue);
+				//Console.WriteLine("pick up: " + firstCupValue + "," + secondCupValue + "," + thirdCupValue);
 
 				int currentCupValue = currentCup.Value;
 				int destinationCupValue = currentCupValue - 1;
@@ -126,7 +144,7 @@ namespace AdventOfCode.Year2020
 					}
 				}
 
-				Console.WriteLine("destination: " + destinationCupValue);
+				//Console.WriteLine("destination: " + destinationCupValue);
 				ClockwiseValue destinationCup = values.FirstOrDefault(cup => cup.Value == destinationCupValue);
 
 				currentCup.Next = thirdCup.Next;
