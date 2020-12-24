@@ -70,6 +70,8 @@
     <Compile Include="Year2020\DayThirteen.cs" />
     <Compile Include="Year2020\DayTwelve.cs" />
     <Compile Include="Year2020\DayTwenty.cs" />
+    <Compile Include="Year2020\DayTwentyFive.cs" />
+    <Compile Include="Year2020\DayTwentyFour.cs" />
     <Compile Include="Year2020\DayTwentyOne.cs" />
     <Compile Include="Year2020\DayTwentyThree.cs" />
     <Compile Include="Year2020\DayTwentyTwo.cs" />
@@ -169,6 +171,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Year2020\Resources\inputDayTwenty.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Year2020\Resources\inputDayTwentyFive.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Year2020\Resources\inputDayTwentyFour.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Year2020\Resources\inputDayTwentyOne.txt">
