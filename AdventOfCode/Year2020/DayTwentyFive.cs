@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace AdventOfCode.Year2020
 {
@@ -16,6 +17,9 @@ namespace AdventOfCode.Year2020
 			// ulong exempleCardPublicKey = ProcessSubjectNumber(7, 8);
 			// ulong exempleDoorublicKey = ProcessSubjectNumber(7, 11);
 
+			Console.WriteLine("Exemple public keys " + ProcessSubjectNumber(7, 8) + " - " + ProcessSubjectNumber(7, 11));
+			Console.WriteLine("Exemple encryption keys " + ProcessSubjectNumber(5764801, 11) + " - " + ProcessSubjectNumber(17807724, 8));
+
 			// Calls that determined precomputed results
 
 			//ulong cardSubjectNumber = 0;
@@ -27,12 +31,16 @@ namespace AdventOfCode.Year2020
 			//LookForValue(doorPublicKey, out doorSubjectNumber, out doorLoopSize);
 
 			// Precomputed results
+			// TODO : The subject number must be the same
 			ulong cardSubjectNumber = 26810;
 			int cardLoopSize = 24;
 			ulong doorSubjectNumber = 209765;
 			int doorLoopSize = 4;
 
-			return string.Empty;
+			Console.WriteLine("Public keys " + ProcessSubjectNumber(doorSubjectNumber, doorLoopSize) + " - " + ProcessSubjectNumber(cardSubjectNumber, cardLoopSize));
+			Console.WriteLine("Encryption keys " + ProcessSubjectNumber(cardPublicKey, doorLoopSize) + " - " + ProcessSubjectNumber(doorPublicKey, cardLoopSize));
+
+			return ProcessSubjectNumber(17807724, 8);
 		}
 
 		protected override object ResolveSecondPart()
