@@ -59,7 +59,9 @@ namespace AdventOfCode
 			//new Year2020.DayTwentyTwo();
 			//new Year2020.DayTwentyThree();
 			//new Year2020.DayTwentyFour();
-			new Year2020.DayTwentyFive();
+			//new Year2020.DayTwentyFive();
+
+			new Year2021.DayOne();
 
 			//Day2015.CalculateAndLogResults();
 			//Console.WriteLine();
@@ -71,7 +73,9 @@ namespace AdventOfCode
 			//Console.WriteLine();
 			//Day2019.CalculateAndLogResults();
 			//Console.WriteLine();
-			Day2020.CalculateAndLogResults();
+			//Day2020.CalculateAndLogResults();
+			//Console.WriteLine();
+			Day2021.CalculateAndLogResults();
 		}
 	}
 }

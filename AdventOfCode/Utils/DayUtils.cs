@@ -139,4 +139,14 @@ namespace AdventOfCode
 			}
 		}
 	}
+	public abstract class Day2021 : Day<Day2021>
+	{
+		protected override int Year
+		{
+			get
+			{
+				return 2021;
+			}
+		}
+	}
 }
