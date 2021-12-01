@@ -76,6 +76,7 @@
     <Compile Include="Year2020\DayTwentyThree.cs" />
     <Compile Include="Year2020\DayTwentyTwo.cs" />
     <Compile Include="Year2021\DayOne.cs" />
+    <Compile Include="Year2021\DayTwo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
