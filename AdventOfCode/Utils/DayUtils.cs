@@ -17,8 +17,10 @@ namespace AdventOfCode
 	{
 		#region Implementation
 
-		protected abstract object ResolveFirstPart();
-		protected abstract object ResolveSecondPart();
+		protected virtual object ResolveFirstPart() { return 0; }
+		protected virtual object ResolveSecondPart() { return 0; }
+		protected virtual object ResolveFirstPart(string[] input = null) { return 0; }
+		protected virtual object ResolveSecondPart(string[] input = null) { return 0; }
 
 		#endregion
 	}
@@ -46,15 +48,18 @@ namespace AdventOfCode
 			for (int i = 0; i < Days.Count; i++)
 			{
 				Day<T> day = Days[i];
-				day.ResolveFirstPart(); // Force the JIT pass
+
+				string[] input = File.ReadAllLines(day.GetResourcesPath());
+
+				day.ResolveFirstPart(input); // Force the JIT pass
 				stopwatch.Restart();
-				object firstResult = day.ResolveFirstPart();
+				object firstResult = day.ResolveFirstPart(input);
 				stopwatch.Stop();
 				double firstTime = stopwatch.Elapsed.TotalMilliseconds * 1000;
 
-				day.ResolveSecondPart(); // Force the JIT pass
+				day.ResolveSecondPart(input); // Force the JIT pass
 				stopwatch.Restart();
-				object secondResult = day.ResolveSecondPart();
+				object secondResult = day.ResolveSecondPart(input);
 				stopwatch.Stop();
 				double secondTime = stopwatch.Elapsed.TotalMilliseconds * 1000;
 

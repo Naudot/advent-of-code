@@ -1,21 +1,45 @@
-﻿using System.IO;
+﻿using System.Linq;
 
 namespace AdventOfCode.Year2021
 {
 	public class DayOne : Day2021
 	{
-		protected override object ResolveFirstPart()
+		protected override object ResolveFirstPart(string[] input)
 		{
-			string[] input = File.ReadAllLines(GetResourcesPath());
+			int increasedMeasurement = 0;
+			int previousDepth = int.Parse(input[0]);
 
-			return 0;
+			for (int i = 1; i < input.Length; i++)
+			{
+				int depth = int.Parse(input[i]);
+				if (depth > previousDepth)
+				{
+					increasedMeasurement++;
+				}
+				previousDepth = depth;
+			}
+
+			return increasedMeasurement;
 		}
 
-		protected override object ResolveSecondPart()
+		protected override object ResolveSecondPart(string[] input)
 		{
-			string[] input = File.ReadAllLines(GetResourcesPath());
+			int[] betterInput = input.Select(int.Parse).ToArray();
 
-			return 0;
+			int increasedMeasurement = 0;
+			int previousDepth = betterInput[0] + betterInput[1] + betterInput[2];
+
+			for (int i = 1; i < input.Length - 2; i++)
+			{
+				int depth = betterInput[i] + betterInput[i + 1] +betterInput[i + 2];
+				if (depth > previousDepth)
+				{
+					increasedMeasurement++;
+				}
+				previousDepth = depth;
+			}
+
+			return increasedMeasurement;
 		}
 	}
 }
