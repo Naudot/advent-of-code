@@ -27,16 +27,13 @@ namespace AdventOfCode.Year2021
 			int[] betterInput = input.Select(int.Parse).ToArray();
 
 			int increasedMeasurement = 0;
-			int previousDepth = betterInput[0] + betterInput[1] + betterInput[2];
 
-			for (int i = 1; i < betterInput.Length - 2; i++)
+			for (int i = 0; i < betterInput.Length - 3; i++)
 			{
-				int depth = betterInput[i] + betterInput[i + 1] + betterInput[i + 2];
-				if (depth > previousDepth)
+				if (betterInput[i] < betterInput[i + 3])
 				{
 					increasedMeasurement++;
 				}
-				previousDepth = depth;
 			}
 
 			return increasedMeasurement;
