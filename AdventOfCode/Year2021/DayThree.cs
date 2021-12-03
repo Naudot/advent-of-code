@@ -45,56 +45,24 @@ namespace AdventOfCode.Year2021
 
 		protected override object ResolveSecondPart(string[] input)
 		{
-			List<string> zeros = new List<string>();
-			List<string> ones = new List<string>();
+			return GetValue(input, true) * GetValue(input, false);
+		}
 
-			int zeroCount = 0;
-			int oneCount = 0;
+		private int GetValue(string[] input, bool greatest)
+		{
+			List<string> values = input.ToList();
 
-			for (int i = 0; i < input.Length; i++)
+			int index = 0;
+			while (values.Count != 1)
 			{
-				char bit = input[i][0];
-
-				if (bit == '0')
-				{
-					zeroCount++;
-					zeros.Add(input[i]);
-				}
-				else
-				{
-					oneCount++;
-					ones.Add(input[i]);
-				}
+				int zeroCount = values.Where(str => str[index] == '0').Count();
+				int oneCount = values.Count - zeroCount;
+				char notUsedChar = greatest ? (oneCount >= zeroCount ? '0' : '1') : (oneCount < zeroCount ? '0' : '1');
+				values.RemoveAll(str => str[index] == notUsedChar);
+				index++;
 			}
 
-			List<string> mostUsed = zeroCount > oneCount ? zeros : ones;
-			List<string> leastUsed = zeroCount > oneCount ? ones : zeros;
-
-			int length = mostUsed[0].Length;
-
-			int mostUsedIndex = 1;
-			// Keep 1
-			while (mostUsed.Count != 1)
-			{
-				zeroCount = mostUsed.Where(str => str[mostUsedIndex] == '0').Count();
-				oneCount = mostUsed.Count - zeroCount;
-				char notUsedChar = oneCount >= zeroCount ? '0' : '1';
-				mostUsed.RemoveAll(str => str[mostUsedIndex] == notUsedChar);
-				mostUsedIndex++;
-			}
-
-			int leastUsedIndex = 1;
-			// Keep 0
-			while (leastUsed.Count != 1)
-			{
-				zeroCount = leastUsed.Where(str => str[leastUsedIndex] == '0').Count();
-				oneCount = leastUsed.Count - zeroCount;
-				char notUsedChar = oneCount < zeroCount ? '0' : '1';
-				leastUsed.RemoveAll(str => str[leastUsedIndex] == notUsedChar);
-				leastUsedIndex++;
-			}
-
-			return Convert.ToInt64(mostUsed[0], 2) * Convert.ToInt64(leastUsed[0], 2);
+			return Convert.ToInt32(values[0], 2);
 		}
 	}
 }
