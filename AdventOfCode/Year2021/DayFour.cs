@@ -7,27 +7,7 @@ namespace AdventOfCode.Year2021
 	{
 		protected override object ResolveFirstPart(string[] input)
 		{
-			BoardsContainer boardsContainer = new BoardsContainer();
-
-			// Begin at second line
-			for (int i = 1; i < input.Length; i += 6)
-			{
-				// First line is a jump
-				Check[,] board = new Check[5, 5];
-
-				// Check the next 5 lines
-				for (int j = 1; j < 6; j++)
-				{
-					MatchCollection values = Regex.Matches(input[i + j], @"(\d+)");
-					for (int k = 0; k < values.Count; k++)
-					{
-						board[j - 1, k] = new Check() { Value = int.Parse(values[k].Value) };
-					}
-				}
-
-				boardsContainer.Boards.Add(board);
-			}
-
+			BoardsContainer boardsContainer = GetBoards(input);
 			MatchCollection draws = Regex.Matches(input[0], @"(\d+)");
 
 			for (int i = 0; i < draws.Count; i++)
@@ -47,6 +27,28 @@ namespace AdventOfCode.Year2021
 
 		protected override object ResolveSecondPart(string[] input)
 		{
+			BoardsContainer boardsContainer = GetBoards(input);
+			MatchCollection draws = Regex.Matches(input[0], @"(\d+)");
+			int lastWinningBoardValue = 0;
+
+			for (int i = 0; i < draws.Count; i++)
+			{
+				int value = int.Parse(draws[i].Value);
+				boardsContainer.MarkBoards(value);
+				List<Check[,]> winningBoards = boardsContainer.GetWinningBoards();
+
+				for (int j = 0; j < winningBoards.Count; j++)
+				{
+					lastWinningBoardValue = boardsContainer.GetSumOfAllMarkedValues(winningBoards[j]) * value;
+					boardsContainer.Boards.Remove(winningBoards[j]);
+				}
+			}
+
+			return lastWinningBoardValue;
+		}
+
+		private BoardsContainer GetBoards(string[] input)
+		{
 			BoardsContainer boardsContainer = new BoardsContainer();
 
 			// Begin at second line
@@ -68,23 +70,7 @@ namespace AdventOfCode.Year2021
 				boardsContainer.Boards.Add(board);
 			}
 
-			MatchCollection draws = Regex.Matches(input[0], @"(\d+)");
-			int lastWinningBoard = 0;
-
-			for (int i = 0; i < draws.Count; i++)
-			{
-				int value = int.Parse(draws[i].Value);
-				boardsContainer.MarkBoards(value);
-				List<Check[,]> winningBoards = boardsContainer.GetWinningBoards();
-
-				for (int j = 0; j < winningBoards.Count; j++)
-				{
-					lastWinningBoard = boardsContainer.GetSumOfAllMarkedValues(winningBoards[j]) * value;
-					boardsContainer.Boards.Remove(winningBoards[j]);
-				}
-			}
-
-			return lastWinningBoard;
+			return boardsContainer;
 		}
 	}
 
@@ -94,19 +80,19 @@ namespace AdventOfCode.Year2021
 
 		public void MarkBoards(int value)
 		{
-			for (int k = 0; k < Boards.Count; k++)
+			for (int i = 0; i < Boards.Count; i++)
 			{
-				Check[,] board = Boards[k];
+				Check[,] board = Boards[i];
 
 				// For each row
-				for (int i = 0; i < board.GetLength(0); i++)
+				for (int row = 0; row < board.GetLength(0); row++)
 				{
 					// Checking all columns
-					for (int j = 0; j < board.GetLength(1); j++)
+					for (int column = 0; column < board.GetLength(1); column++)
 					{
-						if (board[i, j].Value == value)
+						if (board[row, column].Value == value)
 						{
-							board[i, j].IsChecked = true;
+							board[row, column].IsChecked = true;
 						}
 					}
 				}
@@ -130,15 +116,13 @@ namespace AdventOfCode.Year2021
 
 		public bool HasRowCompleted(Check[,] board)
 		{
-			// For each row
-			for (int i = 0; i < board.GetLength(0); i++)
+			for (int row = 0; row < board.GetLength(0); row++)
 			{
 				bool isValid = true;
 
-				// Checking all columns
-				for (int j = 0; j < board.GetLength(1); j++)
+				for (int column = 0; column < board.GetLength(1); column++)
 				{
-					if (!board[i, j].IsChecked)
+					if (!board[row, column].IsChecked)
 					{
 						isValid = false;
 					}
@@ -155,15 +139,13 @@ namespace AdventOfCode.Year2021
 
 		public bool HasColumndCompleted(Check[,] board)
 		{
-			// For each column
-			for (int i = 0; i < board.GetLength(1); i++)
+			for (int column = 0; column < board.GetLength(1); column++)
 			{
 				bool isValid = true;
 
-				// Checking all rows
-				for (int j = 0; j < board.GetLength(0); j++)
+				for (int row = 0; row < board.GetLength(0); row++)
 				{
-					if (!board[j , i].IsChecked)
+					if (!board[row , column].IsChecked)
 					{
 						isValid = false;
 					}
@@ -182,15 +164,13 @@ namespace AdventOfCode.Year2021
 		{
 			int sum = 0;
 
-			// For each row
-			for (int i = 0; i < board.GetLength(0); i++)
+			for (int row = 0; row < board.GetLength(0); row++)
 			{
-				// Checking all columns
-				for (int j = 0; j < board.GetLength(1); j++)
+				for (int column = 0; column < board.GetLength(1); column++)
 				{
-					if (!board[i, j].IsChecked)
+					if (!board[row, column].IsChecked)
 					{
-						sum += board[i, j].Value;
+						sum += board[row, column].Value;
 					}
 				}
 			}
