@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Year2021\DaySix.cs" />
     <Compile Include="Utils\DayUtils.cs" />
     <Compile Include="Year2015\Days.cs" />
     <Compile Include="Year2020\DayEight.cs" />
