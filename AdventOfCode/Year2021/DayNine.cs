@@ -71,7 +71,7 @@ namespace AdventOfCode.Year2021
 						&& (j == 0 || coord[j - 1, i] > num)
 						&& (j == (width - 1) || coord[j + 1, i] > num))
 					{
-						sizes.Add(GetBassinSize(coord, i, j, width, height));
+						sizes.Add(GetBassinSize(height, width, coord, i, j));
 					}
 				}
 			}
@@ -81,18 +81,12 @@ namespace AdventOfCode.Year2021
 			return sizes[sizes.Count - 1] * sizes[sizes.Count - 2] * sizes[sizes.Count - 3];
 		}
 
-		public int GetBassinSize(int[,] tubes, int i, int j, int maxWidth, int maxHeight)
+		public int GetBassinSize(int maxHeight, int maxWidth, int[,] tubes, int beginHeight, int beginWidth)
 		{
-			List<Tuple<int, int>> coordsProcessed = new List<Tuple<int, int>>
-			{
-				new Tuple<int, int>(j, i)
-			};
-			List<Tuple<int, int>> coordsToProcess = new List<Tuple<int, int>>
-			{
-				new Tuple<int, int>(j, i)
-			};
+			List<Tuple<int, int>> coordsProcessed = new List<Tuple<int, int>> { new Tuple<int, int>(beginWidth, beginHeight) };
+			List<Tuple<int, int>> coordsToProcess = new List<Tuple<int, int>> { new Tuple<int, int>(beginWidth, beginHeight) };
 
-			do
+			while (coordsToProcess.Count != 0)
 			{
 				// We remove the tuple from the list to process
 				Tuple<int, int> toProcess = coordsToProcess[0];
@@ -141,7 +135,7 @@ namespace AdventOfCode.Year2021
 						coordsProcessed.Add(coordRight);
 					}
 				}
-			} while (coordsToProcess.Count != 0);
+			}
 
 			return coordsProcessed.Count;
 		}
