@@ -83,10 +83,14 @@ namespace AdventOfCode.Year2021
 
 		public int GetBassinSize(int[,] tubes, int i, int j, int maxWidth, int maxHeight)
 		{
-			List<Tuple<int, int>> coordsProcessed = new List<Tuple<int, int>>();
-			coordsProcessed.Add(new Tuple<int, int>(j, i));
-			List<Tuple<int, int>> coordsToProcess = new List<Tuple<int, int>>();
-			coordsToProcess.Add(new Tuple<int, int>(j, i));
+			List<Tuple<int, int>> coordsProcessed = new List<Tuple<int, int>>
+			{
+				new Tuple<int, int>(j, i)
+			};
+			List<Tuple<int, int>> coordsToProcess = new List<Tuple<int, int>>
+			{
+				new Tuple<int, int>(j, i)
+			};
 
 			do
 			{
@@ -144,15 +148,7 @@ namespace AdventOfCode.Year2021
 
 		public bool HasTuple(List<Tuple<int, int>> coords, Tuple<int, int> coord)
 		{
-			for (int i = 0; i < coords.Count; i++)
-			{
-				if (coords[i].Equals(coord))
-				{
-					return true;
-				}
-			}
-
-			return false;
+			return coords.Contains(coord);
 		}
 	}
 }
