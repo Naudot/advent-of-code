@@ -71,8 +71,7 @@ namespace AdventOfCode.Year2021
 						&& (j == 0 || coord[j - 1, i] > num)
 						&& (j == (width - 1) || coord[j + 1, i] > num))
 					{
-						sizes.Add(GetBassinSize(coord, i, j));
-						// Lowest point
+						sizes.Add(GetBassinSize(coord, i, j, width, height));
 					}
 				}
 			}
@@ -82,27 +81,78 @@ namespace AdventOfCode.Year2021
 			return sizes[sizes.Count - 1] * sizes[sizes.Count - 2] * sizes[sizes.Count - 3];
 		}
 
-		public int GetBassinSize(int[,] tubes, int i, int j)
+		public int GetBassinSize(int[,] tubes, int i, int j, int maxWidth, int maxHeight)
 		{
-			int added = 1;
 			List<Tuple<int, int>> coordsProcessed = new List<Tuple<int, int>>();
-			coordsProcessed.Add(new Tuple<int, int>(i, j));
+			coordsProcessed.Add(new Tuple<int, int>(j, i));
+			List<Tuple<int, int>> coordsToProcess = new List<Tuple<int, int>>();
+			coordsToProcess.Add(new Tuple<int, int>(j, i));
 
 			do
 			{
-				added = 0;
-				if ((i == 0 || coord[j, i - 1] > num)
-						&& (i == (height - 1) || coord[j, i + 1] > num)
-						&& (j == 0 || coord[j - 1, i] > num)
-						&& (j == (width - 1) || coord[j + 1, i] > num))
-				{
-					sizes.Add(GetBassinSize(coord, i, j));
-					// Lowest point
-				}
+				// We remove the tuple from the list to process
+				Tuple<int, int> toProcess = coordsToProcess[0];
+				coordsToProcess.Remove(toProcess);
 
-			} while (added != 0);
+				int height = toProcess.Item2;
+				int width = toProcess.Item1;
+
+				// Check top
+				if (height != 0 && tubes[width, height - 1] < 9)
+				{
+					Tuple<int, int> coordTop = new Tuple<int, int>(width, height - 1);
+					if (!HasTuple(coordsProcessed, coordTop))
+					{
+						coordsToProcess.Add(coordTop);
+						coordsProcessed.Add(coordTop);
+					}
+				}
+				// Check bottom
+				if (height != (maxHeight - 1) && tubes[width, height + 1] < 9)
+				{
+					Tuple<int, int> coordBottom = new Tuple<int, int>(width, height + 1);
+					if (!HasTuple(coordsProcessed, coordBottom))
+					{
+						coordsToProcess.Add(coordBottom);
+						coordsProcessed.Add(coordBottom);
+					}
+				}
+				// Check left
+				if (width != 0 && tubes[toProcess.Item1 - 1, height] < 9)
+				{
+					Tuple<int, int> coordLeft = new Tuple<int, int>(width - 1, height);
+					if (!HasTuple(coordsProcessed, coordLeft))
+					{
+						coordsToProcess.Add(coordLeft);
+						coordsProcessed.Add(coordLeft);
+					}
+				}
+				// Check right
+				if (width != (maxWidth - 1) && tubes[width + 1, height] < 9)
+				{
+					Tuple<int, int> coordRight = new Tuple<int, int>(width + 1, height);
+					if (!HasTuple(coordsProcessed, coordRight))
+					{
+						coordsToProcess.Add(coordRight);
+						coordsProcessed.Add(coordRight);
+					}
+				}
+			} while (coordsToProcess.Count != 0);
 
 			return coordsProcessed.Count;
+		}
+
+		public bool HasTuple(List<Tuple<int, int>> coords, Tuple<int, int> coord)
+		{
+			for (int i = 0; i < coords.Count; i++)
+			{
+				if (coords[i].Equals(coord))
+				{
+					return true;
+				}
+			}
+
+			return false;
 		}
 	}
 }
