@@ -71,7 +71,8 @@ namespace AdventOfCode
 			//new Year2021.DaySeven();
 			//new Year2021.DayEight();
 			//new Year2021.DayNine();
-			new Year2021.DayTen();
+			//new Year2021.DayTen();
+			new Year2021.DayEleven();
 
 			//Day2015.CalculateAndLogResults();
 			//Console.WriteLine();
