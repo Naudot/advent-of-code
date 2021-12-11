@@ -86,6 +86,7 @@
     <Compile Include="Year2021\DayOne.cs" />
     <Compile Include="Year2021\DayTen.cs" />
     <Compile Include="Year2021\DayThree.cs" />
+    <Compile Include="Year2021\DayTwelve.cs" />
     <Compile Include="Year2021\DayTwo.cs" />
   </ItemGroup>
   <ItemGroup>
