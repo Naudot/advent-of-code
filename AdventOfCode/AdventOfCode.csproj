@@ -48,9 +48,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Year2021\DayEight.cs" />
+    <Compile Include="Year2021\DayEighteen.cs" />
     <Compile Include="Year2021\DayEleven.cs" />
+    <Compile Include="Year2021\DayFifteen.cs" />
+    <Compile Include="Year2021\DayFourteen.cs" />
     <Compile Include="Year2021\DayNine.cs" />
+    <Compile Include="Year2021\DayNineteen.cs" />
     <Compile Include="Year2021\DaySeven.cs" />
+    <Compile Include="Year2021\DaySeventeen.cs" />
     <Compile Include="Year2021\DaySix.cs" />
     <Compile Include="Utils\DayUtils.cs" />
     <Compile Include="Year2015\Days.cs" />
@@ -84,9 +89,17 @@
     <Compile Include="Year2021\DayFive.cs" />
     <Compile Include="Year2021\DayFour.cs" />
     <Compile Include="Year2021\DayOne.cs" />
+    <Compile Include="Year2021\DaySixteen.cs" />
     <Compile Include="Year2021\DayTen.cs" />
+    <Compile Include="Year2021\DayThirteen.cs" />
     <Compile Include="Year2021\DayThree.cs" />
     <Compile Include="Year2021\DayTwelve.cs" />
+    <Compile Include="Year2021\DayTwenty.cs" />
+    <Compile Include="Year2021\DayTwentyFive.cs" />
+    <Compile Include="Year2021\DayTwentyFour.cs" />
+    <Compile Include="Year2021\DayTwentyOne.cs" />
+    <Compile Include="Year2021\DayTwentyThree.cs" />
+    <Compile Include="Year2021\DayTwentyTwo.cs" />
     <Compile Include="Year2021\DayTwo.cs" />
   </ItemGroup>
   <ItemGroup>
