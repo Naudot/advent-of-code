@@ -7,6 +7,16 @@ namespace AdventOfCode.Year2021
 	{
 		protected override object ResolveFirstPart(string[] input)
 		{
+			return ProcessCaves(input);
+		}
+
+		protected override object ResolveSecondPart(string[] input)
+		{
+			return ProcessCaves(input, true);
+		}
+
+		public int ProcessCaves(string[] input, bool processSmallCaveTwice = false)
+		{
 			Dictionary<string, Cave> caves = new Dictionary<string, Cave>();
 
 			for (int i = 0; i < input.Length; i++)
@@ -44,13 +54,13 @@ namespace AdventOfCode.Year2021
 			{
 				List<Cave> previousExploredCaves = new List<Cave>();
 				previousExploredCaves.Add(cave.Value);
-				pathCount += ProcessPath(cave.Value, previousExploredCaves);
+				pathCount += ProcessPath(cave.Value, previousExploredCaves, processSmallCaveTwice);
 			}
 
 			return pathCount;
 		}
 
-		public int ProcessPath(Cave currentCave, List<Cave> previousExploredCaves)
+		public int ProcessPath(Cave currentCave, List<Cave> previousExploredCaves, bool processSmallCaveTwice)
 		{
 			int pathCount = 0;
 
@@ -74,31 +84,35 @@ namespace AdventOfCode.Year2021
 					// If we encounter the same small cave twice, the path is invalid
 					if (previousExploredCaves.Contains(connectedCave))
 					{
-						previousExploredCaves.Add(connectedCave);
-						//Console.WriteLine("Path not correct found " + Cave.Log(previousExploredCaves));
-						continue;
+						if (!processSmallCaveTwice)
+						{
+							previousExploredCaves.Add(connectedCave);
+							//Console.WriteLine("Path not correct found " + Cave.Log(previousExploredCaves));
+							continue;
+						}
+						else
+						{
+							List<Cave> caves = new List<Cave>(previousExploredCaves);
+							caves.Add(connectedCave);
+							pathCount += ProcessPath(connectedCave, caves, false);
+						}
 					}
 					else
 					{
 						List<Cave> caves = new List<Cave>(previousExploredCaves);
 						caves.Add(connectedCave);
-						pathCount += ProcessPath(connectedCave, caves);
+						pathCount += ProcessPath(connectedCave, caves, processSmallCaveTwice);
 					}
 				}
 				else
 				{
 					List<Cave> caves = new List<Cave>(previousExploredCaves);
 					caves.Add(connectedCave);
-					pathCount += ProcessPath(connectedCave, caves);
+					pathCount += ProcessPath(connectedCave, caves, processSmallCaveTwice);
 				}
 			}
 
 			return pathCount;
-		}
-
-		protected override object ResolveSecondPart(string[] input)
-		{
-			return 0;
 		}
 
 		public class Cave
@@ -134,12 +148,6 @@ namespace AdventOfCode.Year2021
 				}
 				return log;
 			}
-		}
-
-		public class Node
-		{
-			public Cave Cave;
-			public Cave NextCave;
 		}
 	}
 }
