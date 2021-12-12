@@ -81,7 +81,7 @@ namespace AdventOfCode.Year2021
 				}
 				else if (connectedCave.IsSmall)
 				{
-					// If we encounter the same small cave twice, the path is invalid
+					// If we encounter the same small cave twice, the path is invalid, except if we can explore one previous small encountered cave
 					if (previousExploredCaves.Contains(connectedCave))
 					{
 						if (!processSmallCaveTwice)
@@ -92,6 +92,7 @@ namespace AdventOfCode.Year2021
 						}
 						else
 						{
+							// We explored a same small cave twice so we can set the previousExploredCaves to false
 							List<Cave> caves = new List<Cave>(previousExploredCaves);
 							caves.Add(connectedCave);
 							pathCount += ProcessPath(connectedCave, caves, false);
@@ -99,6 +100,7 @@ namespace AdventOfCode.Year2021
 					}
 					else
 					{
+						// We keep going
 						List<Cave> caves = new List<Cave>(previousExploredCaves);
 						caves.Add(connectedCave);
 						pathCount += ProcessPath(connectedCave, caves, processSmallCaveTwice);
@@ -106,6 +108,7 @@ namespace AdventOfCode.Year2021
 				}
 				else
 				{
+					// We keep going
 					List<Cave> caves = new List<Cave>(previousExploredCaves);
 					caves.Add(connectedCave);
 					pathCount += ProcessPath(connectedCave, caves, processSmallCaveTwice);
