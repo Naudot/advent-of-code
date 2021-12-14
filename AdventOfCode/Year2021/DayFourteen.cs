@@ -62,7 +62,9 @@ namespace AdventOfCode.Year2021
 				Dictionary<(int, int), long> clone = chain.ToDictionary(entry => entry.Key, entry => entry.Value);
 				foreach (KeyValuePair<(int, int), long> clonedItem in clone)
 				{
-					if (clonedItem.Value == 0)
+					long pairCount = clonedItem.Value;
+
+					if (pairCount == 0)
 					{
 						continue;
 					}
@@ -75,49 +77,35 @@ namespace AdventOfCode.Year2021
 
 					if (chain.ContainsKey(newFirstPair))
 					{
-						chain[newFirstPair] += clonedItem.Value;
+						chain[newFirstPair] += pairCount;
 					}
 					else
 					{
-						chain.Add(newFirstPair, clonedItem.Value);
+						chain.Add(newFirstPair, pairCount);
 					}
 					if (chain.ContainsKey(newSecondPair))
 					{
-						chain[newSecondPair] += clonedItem.Value;
+						chain[newSecondPair] += pairCount;
 					}
 					else
 					{
-						chain.Add(newSecondPair, clonedItem.Value);
+						chain.Add(newSecondPair, pairCount);
 					}
 					chain[oldPair] -= clonedItem.Value;
 
 					if (charCount.ContainsKey(valueToInsert))
 					{
-						charCount[valueToInsert] += clonedItem.Value;
+						charCount[valueToInsert] += pairCount;
 					}
 					else
 					{
-						charCount.Add(valueToInsert, clonedItem.Value);
+						charCount.Add(valueToInsert, pairCount);
 					}
 				}
 			}
 
-			long min = long.MaxValue;
-			long max = long.MinValue;
-
-			foreach (KeyValuePair<int, long> item in charCount)
-			{
-				if (item.Value < min)
-				{
-					min = item.Value;
-				}
-				if (item.Value > max)
-				{
-					max = item.Value;
-				}
-			}
-
-			return max - min;
+			IEnumerable<long> values = charCount.Select(item => item.Value);
+			return values.Max() - values.Min();
 		}
 	}
 }
