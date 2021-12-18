@@ -7,29 +7,30 @@ namespace AdventOfCode.Year2021
 	public class DaySixteen : Day2021
 	{
 		private static int mVersionSum = 0;
+		private static long mResult = 0;
 
 		protected override object ResolveFirstPart(string[] input)
 		{
 			mVersionSum = 0;
+			mResult = 0;
 			string binRepresentation = HexStringToBinary(input[0]);
-			try
-			{
-				ParsePacket(binRepresentation);
-			}
-			catch (Exception)
-			{
-			}
+			ParsePacket(binRepresentation);
 			return mVersionSum;
 		}
 
 		protected override object ResolveSecondPart(string[] input)
 		{
-			return 0;
+			mVersionSum = 0;
+			mResult = 0;
+			string binRepresentation = HexStringToBinary(input[0]);
+			ParsePacket(binRepresentation);
+			return mResult;
 		}
 
-		private int ParsePacket(string toParse)
+		private (int bitsParsedReturn, long valueReturn) ParsePacket(string toParse)
 		{
 			int bitsParsedCount = 0;
+			long evalutedSubPackets = 0;
 
 			string verStr = toParse.Substring(bitsParsedCount, 3);
 			int version = Convert.ToInt32(verStr, 2);
@@ -51,37 +52,67 @@ namespace AdventOfCode.Year2021
 					string literalTypeBit = toParse.Substring(bitsParsedCount, 1);
 					int literalType = Convert.ToInt32(literalTypeBit, 2);
 					bitsParsedCount += 1;
-
 					keepReading = literalType == 1;
-
 					literalFull += toParse.Substring(bitsParsedCount, 4);
 					bitsParsedCount += 4;
 				}
 
-				return bitsParsedCount;
+				return (bitsParsedCount, Convert.ToInt64(literalFull, 2));
 			}
-			// Type ID 0 : Operator and has length type id
-			else
+
+			string lengthTypeStr = toParse.Substring(bitsParsedCount, 1);
+			int lengthType = Convert.ToInt32(lengthTypeStr, 2);
+			bitsParsedCount += 1;
+
+			// 15 -> total length in bits 
+			// 11 -> number of sub-packets immediately contained
+			int subPacketLengthBitCount = lengthType == 0 ? 15 : 11;
+			string subPacketLengthStr = toParse.Substring(bitsParsedCount, subPacketLengthBitCount);
+			int subPacketsCountOrLength = Convert.ToInt32(subPacketLengthStr, 2);
+			bitsParsedCount += subPacketLengthBitCount;
+
+			int packetIndex = 0;
+			int readLength = 0;
+			while ((lengthType == 0 && readLength != subPacketsCountOrLength) || (lengthType == 1 && packetIndex < subPacketsCountOrLength))
 			{
-				string lengthTypeStr = toParse.Substring(bitsParsedCount, 1);
-				int lengthType = Convert.ToInt32(lengthTypeStr, 2);
-				bitsParsedCount += 1;
+				string toReparse = toParse.Substring(bitsParsedCount + readLength, toParse.Length - (bitsParsedCount + readLength));
+				(int bitsParsed, long value) = ParsePacket(toReparse);
+				readLength += bitsParsed;
 
-				int subPacketLengthBitCount = lengthType == 0 ? 15 : 11;
-				string subPacketLengthStr = toParse.Substring(bitsParsedCount, subPacketLengthBitCount);
-				int subPacketLength = Convert.ToInt32(subPacketLengthStr, 2);
-				bitsParsedCount += subPacketLengthBitCount;
-
-				int readLength = 0;
-				for (int i = 0; i < subPacketLength; i++)
+				if (type == 0) // Sum
 				{
-					readLength += ParsePacket(toParse.Substring(bitsParsedCount + readLength, toParse.Length - (bitsParsedCount + readLength)));
+					evalutedSubPackets += value;
 				}
-
-				bitsParsedCount += readLength;
+				if (type == 1) // Product
+				{
+					evalutedSubPackets = (packetIndex == 0 ? value : evalutedSubPackets * value);
+				}
+				if (type == 2) // Minimum
+				{
+					evalutedSubPackets = (packetIndex == 0 ? value : (evalutedSubPackets > value ? value : evalutedSubPackets));
+				}
+				if (type == 3) // Maximum
+				{
+					evalutedSubPackets = (packetIndex == 0 ? value : (evalutedSubPackets < value ? value : evalutedSubPackets));
+				}
+				if (type == 5) // Greater than
+				{
+					evalutedSubPackets = (packetIndex == 0 ? value : (evalutedSubPackets > value ? 1 : 0));
+				}
+				if (type == 6) // Less than
+				{
+					evalutedSubPackets = (packetIndex == 0 ? value : (evalutedSubPackets < value ? 1 : 0));
+				}
+				if (type == 7) // Equal to
+				{
+					evalutedSubPackets = (packetIndex == 0 ? value : (evalutedSubPackets == value ? 1 : 0));
+				}
+				packetIndex++;
 			}
 
-			return bitsParsedCount;
+			bitsParsedCount += readLength;
+			mResult = evalutedSubPackets;
+			return (bitsParsedCount, evalutedSubPackets);
 		}
 
 		private string HexStringToBinary(string hexString)
