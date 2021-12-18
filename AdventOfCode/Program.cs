@@ -76,9 +76,9 @@ namespace AdventOfCode
 			//new Year2021.DayTwelve();
 			//new Year2021.DayThirteen();
 			//new Year2021.DayFourteen();
-			new Year2021.DayFifteen();
+			//new Year2021.DayFifteen();
 			//new Year2021.DaySixteen();
-			//new Year2021.DaySeventeen();
+			new Year2021.DaySeventeen();
 			//new Year2021.DayEighteen();
 			//new Year2021.DayNineteen();
 			//new Year2021.DayTwenty();
