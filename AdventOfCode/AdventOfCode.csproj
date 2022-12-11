@@ -136,6 +136,7 @@
     <Compile Include="Year2021\DayTwo.cs" />
     <Compile Include="Year2022\DayEleven.cs" />
     <Compile Include="Year2022\DayOne.cs" />
+    <Compile Include="Year2022\DayTwo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -325,10 +326,37 @@
     <Content Include="Year2021\Resources\inputDayTwo.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Year2022\Resources\inputDayEight.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Year2022\Resources\inputDayEleven.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Year2022\Resources\inputDayFive.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Year2022\Resources\inputDayFour.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Year2022\Resources\inputDayNine.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Year2022\Resources\inputDayOne.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Year2022\Resources\inputDaySeven.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Year2022\Resources\inputDaySix.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Year2022\Resources\inputDayTen.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Year2022\Resources\inputDayThree.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Year2022\Resources\inputDayTwo.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
