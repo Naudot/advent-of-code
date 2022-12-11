@@ -136,6 +136,7 @@
     <Compile Include="Year2021\DayTwo.cs" />
     <Compile Include="Year2022\DayEleven.cs" />
     <Compile Include="Year2022\DayOne.cs" />
+    <Compile Include="Year2022\DayThree.cs" />
     <Compile Include="Year2022\DayTwo.cs" />
   </ItemGroup>
   <ItemGroup>
