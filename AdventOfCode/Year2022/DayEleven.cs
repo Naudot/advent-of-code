@@ -12,13 +12,13 @@ namespace AdventOfCode.Year2022
 	{
 		public int ID;
 		public List<Item> Items = new List<Item>();
+		public long InspectedItemsCount;
 		public bool IsOperationMult;
 		public bool IsOperationSelfMult;
 		public int OperationValue;
 		public int TestValue;
 		public int TrueMonkeyID;
 		public int FalseMonkeyID;
-		public long InspectedItems;
 	}
 
 	public class DayEleven : Day2022
@@ -105,21 +105,21 @@ namespace AdventOfCode.Year2022
 
 					for (int k = 0; k < monkey.Items.Count; k++)
 					{
-						monkey.InspectedItems++;
+						monkey.InspectedItemsCount++;
 
 						Item item = monkey.Items[k];
 
 						if (monkey.IsOperationSelfMult)
 						{
-							item.WorryValue = item.WorryValue * item.WorryValue;
+							item.WorryValue *= item.WorryValue;
 						}
 						else if (monkey.IsOperationMult)
 						{
-							item.WorryValue = item.WorryValue * monkey.OperationValue;
+							item.WorryValue *= monkey.OperationValue;
 						}
 						else
 						{
-							item.WorryValue = item.WorryValue + monkey.OperationValue;
+							item.WorryValue += monkey.OperationValue;
 						}
 
 						if (!isSecondPart)
@@ -145,9 +145,9 @@ namespace AdventOfCode.Year2022
 				}
 			}
 
-			monkeys = monkeys.OrderByDescending(monkey => monkey.InspectedItems).ToList();
+			monkeys = monkeys.OrderByDescending(monkey => monkey.InspectedItemsCount).ToList();
 
-			return monkeys[0].InspectedItems * monkeys[1].InspectedItems;
+			return monkeys[0].InspectedItemsCount * monkeys[1].InspectedItemsCount;
 		}
 	}
 }
