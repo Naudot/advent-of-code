@@ -6,7 +6,7 @@ namespace AdventOfCode.Year2022
 {
 	public class Item
 	{
-		public int WorryValue;
+		public long WorryValue;
 	}
 
 	public class Monkey
@@ -19,7 +19,7 @@ namespace AdventOfCode.Year2022
 		public int TestValue;
 		public int TrueMonkeyID;
 		public int FalseMonkeyID;
-		public int InspectedItems;
+		public long InspectedItems;
 	}
 
 	public class DayEleven : Day2022
@@ -135,6 +135,8 @@ namespace AdventOfCode.Year2022
 			int monkeyNumber = 8;
 			int monkeyInfo = 7;
 
+			int commonWorryValue = 1;
+
 			for (int i = 0; i < monkeyNumber; i++)
 			{
 				Monkey monkey = new Monkey();
@@ -172,6 +174,8 @@ namespace AdventOfCode.Year2022
 					if (j == 3)
 					{
 						monkey.TestValue = int.Parse(line.Replace("Test: divisible by ", string.Empty).Trim());
+
+						commonWorryValue *= monkey.TestValue;
 					}
 					if (j == 4)
 					{
@@ -186,7 +190,7 @@ namespace AdventOfCode.Year2022
 				monkeys.Add(monkey);
 			}
 
-			int turnCount = 20;
+			int turnCount = 10000;
 
 			for (int i = 0; i < turnCount; i++)
 			{
@@ -213,7 +217,7 @@ namespace AdventOfCode.Year2022
 							item.WorryValue = item.WorryValue + monkey.OperationValue;
 						}
 
-						item.WorryValue /= 3;
+						item.WorryValue %= commonWorryValue;
 
 						if (item.WorryValue % monkey.TestValue == 0)
 						{
