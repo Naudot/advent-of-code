@@ -37,6 +37,8 @@ namespace AdventOfCode
 
 		protected abstract int Year { get; }
 
+		protected virtual bool DeactivateJIT { get; }
+
 		#endregion
 
 		#region Methods
@@ -51,13 +53,19 @@ namespace AdventOfCode
 
 				string[] input = File.ReadAllLines(day.GetResourcesPath());
 
-				day.ResolveFirstPart(input); // Force the JIT pass
+				if (!day.DeactivateJIT)
+				{
+					day.ResolveFirstPart(input); // Force the JIT pass
+				}
 				stopwatch.Restart();
 				object firstResult = day.ResolveFirstPart(input);
 				stopwatch.Stop();
 				double firstTime = stopwatch.Elapsed.TotalMilliseconds * 1000;
 
-				day.ResolveSecondPart(input); // Force the JIT pass
+				if (!day.DeactivateJIT)
+				{
+					day.ResolveSecondPart(input); // Force the JIT pass
+				}
 				stopwatch.Restart();
 				object secondResult = day.ResolveSecondPart(input);
 				stopwatch.Stop();

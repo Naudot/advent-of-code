@@ -144,6 +144,7 @@
     <Compile Include="Year2022\DaySix.cs" />
     <Compile Include="Year2022\DayTen.cs" />
     <Compile Include="Year2022\DayThree.cs" />
+    <Compile Include="Year2022\DayTwelve.cs" />
     <Compile Include="Year2022\DayTwo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -362,6 +363,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Year2022\Resources\inputDayThree.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Year2022\Resources\inputDayTwelve.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Year2022\Resources\inputDayTwo.txt">
