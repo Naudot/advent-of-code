@@ -78,45 +78,45 @@ namespace AdventOfCode.Year2022
 				}
 			}
 
-			int sandX = 500;
-			int sandY = 0;
-			int sandsComeToRest = 0;
+			int currentSandX = 500;
+			int currentSandY = 0;
+			int sandUnits = 0;
 
 			int floorY = lowestRockPoint + 2;
 			bool wentDownLowestRockPoint = false;
 
 			while ((!wentDownLowestRockPoint && !useFloor) || (rocks[0, 500] != State.SAND && useFloor))
 			{
-				if (rocks[sandY + 1, sandX] != State.ROCK && rocks[sandY + 1, sandX] != State.SAND && (!useFloor || sandY + 1 != floorY))
+				if (rocks[currentSandY + 1, currentSandX] != State.ROCK && rocks[currentSandY + 1, currentSandX] != State.SAND && (!useFloor || currentSandY + 1 != floorY))
 				{
-					sandY++;
+					currentSandY++;
 				}
-				else if (rocks[sandY + 1, sandX - 1] != State.ROCK && rocks[sandY + 1, sandX - 1] != State.SAND && (!useFloor || sandY + 1 != floorY))
+				else if (rocks[currentSandY + 1, currentSandX - 1] != State.ROCK && rocks[currentSandY + 1, currentSandX - 1] != State.SAND && (!useFloor || currentSandY + 1 != floorY))
 				{
-					sandY++;
-					sandX--;
+					currentSandY++;
+					currentSandX--;
 				}
-				else if (rocks[sandY + 1, sandX + 1] != State.ROCK && rocks[sandY + 1, sandX + 1] != State.SAND && (!useFloor || sandY + 1 != floorY))
+				else if (rocks[currentSandY + 1, currentSandX + 1] != State.ROCK && rocks[currentSandY + 1, currentSandX + 1] != State.SAND && (!useFloor || currentSandY + 1 != floorY))
 				{
-					sandY++;
-					sandX++;
+					currentSandY++;
+					currentSandX++;
 				}
 				else
 				{
-					rocks[sandY, sandX] = State.SAND;
-					sandX = 500;
-					sandY = 0;
-					sandsComeToRest++;
+					rocks[currentSandY, currentSandX] = State.SAND;
+					currentSandX = 500;
+					currentSandY = 0;
+					sandUnits++;
 					continue;
 				}
 
-				if (!useFloor && sandY > lowestRockPoint)
+				if (!useFloor && currentSandY > lowestRockPoint)
 				{
 					wentDownLowestRockPoint = true;
 				}
 			}
 
-			return sandsComeToRest;
+			return sandUnits;
 		}
 	}
 }
