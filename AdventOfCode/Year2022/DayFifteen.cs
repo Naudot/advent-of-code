@@ -84,7 +84,9 @@ namespace AdventOfCode.Year2022
 
 		private bool GetFirstPointNotNearSensors(Sensor sensor, List<Sensor> sensors, out (int, int) foundPoint)
 		{
+			// Will parse every point around the sensor
 			int sensorFakeDistance = sensor.BeaconDistance + 1;
+
 			int rangeTop = sensor.Y - sensorFakeDistance * 2;
 			int rangeDown = sensor.Y + sensorFakeDistance * 2;
 
@@ -95,44 +97,30 @@ namespace AdventOfCode.Year2022
 					continue;
 				}
 
-				int excludedBeaconPositionsCount = (1 + sensorFakeDistance * 2) - (2 * Math.Abs(i - sensor.Y));
-				int rangeLeft = sensor.X - (excludedBeaconPositionsCount - 1) / 2;
-				int rangeRight = sensor.X + (excludedBeaconPositionsCount - 1) / 2;
+				int reachDistanceByY = (1 + sensorFakeDistance * 2) - (2 * Math.Abs(i - sensor.Y));
+				int rangeLeft = sensor.X - (reachDistanceByY - 1) / 2;
+				int rangeRight = sensor.X + (reachDistanceByY - 1) / 2;
 
 				bool isInSensorsRange = false;
-				if (rangeLeft >= 0 && rangeLeft <= MAX_RANGE)
+				List<int> valuesToCheck = new List<int>() { rangeLeft, rangeRight };
+				foreach (int value in valuesToCheck)
 				{
-					for (int j = 0; j < sensors.Count; j++)
+					if (value >= 0 && value <= MAX_RANGE)
 					{
-						Sensor sensorToCheck = sensors[j];
-						if (sensorToCheck != sensor && IsPointNearSensor(sensorToCheck, rangeLeft, i))
+						for (int j = 0; j < sensors.Count; j++)
 						{
-							isInSensorsRange = true;
-							break;
+							Sensor sensorToCheck = sensors[j];
+							if (sensorToCheck != sensor && IsPointNearSensor(sensorToCheck, value, i))
+							{
+								isInSensorsRange = true;
+								break;
+							}
 						}
-					}
-					if (!isInSensorsRange)
-					{
-						foundPoint = (rangeLeft, i);
-						return true;
-					}
-				}
-				isInSensorsRange = false;
-				if (rangeRight >= 0 && rangeRight <= MAX_RANGE)
-				{
-					for (int j = 0; j < sensors.Count; j++)
-					{
-						Sensor sensorToCheck = sensors[j];
-						if (sensorToCheck != sensor && IsPointNearSensor(sensorToCheck, rangeRight, i))
+						if (!isInSensorsRange)
 						{
-							isInSensorsRange = true;
-							break;
+							foundPoint = (value, i);
+							return true;
 						}
-					}
-					if (!isInSensorsRange)
-					{
-						foundPoint = (rangeRight, i);
-						return true;
 					}
 				}
 			}
