@@ -73,7 +73,7 @@ namespace AdventOfCode.Year2022
 			(int, int) freePoint = (-1, -1);
 			for (int i = 0; i < sensors.Count; i++)
 			{
-				if (GetFirstPointNotNearSensors(sensors[i], sensors, out freePoint)) 
+				if (GetPointNotNearSensor(sensors[i], sensors, out freePoint)) 
 				{
 					break;
 				}
@@ -82,7 +82,7 @@ namespace AdventOfCode.Year2022
 			return (long)freePoint.Item1 * 4000000 + freePoint.Item2;
 		}
 
-		private bool GetFirstPointNotNearSensors(Sensor sensor, List<Sensor> sensors, out (int, int) foundPoint)
+		private bool GetPointNotNearSensor(Sensor sensor, List<Sensor> sensors, out (int, int) foundPoint)
 		{
 			// Will parse every point around the sensor
 			int sensorFakeDistance = sensor.BeaconDistance + 1;
