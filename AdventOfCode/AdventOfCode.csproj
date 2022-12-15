@@ -144,6 +144,7 @@
     <Compile Include="Year2022\DayOne.cs" />
     <Compile Include="Year2022\DaySeven.cs" />
     <Compile Include="Year2022\DaySix.cs" />
+    <Compile Include="Year2022\DaySixteen.cs" />
     <Compile Include="Year2022\DayTen.cs" />
     <Compile Include="Year2022\DayThirteen.cs" />
     <Compile Include="Year2022\DayThree.cs" />
