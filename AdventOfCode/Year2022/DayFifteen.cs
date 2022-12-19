@@ -90,6 +90,23 @@ namespace AdventOfCode.Year2022
 			int rangeTop = sensor.Y - sensorFakeDistance * 2;
 			int rangeDown = sensor.Y + sensorFakeDistance * 2;
 
+			if (rangeTop < 0)
+			{
+				rangeTop = 0;
+			}
+			if (rangeTop > MAX_RANGE)
+			{
+				rangeTop = MAX_RANGE;
+			}
+			if (rangeDown < 0)
+			{
+				rangeDown = 0;
+			}
+			if (rangeDown > MAX_RANGE)
+			{
+				rangeDown = MAX_RANGE;
+			}
+
 			for (int i = rangeTop; i < rangeDown + 1; i++)
 			{
 				if (i < 0 || i > MAX_RANGE)
