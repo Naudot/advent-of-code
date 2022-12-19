@@ -233,39 +233,39 @@ namespace AdventOfCode.Year2022
 
 			(int, int, int) leftCoord = coords;
 			leftCoord.Item1--;
-			if (!previous.Contains(leftCoord) && (leftCoord.Item1 < 0 || (!Cubes.ContainsKey(leftCoord) && DoCoordTouchesAir(leftCoord, previous))))
+			if (leftCoord.Item1 < 0 || (!previous.Contains(leftCoord) && (!Cubes.ContainsKey(leftCoord) && DoCoordTouchesAir(leftCoord, previous))))
 			{
 				return true;
 			}
 			(int, int, int) rightCoord = coords;
 			rightCoord.Item1++;
-			if (!previous.Contains(rightCoord) && (rightCoord.Item1 > 19 || (!Cubes.ContainsKey(rightCoord) && DoCoordTouchesAir(rightCoord, previous))))
+			if (rightCoord.Item1 > 19 || (!previous.Contains(rightCoord) && (!Cubes.ContainsKey(rightCoord) && DoCoordTouchesAir(rightCoord, previous))))
 			{
 				return true;
 			}
 
 			(int, int, int) bottomCoord = coords;
 			bottomCoord.Item2--;
-			if (!previous.Contains(bottomCoord) && (bottomCoord.Item2 < 0 || (!Cubes.ContainsKey(bottomCoord) && DoCoordTouchesAir(bottomCoord, previous))))
+			if (bottomCoord.Item2 < 0 || (!previous.Contains(bottomCoord) && (!Cubes.ContainsKey(bottomCoord) && DoCoordTouchesAir(bottomCoord, previous))))
 			{
 				return true;
 			}
 			(int, int, int) topCoord = coords;
 			topCoord.Item2++;
-			if (!previous.Contains(topCoord) && (topCoord.Item2 > 19 || (!Cubes.ContainsKey(topCoord) && DoCoordTouchesAir(topCoord, previous))))
+			if (topCoord.Item2 > 19 || (!previous.Contains(topCoord) && (!Cubes.ContainsKey(topCoord) && DoCoordTouchesAir(topCoord, previous))))
 			{
 				return true;
 			}
 
 			(int, int, int) backCoord = coords;
 			backCoord.Item3--;
-			if (!previous.Contains(backCoord) && (backCoord.Item3 < 0 || (!Cubes.ContainsKey(backCoord) && DoCoordTouchesAir(backCoord, previous))))
+			if (backCoord.Item3 < 0 || (!previous.Contains(backCoord) && (!Cubes.ContainsKey(backCoord) && DoCoordTouchesAir(backCoord, previous))))
 			{
 				return true;
 			}
 			(int, int, int) frontCoord = coords;
 			frontCoord.Item3++;
-			if (!previous.Contains(frontCoord) && (frontCoord.Item3 > 19 || (!Cubes.ContainsKey(frontCoord) && DoCoordTouchesAir(frontCoord, previous))))
+			if (frontCoord.Item3 > 19 || (!previous.Contains(frontCoord) && (!Cubes.ContainsKey(frontCoord) && DoCoordTouchesAir(frontCoord, previous))))
 			{
 				return true;
 			}
