@@ -222,37 +222,39 @@ namespace AdventOfCode.Year2022
 
 		protected override object ResolveSecondPart(string[] input)
 		{
-			Chamber chamber = new Chamber();
+			//Chamber chamber = new Chamber();
 
-			chamber.Rocks.Add((0, 2));
-			chamber.Rocks.Add((0, 3));
-			chamber.Rocks.Add((0, 4));
-			chamber.Rocks.Add((0, 5));
-			chamber.Rocks.Add((1, 4));
-			chamber.Rocks.Add((2, 2));
-			chamber.Rocks.Add((2, 3));
-			chamber.Rocks.Add((2, 4));
-			chamber.Rocks.Add((4, 0));
-			chamber.Rocks.Add((4, 1));
-			chamber.Rocks.Add((4, 2));
+			//chamber.Rocks.Add((0, 2));
+			//chamber.Rocks.Add((0, 3));
+			//chamber.Rocks.Add((0, 4));
+			//chamber.Rocks.Add((0, 5));
+			//chamber.Rocks.Add((1, 4));
+			//chamber.Rocks.Add((2, 2));
+			//chamber.Rocks.Add((2, 3));
+			//chamber.Rocks.Add((2, 4));
+			//chamber.Rocks.Add((4, 0));
+			//chamber.Rocks.Add((4, 1));
+			//chamber.Rocks.Add((4, 2));
 
-			chamber.Rocks.Add((5, 2));
-			chamber.Rocks.Add((5, 3));
-			chamber.Rocks.Add((5, 4));
-			chamber.Rocks.Add((5, 5));
-			chamber.Rocks.Add((6, 4));
-			chamber.Rocks.Add((7, 2));
-			chamber.Rocks.Add((7, 3));
-			chamber.Rocks.Add((7, 4));
-			chamber.Rocks.Add((9, 0));
-			chamber.Rocks.Add((9, 1));
-			chamber.Rocks.Add((9, 2));
+			//chamber.Rocks.Add((5, 2));
+			//chamber.Rocks.Add((5, 3));
+			//chamber.Rocks.Add((5, 4));
+			//chamber.Rocks.Add((5, 5));
+			//chamber.Rocks.Add((6, 4));
+			//chamber.Rocks.Add((7, 2));
+			//chamber.Rocks.Add((7, 3));
+			//chamber.Rocks.Add((7, 4));
+			//chamber.Rocks.Add((9, 0));
+			//chamber.Rocks.Add((9, 1));
+			//chamber.Rocks.Add((9, 2));
 
-			chamber.HighestY = 9;
+			//chamber.HighestY = 9;
 
-			return CheckRepetition(chamber);
-			//return GetChamberHeight(input, true);
+			//return CheckRepetition(chamber);
+			return GetChamberHeight(input, true);
 		}
+
+		private static long BlocksProcessed = 0;
 
 		private int GetChamberHeight(string[] input, bool isSecondPart)
 		{
@@ -284,9 +286,9 @@ namespace AdventOfCode.Year2022
 					{
 						List<(int, int)> left = rock.GetAllLeft();
 
-						for (int j = 0; j < left.Count; j++)
+						for (int x = 0; x < left.Count; x++)
 						{
-							(int, int) trueCoords = left[j];
+							(int, int) trueCoords = left[x];
 							trueCoords.Item1 += rock.PosY;
 							trueCoords.Item2 += rock.PosX;
 
@@ -306,9 +308,9 @@ namespace AdventOfCode.Year2022
 					{
 						List<(int, int)> right = rock.GetAllRight();
 
-						for (int j = 0; j < right.Count; j++)
+						for (int x = 0; x < right.Count; x++)
 						{
-							(int, int) trueCoords = right[j];
+							(int, int) trueCoords = right[x];
 							trueCoords.Item1 += rock.PosY;
 							trueCoords.Item2 += rock.PosX;
 
@@ -328,9 +330,9 @@ namespace AdventOfCode.Year2022
 					bool canMoveDown = true;
 					List<(int, int)> bottom = rock.GetAllBottom();
 
-					for (int j = 0; j < bottom.Count; j++)
+					for (int y = 0; y < bottom.Count; y++)
 					{
-						(int, int) trueCoords = bottom[j];
+						(int, int) trueCoords = bottom[y];
 						trueCoords.Item1 += rock.PosY;
 						trueCoords.Item2 += rock.PosX;
 
@@ -347,9 +349,15 @@ namespace AdventOfCode.Year2022
 					}
 					else
 					{
+						int lowestY = int.MaxValue;
 						rock.IsStopped = true;
 						for (int j = 0; j < rock.Shape.Count; j++)
 						{
+							if (lowestY > rock.Shape[j].Item1 + rock.PosY)
+							{
+								lowestY = rock.Shape[j].Item1 + rock.PosY;
+							}
+
 							chamber.Rocks.Add((rock.Shape[j].Item1 + rock.PosY, rock.Shape[j].Item2 + rock.PosX));
 						}
 
@@ -359,13 +367,76 @@ namespace AdventOfCode.Year2022
 							chamber.HighestY = top.Item1 + rock.PosY;
 						}
 
+						//WriteChamber(chamber, rock);
+
 						if (isSecondPart)
 						{
-							int repetitionHeight = CheckRepetition(chamber);
-							if (repetitionHeight > -1)
+							if (!IsRepeatFound)
 							{
-								Console.WriteLine("FOUND" + repetitionHeight + " at rocks " + (i + 1));
-								Console.ReadKey();
+								BlocksProcessed = i;
+								CheckRepetition(chamber);
+							}
+
+							if (IsRepeatFound)
+							{
+								if (((chamber.HighestY + 1)- LineWhereItBegins) % SizeOfRepeatBlock == 0)
+								{
+									Console.WriteLine("Repeat found. Rocks processed " + (i + 1));
+
+									if (FirstRocksCount == -1)
+									{
+										FirstRocksCount = (i + 1);
+									}
+									else if (SecondRocksCount == -1)
+									{
+										SecondRocksCount = (i + 1);
+									}
+									else
+									{
+										//Console.WriteLine("Rocks between blocks " + (SecondRocksCount - FirstRocksCount));
+										//Console.ReadKey();
+									}
+								}
+
+								if (i + 1 == 10615)
+								{
+									Console.WriteLine("chamber.HighestY " + chamber.HighestY);
+								}
+								else if (i + 1 == (10615 + 1005))
+								{
+									Console.WriteLine("chamber.HighestY 1005 blocks later" + chamber.HighestY);
+								}
+
+								// FOUND53 at rocks 85 from line 25
+								//53 lignes qui se répètent à partir du rocher 
+
+								//tous les 
+
+								//53 de hauteurs qui se répètent pour 85 rochers tombés
+								//et cela à partir de la 25 ème ligne
+
+								//FOUND2724 at rocks 3656 from line 264
+
+								//(1 000 000 000 000 (-15 à cause du modulo) / 35) * 53 + 25
+								//35 étant le nombre de rocks dans un repeat
+								//-15 étant 1 000 000 000 000 mod 35
+								//53 étant la taille du repeat
+								//25 étant les 25 lignes du début
+
+								//(1 000 000 000 000 - 175) - (1 000 000 000 000 - 175 Mod 1740) / 1740 * 2724 + 264
+
+								//999 999 999 825 - (999 999 999 825 Mod 1740) / 1740 * 2724 + 264
+
+								//999 999 999 825 - (1 005) / 1740 * 2724 + 264
+
+								//574 712 643 * 2724 + 264 = 1 565 517 239 796
+
+								//Quand je trouve mon repeat j'ai process 3655 blocks, sachant qu'il y en a 1740, je dois soustraire aux 1 000 000 000 000 (3655 - 3480) -> 175
+
+								//-> 1 565 517 239 796 FAUX
+								//1 565 517 239 796 mais il me reste 1005 rocks à process ??
+								//Si je fais la diff avec ces 1005 blocks j'obtiens 18193 - 16607 = 1586
+								//1 565 517 239 796 + 1586 = 1 565 517 241 382
 							}
 						}
 					}
@@ -377,35 +448,54 @@ namespace AdventOfCode.Year2022
 			return chamber.HighestY + 1;
 		}
 
-		private int CheckRepetition(Chamber chamber)
+		// Repeat informations
+		public static bool IsRepeatFound = false;
+		public static int LineWhereItBegins = -1;
+		public static int SizeOfRepeatBlock = -1;
+		public static long FirstRocksCount = -1;
+		public static long SecondRocksCount = -1;
+
+		private void CheckRepetition(Chamber chamber)
 		{
-			int towerHeight = chamber.HighestY + 1;
-
-			// Means we have an impair number of filled rock lines
-			if (towerHeight % 2 == 1)
+			for (int k = 0; k < chamber.HighestY; k++)
 			{
-				return -1;
-			}
+				int towerHeight = chamber.HighestY + 1 - k;
 
-			for (int i = 0; i < towerHeight / 2; i++)
-			{
-				for (int j = 0; j < 7; j++)
+				bool isNotFound = false;
+				for (int i = 0; i < towerHeight / 2; i++)
 				{
-					(int, int) coord = (i, j);
-					(int, int) coordRepeat = (i + towerHeight / 2, j);
+					for (int j = 0; j < 7; j++)
+					{
+						(int, int) coord = (i + k, j);
+						(int, int) coordRepeat = (i + k + towerHeight / 2, j);
 
-					if (chamber.Rocks.Contains(coord) && !chamber.Rocks.Contains(coordRepeat))
-					{
-						return -1;
+						if ((chamber.Rocks.Contains(coord) && !chamber.Rocks.Contains(coordRepeat))
+							|| (!chamber.Rocks.Contains(coord) && chamber.Rocks.Contains(coordRepeat)))
+						{
+							isNotFound = true;
+							break;
+						}
 					}
-					if (!chamber.Rocks.Contains(coord) && chamber.Rocks.Contains(coordRepeat))
+
+					if (isNotFound)
 					{
-						return -1;
+						break;
 					}
 				}
-			}
 
-			return towerHeight / 2;
+				if (isNotFound)
+				{
+					continue;
+				}
+
+				if (towerHeight > 10)
+				{
+					IsRepeatFound = true;
+					LineWhereItBegins = k;
+					SizeOfRepeatBlock = towerHeight / 2;
+					Console.WriteLine("Found at line " + LineWhereItBegins + " with block size " + SizeOfRepeatBlock + " with blocks already processed " + BlocksProcessed);
+				}
+			}
 		}
 
 		private Rock GetNextRock(long index)
