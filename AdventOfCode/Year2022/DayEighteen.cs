@@ -158,6 +158,7 @@ namespace AdventOfCode.Year2022
 				}
 			}
 
+			// 2100 -> Alors que c'est 2102 :(
 			return Cubes.Select(val => GetFreeSidesThatTouchAirCount(val.Value)).Sum();
 		}
 
@@ -228,7 +229,6 @@ namespace AdventOfCode.Year2022
 
 		private bool DoCoordTouchesAir((int, int, int) coords, HashSet<(int, int, int)> previous)
 		{
-			// 2100 -> Alors que c'est 2102 :(
 			previous.Add(coords);
 
 			(int, int, int) leftCoord = coords;
