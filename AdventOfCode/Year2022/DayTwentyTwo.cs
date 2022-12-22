@@ -177,11 +177,7 @@ namespace AdventOfCode.Year2022
 				{
 					if (j < input[i].Length)
 					{
-						map.Add((i, j), input[i][j] == ' ' ? TileType.NOTHING : (input[i][j] == '.' ? TileType.PATH : TileType.WALL));
-					}
-					else
-					{
-						map.Add((i, j), TileType.NOTHING);
+						map.Add((i, j), input[i][j] == '.' ? TileType.PATH : TileType.WALL);
 					}
 				}
 			}
@@ -247,7 +243,7 @@ namespace AdventOfCode.Year2022
 					for (int j = 0; j < number; j++)
 					{
 						(int, int) next = currentPos;
-						Direction nextDir = currentDirection;
+						Direction newDirWhenCubeFaceChanged = currentDirection;
 
 						if (currentDirection == Direction.RIGHT)
 						{
@@ -257,28 +253,28 @@ namespace AdventOfCode.Year2022
 							{
 								next.Item1 = 149 - next.Item1; // Up is down and vice versa
 								next.Item2 = 99;
-								nextDir = Direction.LEFT;
+								newDirWhenCubeFaceChanged = Direction.LEFT;
 							}
 							// If we go after the blue square
 							else if (next.Item1 >= 50 && next.Item1 < 100 && next.Item2 > 99)
 							{
 								next.Item2 = 50 + next.Item1;
 								next.Item1 = 49;
-								nextDir = Direction.UP;
+								newDirWhenCubeFaceChanged = Direction.UP;
 							}
 							// If we go after the green square
 							else if (next.Item1 >= 100 && next.Item1 < 150 && next.Item2 > 99)
 							{
 								next.Item1 = 149 - next.Item1; // Up is down and vice versa
 								next.Item2 = 149;
-								nextDir = Direction.LEFT;
+								newDirWhenCubeFaceChanged = Direction.LEFT;
 							}
 							// If we go after the grey square
 							else if (next.Item1 >= 150 && next.Item1 < 200 && next.Item2 > 49)
 							{
 								next.Item2 = next.Item1 - 100;
 								next.Item1 = 149;
-								nextDir = Direction.UP;
+								newDirWhenCubeFaceChanged = Direction.UP;
 							}
 						}
 						else if (currentDirection == Direction.DOWN)
@@ -288,22 +284,22 @@ namespace AdventOfCode.Year2022
 							if (next.Item2 < 50 && next.Item1 > 199)
 							{
 								next.Item1 = 0;
-								next.Item2 = next.Item2 + 50; // Pas d'inversement ?
-								nextDir = Direction.DOWN;
+								next.Item2 = next.Item2 + 100;
+								newDirWhenCubeFaceChanged = Direction.DOWN;
 							}
 							// If we go past the green square
 							else if (next.Item2 >= 50 && next.Item2 < 100 && next.Item1 > 149)
 							{
-								next.Item1 = next.Item2 + 50;
+								next.Item1 = next.Item2 + 100;
 								next.Item2 = 49;
-								nextDir = Direction.LEFT;
+								newDirWhenCubeFaceChanged = Direction.LEFT;
 							}
 							// If we go past the red square
 							else if (next.Item2 >= 100 && next.Item2 < 150 && next.Item1 > 49)
 							{
 								next.Item1 = next.Item2 - 50;
 								next.Item2 = 99;
-								nextDir = Direction.LEFT;
+								newDirWhenCubeFaceChanged = Direction.LEFT;
 							}
 						}
 						else if (currentDirection == Direction.LEFT)
@@ -314,28 +310,28 @@ namespace AdventOfCode.Year2022
 							{
 								next.Item1 = 149 - next.Item1; // Up is down and vice versa
 								next.Item2 = 0;
-								nextDir = Direction.RIGHT;
+								newDirWhenCubeFaceChanged = Direction.RIGHT;
 							}
 							// If we go before the blue square
 							else if (next.Item1 >= 50 && next.Item1 < 100 && next.Item2 < 50)
 							{
 								next.Item2 = next.Item1 - 50;
 								next.Item1 = 100;
-								nextDir = Direction.DOWN;
+								newDirWhenCubeFaceChanged = Direction.DOWN;
 							}
 							// If we go before the crimson square
 							else if (next.Item1 >= 100 && next.Item1 < 150 && next.Item2 < 0)
 							{
 								next.Item1 = 149 - next.Item1; // Up is down and vice versa
 								next.Item2 = 50;
-								nextDir = Direction.RIGHT;
+								newDirWhenCubeFaceChanged = Direction.RIGHT;
 							}
 							// If we go before the grey square
 							else if (next.Item1 >= 150 && next.Item1 < 200 && next.Item2 < 0)
 							{
-								next.Item2 = next.Item1 - 50;
+								next.Item2 = next.Item1 - 100;
 								next.Item1 = 0;
-								nextDir = Direction.DOWN;
+								newDirWhenCubeFaceChanged = Direction.DOWN;
 							}
 						}
 						else
@@ -346,28 +342,28 @@ namespace AdventOfCode.Year2022
 							{
 								next.Item1 = next.Item2 + 50;
 								next.Item2 = 50;
-								nextDir = Direction.RIGHT;
+								newDirWhenCubeFaceChanged = Direction.RIGHT;
 							}
 							// If we go past the black square
 							else if (next.Item2 >= 50 && next.Item2 < 100 && next.Item1 < 0)
 							{
-								next.Item1 = 199;
-								next.Item2 = next.Item2 - 50; // Pas d'inversement ?
-								nextDir = Direction.UP;
+								next.Item1 = next.Item2 + 100;
+								next.Item2 = 0;
+								newDirWhenCubeFaceChanged = Direction.RIGHT;
 							}
 							// If we go up the red square
 							else if (next.Item2 >= 100 && next.Item2 < 150 && next.Item1 < 0)
 							{
-								next.Item1 = next.Item2 + 50;
-								next.Item2 = 0;
-								nextDir = Direction.RIGHT;
+								next.Item1 = 199;
+								next.Item2 = next.Item2 - 100;
+								newDirWhenCubeFaceChanged = Direction.UP;
 							}
 						}
 
 						if (map[next] == TileType.PATH)
 						{
 							currentPos = next;
-							currentDirection = nextDir;
+							currentDirection = newDirWhenCubeFaceChanged;
 						}
 					}
 				}

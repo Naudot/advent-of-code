@@ -406,6 +406,7 @@
     <Content Include="Year2022\Resources\inputDayTwentyTwo.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Year2022\Resources\inputDayTwentyTwoHelper.png" />
     <Content Include="Year2022\Resources\inputDayTwo.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
