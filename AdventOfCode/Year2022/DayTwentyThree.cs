@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace AdventOfCode.Year2022
@@ -23,6 +22,17 @@ namespace AdventOfCode.Year2022
 
 		protected override object ResolveFirstPart(string[] input)
 		{
+			return GetResult(input, false);
+		}
+
+		protected override object ResolveSecondPart(string[] input)
+		{
+			return GetResult(input, true);
+		}
+
+		private int GetResult(string[] input, bool isSecondPart)
+		{
+
 			Direction first = Direction.NORTH;
 			Direction second = Direction.SOUTH;
 			Direction third = Direction.WEST;
@@ -45,7 +55,8 @@ namespace AdventOfCode.Year2022
 				}
 			}
 
-			for (int i = 0; i < 10; i++)
+			int roundCount = isSecondPart ? int.MaxValue : 10;
+			for (int i = 0; i < roundCount; i++)
 			{
 				for (int j = 0; j < elves.Count; j++)
 				{
@@ -75,10 +86,6 @@ namespace AdventOfCode.Year2022
 					{
 						newPosition = GetNextPos(newPosition, fourth);
 					}
-					else
-					{
-						//Console.WriteLine("Impossible");
-					}
 
 					if (!wantedPosCount.ContainsKey(newPosition))
 					{
@@ -90,6 +97,11 @@ namespace AdventOfCode.Year2022
 					}
 
 					elf.WantedPos = newPosition;
+				}
+
+				if (isSecondPart && !wantedPosCount.Any())
+				{
+					return (i + 1);
 				}
 
 				for (int j = 0; j < elves.Count; j++)
@@ -138,114 +150,6 @@ namespace AdventOfCode.Year2022
 			}
 
 			return count;
-		}
-
-		protected override object ResolveSecondPart(string[] input)
-		{
-			Direction first = Direction.NORTH;
-			Direction second = Direction.SOUTH;
-			Direction third = Direction.WEST;
-			Direction fourth = Direction.EAST;
-
-			List<Elf> elves = new List<Elf>();
-			Dictionary<(int, int), int> wantedPosCount = new Dictionary<(int, int), int>();
-			HashSet<(int, int)> elfPositions = new HashSet<(int, int)>();
-
-			for (int i = 0; i < input.Length; i++)
-			{
-				for (int j = 0; j < input[i].Length; j++)
-				{
-					if (input[i][j] == '#')
-					{
-						Elf elf = new Elf() { Pos = (i, j) };
-						elves.Add(elf);
-						elfPositions.Add((i, j));
-					}
-				}
-			}
-
-			int roundCount = 0;
-			while (true)
-			{
-				roundCount++;
-				for (int j = 0; j < elves.Count; j++)
-				{
-					Elf elf = elves[j];
-
-					elf.WillMove = false;
-					if (!HasElvesAround(elfPositions, elf))
-					{
-						continue;
-					}
-
-					elf.WillMove = true;
-					(int, int) newPosition = elf.Pos;
-					if (!HasElves(elfPositions, elf, first))
-					{
-						newPosition = GetNextPos(newPosition, first);
-					}
-					else if (!HasElves(elfPositions, elf, second))
-					{
-						newPosition = GetNextPos(newPosition, second);
-					}
-					else if (!HasElves(elfPositions, elf, third))
-					{
-						newPosition = GetNextPos(newPosition, third);
-					}
-					else if (!HasElves(elfPositions, elf, fourth))
-					{
-						newPosition = GetNextPos(newPosition, fourth);
-					}
-					else
-					{
-						//Console.WriteLine("Impossible");
-					}
-
-					if (!wantedPosCount.ContainsKey(newPosition))
-					{
-						wantedPosCount.Add(newPosition, 1);
-					}
-					else
-					{
-						wantedPosCount[newPosition]++;
-					}
-
-					elf.WantedPos = newPosition;
-				}
-
-				if (!wantedPosCount.Any())
-				{
-					return roundCount;
-				}
-
-				for (int j = 0; j < elves.Count; j++)
-				{
-					Elf elf = elves[j];
-
-					if (!elf.WillMove)
-					{
-						continue;
-					}
-
-					if (wantedPosCount[elf.WantedPos] > 1)
-					{
-						continue;
-					}
-
-					elfPositions.Remove(elf.Pos);
-					elf.Pos = elf.WantedPos;
-					elfPositions.Add(elf.Pos);
-				}
-
-				wantedPosCount.Clear();
-				Direction oldFirst = first;
-				first = second;
-				second = third;
-				third = fourth;
-				fourth = oldFirst;
-			}
-
-			return -1;
 		}
 
 		private bool HasElves(HashSet<(int, int)> elfPositions, Elf elf, Direction direction)
