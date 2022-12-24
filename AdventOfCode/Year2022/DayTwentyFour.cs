@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace AdventOfCode.Year2022
 {
@@ -19,16 +18,6 @@ namespace AdventOfCode.Year2022
 			EAST,
 			SOUTH,
 			WEST
-		}
-
-		public class Path
-		{
-			public (int, int) CurrentPos;
-			public int CurrentMinute;
-			public bool IsStuck = false;
-
-			public int BestPathTime = int.MaxValue;
-			public List<Path> Paths = new List<Path>();
 		}
 
 		public class Blizzard
@@ -109,97 +98,127 @@ namespace AdventOfCode.Year2022
 				}
 			}
 
-			Path main = new Path();
-			main.CurrentPos = ourPos;
-			Draw(0, main.CurrentPos);
-
+			HashSet<(int, int)> reachedPositions = new HashSet<(int, int)>();
+			reachedPositions.Add(ourPos);
 			int currentMinute = 1;
-			while (main.BestPathTime == int.MaxValue)
+			while (!reachedPositions.Contains(mDestination))
 			{
+				Draw(currentMinute, reachedPositions);
 				UpdateBlizzardsPos();
-				ProcessPath(currentMinute, main);
+				ProcessPositions(reachedPositions, mDestination);
 				currentMinute++;
 			}
 
-			return main.BestPathTime;
+			return currentMinute - 1;
 		}
 
-		private void ProcessPath(int currentMinute, Path current)
+		protected override object ResolveSecondPart(string[] input)
 		{
-			current.CurrentMinute = currentMinute;
+			mBlizzards.Clear();
+			mBlizzardPositions.Clear();
+			mDestination = (-1, -1);
+			mMaxX = input[0].Length - 2;
+			mMaxY = input.Length - 2;
 
-			// We separated into multiple paths
-			if (current.Paths.Count > 0)
+			(int, int) ourPos = (-1, -1);
+
+			for (int i = 0; i < input.Length; i++)
 			{
-				bool areAllStuck = true;
-				for (int i = 0; i < current.Paths.Count; i++)
+				for (int j = 0; j < input[i].Length; j++)
 				{
-					Path child = current.Paths[i];
-					if (!child.IsStuck)
+					if (i == 0)
 					{
-						ProcessPath(currentMinute, child);
-						areAllStuck = false;
+						if (input[i][j] == '.')
+						{
+							ourPos = (i, j);
+						}
 					}
-				}
+					else if (i == input.Length - 1)
+					{
+						if (input[i][j] == '.')
+						{
+							mDestination = (i, j);
+						}
+					}
 
-				if (areAllStuck)
-				{
-					current.IsStuck = true;
+					Blizzard blizzard = null;
+					if (input[i][j] == '^')
+					{
+						blizzard = new Blizzard() { Pos = (i, j), Direction = Direction.NORTH };
+					}
+					if (input[i][j] == '>')
+					{
+						blizzard = new Blizzard() { Pos = (i, j), Direction = Direction.EAST };
+					}
+					if (input[i][j] == 'v')
+					{
+						blizzard = new Blizzard() { Pos = (i, j), Direction = Direction.SOUTH };
+					}
+					if (input[i][j] == '<')
+					{
+						blizzard = new Blizzard() { Pos = (i, j), Direction = Direction.WEST };
+					}
+
+					if (blizzard != null)
+					{
+						mBlizzards.Add(blizzard);
+						UpdateBlizzardsDic((i, j), blizzard, false);
+					}
 				}
 			}
-			// Else we process our path until the destination
-			else
+
+			HashSet<(int, int)> reachedPositions = new HashSet<(int, int)>();
+			int currentMinute = 1;
+
+			reachedPositions.Add(ourPos);
+			while (!reachedPositions.Contains(mDestination))
 			{
-				bool isStuck;
-				List<(int, int)> freePositions = GetFreePositions(current.CurrentPos, out isStuck);
+				Draw(currentMinute, reachedPositions);
+				UpdateBlizzardsPos();
+				ProcessPositions(reachedPositions, mDestination);
+				currentMinute++;
+			}
 
-				if (isStuck)
-				{
-					if (mDraw)
-					{
-						Console.Write("\nCan not move and stuck in blizzard, removing a path at minute " + currentMinute);
-					}
+			reachedPositions.Clear();
+			reachedPositions.Add(mDestination);
+			while (!reachedPositions.Contains(ourPos))
+			{
+				Draw(currentMinute, reachedPositions);
+				UpdateBlizzardsPos();
+				ProcessPositions(reachedPositions, ourPos);
+				currentMinute++;
+			}
 
-					current.IsStuck = true;
-					return;
-				}
+			reachedPositions.Clear();
+			reachedPositions.Add(ourPos);
+			while (!reachedPositions.Contains(mDestination))
+			{
+				Draw(currentMinute, reachedPositions);
+				UpdateBlizzardsPos();
+				ProcessPositions(reachedPositions, mDestination);
+				currentMinute++;
+			}
 
-				if (freePositions.Count == 1)
-				{
-					current.CurrentPos = freePositions[0];
-					if (current.CurrentPos == mDestination)
-					{
-						current.BestPathTime = currentMinute;
-						Console.Write("\nFound destination in " + currentMinute);
-						Console.ReadKey();
-					}
-					Draw(currentMinute, current.CurrentPos);
-				}
-				else if (freePositions.Count > 1)
-				{
-					current.Paths = new List<Path>();
-					for (int i = 0; i < freePositions.Count; i++)
-					{
-						Path child = new Path() { CurrentPos = freePositions[i], CurrentMinute = currentMinute };
-						if (child.CurrentPos == mDestination)
-						{
-							child.BestPathTime = currentMinute;
-							Console.Write("\nFound destination in " + currentMinute + " minutes");
-							Console.ReadKey();
-						}
-						Draw(currentMinute, child.CurrentPos);
+			return currentMinute - 1;
+		}
 
-						current.Paths.Add(child);
-					}
-				}
-				else // Wait
-				{
-					Draw(currentMinute, current.CurrentPos);
-				}
+		private void ProcessPositions(HashSet<(int, int)> reachedPosition, (int, int) exception)
+		{
+			List<(int, int)> posToAdd = new List<(int, int)>();
+			foreach ((int, int) position in reachedPosition)
+			{
+				List<(int, int)> freePositions = GetFreePositions(position, exception);
+				posToAdd.AddRange(freePositions);
+			}
+
+			reachedPosition.Clear();
+			for (int i = 0; i < posToAdd.Count; i++)
+			{
+				reachedPosition.Add(posToAdd[i]);
 			}
 		}
 
-		private List<(int, int)> GetFreePositions((int, int) pos, out bool isStuck)
+		private List<(int, int)> GetFreePositions((int, int) pos, (int, int) exception)
 		{
 			(int, int) north = (pos.Item1 - 1, pos.Item2);
 			(int, int) east = (pos.Item1, pos.Item2 + 1);
@@ -208,33 +227,27 @@ namespace AdventOfCode.Year2022
 
 			List<(int, int)> freePositions = new List<(int, int)>();
 
-			if ((!mBlizzardPositions.ContainsKey(south) && south.Item1 <= mMaxY && south.Item2 >= mMinX && south.Item2 <= mMaxX) || south == mDestination)
+			if ((!mBlizzardPositions.ContainsKey(south) && south.Item1 <= mMaxY && south.Item2 >= mMinX && south.Item2 <= mMaxX) || south == exception)
 			{
 				freePositions.Add(south);
 			}
-			if ((!mBlizzardPositions.ContainsKey(east) && east.Item2 <= mMaxX && east.Item1 >= mMinY && east.Item1 <= mMaxY) || east == mDestination)
+			if ((!mBlizzardPositions.ContainsKey(east) && east.Item2 <= mMaxX && east.Item1 >= mMinY && east.Item1 <= mMaxY) || east == exception)
 			{
 				freePositions.Add(east);
 			}
-			if ((!mBlizzardPositions.ContainsKey(north) && north.Item1 >= mMinY && north.Item2 >= mMinX && north.Item2 <= mMaxX) || north == mDestination)
+			if ((!mBlizzardPositions.ContainsKey(north) && north.Item1 >= mMinY && north.Item2 >= mMinX && north.Item2 <= mMaxX) || north == exception)
 			{
 				freePositions.Add(north);
 			}
-			if ((!mBlizzardPositions.ContainsKey(west) && west.Item2 >= mMinX && west.Item1 >= mMinY && west.Item1 <= mMaxY) || west == mDestination)
+			if ((!mBlizzardPositions.ContainsKey(west) && west.Item2 >= mMinX && west.Item1 >= mMinY && west.Item1 <= mMaxY) || west == exception)
 			{
 				freePositions.Add(west);
 			}
-
-			if (freePositions.Count == 0)
+			if (!mBlizzardPositions.ContainsKey(pos))
 			{
-				if (mBlizzardPositions.ContainsKey(pos))
-				{
-					isStuck = true;
-					return null;
-				}
+				freePositions.Add(pos);
 			}
 
-			isStuck = false;
 			return freePositions;
 		}
 
@@ -312,7 +325,7 @@ namespace AdventOfCode.Year2022
 			}
 		}
 
-		private void Draw(int minute, (int, int) currentPos)
+		private void Draw(int minute, HashSet<(int, int)> possiblePositions)
 		{
 			if (!mDraw)
 			{
@@ -327,7 +340,7 @@ namespace AdventOfCode.Year2022
 				Console.WriteLine();
 				for (int j = mMinX - 1; j < mMaxX + 2; j++)
 				{
-					if ((i, j) == currentPos)
+					if (possiblePositions.Contains((i, j)))
 					{
 						Console.ForegroundColor = ConsoleColor.Red;
 						Console.Write('E');
@@ -360,11 +373,6 @@ namespace AdventOfCode.Year2022
 					}
 				}
 			}
-		}
-
-		protected override object ResolveSecondPart(string[] input)
-		{
-			return string.Empty;
 		}
 	}
 }
