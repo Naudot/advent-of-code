@@ -24,7 +24,7 @@ namespace AdventOfCode
 			//new Year2015.DaySix();
 			//new Year2015.DaySeven();
 			//new Year2015.DayEight();
-			//new Year2015.DayNine();
+			new Year2015.DayNine();
 
 			//new Year2016.DayOne();
 
@@ -111,9 +111,9 @@ namespace AdventOfCode
 			//new Year2022.DayTwentyOne();
 			//new Year2022.DayTwentyTwo();
 			//new Year2022.DayTwentyThree();
-			new Year2022.DayTwentyFour();
+			//new Year2022.DayTwentyFour();
 
-			//Day2015.CalculateAndLogResults();
+			Day2015.CalculateAndLogResults();
 			//Console.WriteLine();
 			//Day2016.CalculateAndLogResults();
 			//Console.WriteLine();
@@ -127,7 +127,7 @@ namespace AdventOfCode
 			//Console.WriteLine();
 			//Day2021.CalculateAndLogResults();
 			//Console.WriteLine();
-			Day2022.CalculateAndLogResults();
+			//Day2022.CalculateAndLogResults();
 		}
 	}
 }
