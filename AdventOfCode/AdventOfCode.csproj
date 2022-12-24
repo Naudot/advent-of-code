@@ -81,6 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Year2015\DayNine.cs" />
+    <Compile Include="Year2015\DayTen.cs" />
     <Compile Include="Year2021\DayEight.cs" />
     <Compile Include="Year2021\DayEighteen.cs" />
     <Compile Include="Year2021\DayEleven.cs" />

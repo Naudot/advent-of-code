@@ -51,7 +51,12 @@ namespace AdventOfCode
 			{
 				Day<T> day = Days[i];
 
-				string[] input = File.ReadAllLines(day.GetResourcesPath());
+				string[] input = null;
+
+				if (File.Exists(day.GetResourcesPath()))
+				{
+					input = File.ReadAllLines(day.GetResourcesPath());
+				}
 
 				if (!day.DeactivateJIT)
 				{
