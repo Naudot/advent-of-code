@@ -3,34 +3,34 @@ using System.Linq;
 
 namespace AdventOfCode.Year2022
 {
-	public class Cube
-	{
-		public (int, int, int) Coords;
-
-		public Cube LeftCube; // -X
-		public Cube RightCube; // +X
-		public Cube BottomCube; // -Y
-		public Cube TopCube; // +Y
-		public Cube BackCube; // -Z
-		public Cube FrontCube; // +Z
-
-		public int GetFreeSidesCount()
-		{
-			int count = 0;
-
-			count += LeftCube != null ? 0 : 1;
-			count += RightCube != null ? 0 : 1;
-			count += BottomCube != null ? 0 : 1;
-			count += TopCube != null ? 0 : 1;
-			count += BackCube != null ? 0 : 1;
-			count += FrontCube != null ? 0 : 1;
-
-			return count;
-		}
-	}
-
 	public class DayEighteen : Day2022
 	{
+		public class Cube
+		{
+			public (int, int, int) Coords;
+
+			public Cube LeftCube; // -X
+			public Cube RightCube; // +X
+			public Cube BottomCube; // -Y
+			public Cube TopCube; // +Y
+			public Cube BackCube; // -Z
+			public Cube FrontCube; // +Z
+
+			public int GetFreeSidesCount()
+			{
+				int count = 0;
+
+				count += LeftCube != null ? 0 : 1;
+				count += RightCube != null ? 0 : 1;
+				count += BottomCube != null ? 0 : 1;
+				count += TopCube != null ? 0 : 1;
+				count += BackCube != null ? 0 : 1;
+				count += FrontCube != null ? 0 : 1;
+
+				return count;
+			}
+		}
+
 		private static Dictionary<(int, int, int), Cube> Cubes = new Dictionary<(int, int, int), Cube>();
 
 		protected override object ResolveFirstPart(string[] input)

@@ -4,66 +4,71 @@ using System.Linq;
 
 namespace AdventOfCode.Year2022
 {
-	public abstract class Rock
+	/// <summary>
+	/// For this day, my Y axe ascends from bottom to top.
+	/// </summary>
+	public class DaySeventeen : Day2022
 	{
-		public List<(int, int)> Shape;
-
-		public bool IsStopped;
-		public int PosX;
-		public int PosY;
-
-		public abstract List<(int, int)> GetAllLeft();
-		public abstract List<(int, int)> GetAllRight();
-		public abstract List<(int, int)> GetAllBottom();
-		public abstract (int, int) GetTop();
-
-		public void Clear()
+		public abstract class Rock
 		{
-			IsStopped = false;
-			PosX = 0;
-			PosY = 0;
+			public List<(int, int)> Shape;
+
+			public bool IsStopped;
+			public int PosX;
+			public int PosY;
+
+			public abstract List<(int, int)> GetAllLeft();
+			public abstract List<(int, int)> GetAllRight();
+			public abstract List<(int, int)> GetAllBottom();
+			public abstract (int, int) GetTop();
+
+			public void Clear()
+			{
+				IsStopped = false;
+				PosX = 0;
+				PosY = 0;
+			}
 		}
-	}
 
-	public class HoriLine : Rock
-	{
-		public HoriLine()
+		public class HoriLine : Rock
 		{
-			Shape = new List<(int, int)>()
+			public HoriLine()
+			{
+				Shape = new List<(int, int)>()
 				{
 					(0, 0),
 					(0, 1),
 					(0, 2),
 					(0, 3)
 				};
+			}
+
+			public override List<(int, int)> GetAllLeft()
+			{
+				return new List<(int, int)>() { Shape[0] };
+			}
+
+			public override List<(int, int)> GetAllRight()
+			{
+				return new List<(int, int)>() { Shape[3] };
+			}
+
+			public override List<(int, int)> GetAllBottom()
+			{
+				return new List<(int, int)>() { Shape[0], Shape[1], Shape[2], Shape[3] };
+			}
+
+			public override (int, int) GetTop()
+			{
+				return Shape[0];
+			}
 		}
 
-		public override List<(int, int)> GetAllLeft()
+		public class Plus : Rock
 		{
-			return new List<(int, int)>() { Shape[0] };
-		}
-
-		public override List<(int, int)> GetAllRight()
-		{
-			return new List<(int, int)>() { Shape[3] };
-		}
-
-		public override List<(int, int)> GetAllBottom()
-		{
-			return new List<(int, int)>() { Shape[0], Shape[1], Shape[2], Shape[3] };
-		}
-
-		public override (int, int) GetTop()
-		{
-			return Shape[0];
-		}
-	}
-
-	public class Plus : Rock
-	{
-		public Plus()
-		{
-			Shape = new List<(int, int)>()
+			public Plus()
+			{
+				Shape = new List<(int, int)>()
 				{
 					(0, 1),
 					(1, 0),
@@ -71,34 +76,34 @@ namespace AdventOfCode.Year2022
 					(1, 2),
 					(2, 1)
 				};
+			}
+
+			public override List<(int, int)> GetAllLeft()
+			{
+				return new List<(int, int)>() { Shape[0], Shape[1], Shape[4] };
+			}
+
+			public override List<(int, int)> GetAllRight()
+			{
+				return new List<(int, int)>() { Shape[0], Shape[3], Shape[4] };
+			}
+
+			public override List<(int, int)> GetAllBottom()
+			{
+				return new List<(int, int)>() { Shape[0], Shape[1], Shape[3] };
+			}
+
+			public override (int, int) GetTop()
+			{
+				return Shape[4];
+			}
 		}
 
-		public override List<(int, int)> GetAllLeft()
+		public class RightAngle : Rock
 		{
-			return new List<(int, int)>() { Shape[0], Shape[1], Shape[4] };
-		}
-
-		public override List<(int, int)> GetAllRight()
-		{
-			return new List<(int, int)>() { Shape[0], Shape[3], Shape[4] };
-		}
-
-		public override List<(int, int)> GetAllBottom()
-		{
-			return new List<(int, int)>() { Shape[0], Shape[1], Shape[3] };
-		}
-
-		public override (int, int) GetTop()
-		{
-			return Shape[4];
-		}
-	}
-
-	public class RightAngle : Rock
-	{
-		public RightAngle()
-		{
-			Shape = new List<(int, int)>()
+			public RightAngle()
+			{
+				Shape = new List<(int, int)>()
 				{
 					(0, 0),
 					(0, 1),
@@ -106,114 +111,109 @@ namespace AdventOfCode.Year2022
 					(1, 2),
 					(2, 2)
 				};
+			}
+
+			public override List<(int, int)> GetAllLeft()
+			{
+				return new List<(int, int)>() { Shape[0], Shape[3], Shape[4] };
+			}
+
+			public override List<(int, int)> GetAllRight()
+			{
+				return new List<(int, int)>() { Shape[2], Shape[3], Shape[4] };
+			}
+
+			public override List<(int, int)> GetAllBottom()
+			{
+				return new List<(int, int)>() { Shape[0], Shape[1], Shape[2] };
+			}
+
+			public override (int, int) GetTop()
+			{
+				return Shape[4];
+			}
 		}
 
-		public override List<(int, int)> GetAllLeft()
+		public class VertiLine : Rock
 		{
-			return new List<(int, int)>() { Shape[0], Shape[3], Shape[4] };
-		}
-
-		public override List<(int, int)> GetAllRight()
-		{
-			return new List<(int, int)>() { Shape[2], Shape[3], Shape[4] };
-		}
-
-		public override List<(int, int)> GetAllBottom()
-		{
-			return new List<(int, int)>() { Shape[0], Shape[1], Shape[2] };
-		}
-
-		public override (int, int) GetTop()
-		{
-			return Shape[4];
-		}
-	}
-
-	public class VertiLine : Rock
-	{
-		public VertiLine()
-		{
-			Shape = new List<(int, int)>()
+			public VertiLine()
+			{
+				Shape = new List<(int, int)>()
 				{
 					(0, 0),
 					(1, 0),
 					(2, 0),
 					(3, 0)
 				};
+			}
+
+			public override List<(int, int)> GetAllLeft()
+			{
+				return new List<(int, int)>() { Shape[0], Shape[1], Shape[2], Shape[3] };
+			}
+
+			public override List<(int, int)> GetAllRight()
+			{
+				return new List<(int, int)>() { Shape[0], Shape[1], Shape[2], Shape[3] };
+			}
+
+			public override List<(int, int)> GetAllBottom()
+			{
+				return new List<(int, int)>() { Shape[0] };
+			}
+
+			public override (int, int) GetTop()
+			{
+				return Shape[3];
+			}
 		}
 
-		public override List<(int, int)> GetAllLeft()
+		public class Square : Rock
 		{
-			return new List<(int, int)>() { Shape[0], Shape[1], Shape[2], Shape[3] };
-		}
-
-		public override List<(int, int)> GetAllRight()
-		{
-			return new List<(int, int)>() { Shape[0], Shape[1], Shape[2], Shape[3] };
-		}
-
-		public override List<(int, int)> GetAllBottom()
-		{
-			return new List<(int, int)>() { Shape[0] };
-		}
-
-		public override (int, int) GetTop()
-		{
-			return Shape[3];
-		}
-	}
-
-	public class Square : Rock
-	{
-		public Square()
-		{
-			Shape = new List<(int, int)>()
+			public Square()
+			{
+				Shape = new List<(int, int)>()
 				{
 					(0, 0),
 					(0, 1),
 					(1, 0),
 					(1, 1)
 				};
+			}
+
+			public override List<(int, int)> GetAllLeft()
+			{
+				return new List<(int, int)>() { Shape[0], Shape[2] };
+			}
+
+			public override List<(int, int)> GetAllRight()
+			{
+				return new List<(int, int)>() { Shape[1], Shape[3] };
+			}
+
+			public override List<(int, int)> GetAllBottom()
+			{
+				return new List<(int, int)>() { Shape[0], Shape[1] };
+			}
+
+			public override (int, int) GetTop()
+			{
+				return Shape[2];
+			}
 		}
 
-		public override List<(int, int)> GetAllLeft()
+		public class Chamber
 		{
-			return new List<(int, int)>() { Shape[0], Shape[2] };
+			public HashSet<(int, int)> Rocks = new HashSet<(int, int)>();
+
+			public int HighestY = -1;
 		}
 
-		public override List<(int, int)> GetAllRight()
-		{
-			return new List<(int, int)>() { Shape[1], Shape[3] };
-		}
-
-		public override List<(int, int)> GetAllBottom()
-		{
-			return new List<(int, int)>() { Shape[0], Shape[1] };
-		}
-
-		public override (int, int) GetTop()
-		{
-			return Shape[2];
-		}
-	}
-
-	public class Chamber
-	{
-		public HashSet<(int, int)> Rocks = new HashSet<(int, int)>();
-
-		public int HighestY = -1;
-	}
-
-	/// <summary>
-	/// For this day, my Y axe ascends from bottom to top.
-	/// </summary>
-	public class DaySeventeen : Day2022
-	{
-		public HoriLine HoriLine = new HoriLine();
-		public Plus Plus = new Plus();
-		public RightAngle RightAngle = new RightAngle();
-		public VertiLine VertiLine = new VertiLine();
-		public Square Square = new Square();
+		public HoriLine LineShape = new HoriLine();
+		public Plus PlusShape = new Plus();
+		public RightAngle RightAngleShape = new RightAngle();
+		public VertiLine VertiLineShape = new VertiLine();
+		public Square SquareShape = new Square();
 
 		protected override object ResolveFirstPart(string[] input)
 		{
@@ -502,22 +502,22 @@ namespace AdventOfCode.Year2022
 		{
 			if (index % 5 == 0)
 			{
-				return HoriLine;
+				return LineShape;
 			}
 			if (index % 5 == 1)
 			{
-				return Plus;
+				return PlusShape;
 			}
 			if (index % 5 == 2)
 			{
-				return RightAngle;
+				return RightAngleShape;
 			}
 			if (index % 5 == 3)
 			{
-				return VertiLine;
+				return VertiLineShape;
 			}
 
-			return Square;
+			return SquareShape;
 		}
 
 		private void WriteChamber(Chamber chamber, Rock currentRock)

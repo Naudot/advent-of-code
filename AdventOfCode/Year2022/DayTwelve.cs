@@ -4,26 +4,26 @@ using System.Linq;
 
 namespace AdventOfCode.Year2022
 {
-	public class Tile
-	{
-		public int X;
-		public int Y;
-		public int Elevation;
-		public int Cost;
-		public int Distance;
-		public int CostDistance => Cost + Distance;
-		public Tile Parent;
-		
-		//The distance is essentially the estimated distance, ignoring walls to our target. 
-		//So how many tiles left and right, up and down, ignoring walls, to get there. 
-		public void SetDistance(int targetX, int targetY)
-		{
-			this.Distance = Math.Abs(targetX - X) + Math.Abs(targetY - Y);
-		}
-	}
-
 	public class DayTwelve : Day2022
 	{
+		public class Tile
+		{
+			public int X;
+			public int Y;
+			public int Elevation;
+			public int Cost;
+			public int Distance;
+			public int CostDistance => Cost + Distance;
+			public Tile Parent;
+
+			//The distance is essentially the estimated distance, ignoring walls to our target. 
+			//So how many tiles left and right, up and down, ignoring walls, to get there. 
+			public void SetDistance(int targetX, int targetY)
+			{
+				this.Distance = Math.Abs(targetX - X) + Math.Abs(targetY - Y);
+			}
+		}
+
 		protected override bool DeactivateJIT { get { return true; } }
 
 		protected override object ResolveFirstPart(string[] input)

@@ -3,70 +3,70 @@ using System.Linq;
 
 namespace AdventOfCode.Year2022
 {
-	public class File
-	{
-		public string Name;
-		public int Size;
-	}
-
-	public class Dir
-	{
-		public string Name;
-		public Dir Parent;
-		public List<Dir> InDirs = new List<Dir>();
-		public List<File> Files = new List<File>();
-
-		public long GetSize()
-		{
-			long totalSize = 0;
-
-			for (int i = 0; i < InDirs.Count; i++)
-			{
-				totalSize += InDirs[i].GetSize();
-			}
-
-			for (int i = 0; i < Files.Count; i++)
-			{
-				totalSize += Files[i].Size;
-			}
-
-			return totalSize;
-		}
-
-		public List<Dir> GetDirAccordingToAtmostSize(long size)
-		{
-			List<Dir> dirs = new List<Dir>();
-
-			for (int i = 0; i < InDirs.Count; i++)
-			{
-				dirs.AddRange(InDirs[i].GetDirAccordingToAtmostSize(size));
-			}
-
-			if (GetSize() <= size)
-			{
-				dirs.Add(this);
-			}
-
-			return dirs;
-		}
-
-		public List<long> GetAllSizes()
-		{
-			List<long> sizes = new List<long>();
-
-			for (int i = 0; i < InDirs.Count; i++)
-			{
-				sizes.AddRange(InDirs[i].GetAllSizes());
-			}
-
-			sizes.Add(GetSize());
-
-			return sizes;
-		}
-	}
-
 	public class DaySeven : Day2022
 	{
+		public class File
+		{
+			public string Name;
+			public int Size;
+		}
+
+		public class Dir
+		{
+			public string Name;
+			public Dir Parent;
+			public List<Dir> InDirs = new List<Dir>();
+			public List<File> Files = new List<File>();
+
+			public long GetSize()
+			{
+				long totalSize = 0;
+
+				for (int i = 0; i < InDirs.Count; i++)
+				{
+					totalSize += InDirs[i].GetSize();
+				}
+
+				for (int i = 0; i < Files.Count; i++)
+				{
+					totalSize += Files[i].Size;
+				}
+
+				return totalSize;
+			}
+
+			public List<Dir> GetDirAccordingToAtmostSize(long size)
+			{
+				List<Dir> dirs = new List<Dir>();
+
+				for (int i = 0; i < InDirs.Count; i++)
+				{
+					dirs.AddRange(InDirs[i].GetDirAccordingToAtmostSize(size));
+				}
+
+				if (GetSize() <= size)
+				{
+					dirs.Add(this);
+				}
+
+				return dirs;
+			}
+
+			public List<long> GetAllSizes()
+			{
+				List<long> sizes = new List<long>();
+
+				for (int i = 0; i < InDirs.Count; i++)
+				{
+					sizes.AddRange(InDirs[i].GetAllSizes());
+				}
+
+				sizes.Add(GetSize());
+
+				return sizes;
+			}
+		}
+
 		protected override object ResolveFirstPart(string[] input)
 		{
 			return GetMain(input).GetDirAccordingToAtmostSize(100000).Select(dir => dir.GetSize()).Sum();
