@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 
 namespace AdventOfCode.Year2022
 {
@@ -67,7 +66,7 @@ namespace AdventOfCode.Year2022
 				else if (val == 3)
 				{
 					deduction = 1;
-					trueResult = "=" + trueResult; ;
+					trueResult = "=" + trueResult;
 				}
 				else
 				{
