@@ -162,6 +162,7 @@
     <Compile Include="Year2022\DayTwentyThree.cs" />
     <Compile Include="Year2022\DayTwentyTwo.cs" />
     <Compile Include="Year2022\DayTwo.cs" />
+    <Compile Include="Year2023\DayOne.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -423,6 +424,9 @@
     </Content>
     <Content Include="Year2022\Resources\inputDayTwentyTwoHelper.png" />
     <Content Include="Year2022\Resources\inputDayTwo.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Year2023\Resources\inputDayOne.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
