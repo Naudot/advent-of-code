@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace AdventOfCode.Year2023
@@ -68,9 +69,54 @@ namespace AdventOfCode.Year2023
 		protected override object ResolveSecondPart(string[] input)
 		{
 			ulong[] seeds = input[0].Replace("seeds: ", string.Empty).Split(' ').Select(seed => ulong.Parse(seed)).ToArray();
-			List<Map> map = GetMapping(input);
+			List<Map> maps = GetMapping(input);
 
-			return string.Empty;
+			ulong lowestLocationNumber = ulong.MaxValue;
+
+			for (int l = 0; l < seeds.Length - 1; l += 2)
+			{
+				ulong seed = seeds[l];
+				ulong numberOfSeeds = seeds[l + 1];
+
+				for (ulong i = 0; i < numberOfSeeds; i++)
+				{
+					ulong usedValue = seed + i;
+					// l 0 566984172
+					// l 2 566984172
+					// l 4 540622614
+					// l 6 79004094 ez ez
+					if (i % 10000000 == 0)
+					{
+						Console.WriteLine("10 millions");
+					}
+
+					for (int j = 0; j < maps.Count; j++)
+					{
+						Map map = maps[j];
+
+						for (int k = 0; k < map.Dataset.Count; k++)
+						{
+							Data data = map.Dataset[k];
+
+							// Not <= because we do not include the last number : E.g. Range 2 from 50 is 50 and 51
+							if (usedValue >= data.SourceRangStart && usedValue < data.SourceRangStart + data.RangeLength)
+							{
+								usedValue += (data.DestRangStart - data.SourceRangStart);
+								break;
+							}
+						}
+					}
+
+					if (usedValue < lowestLocationNumber)
+					{
+						lowestLocationNumber = usedValue;
+					}
+				}
+
+				Console.WriteLine("For l " + l + " : " + lowestLocationNumber);
+			}
+
+			return lowestLocationNumber;
 		}
 
 		private List<Map> GetMapping(string[] input)
