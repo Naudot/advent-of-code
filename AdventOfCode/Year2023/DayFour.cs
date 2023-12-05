@@ -52,8 +52,6 @@ namespace AdventOfCode.Year2023
 
 			for (int i = 0; i < input.Length; i++)
 			{
-				Console.WriteLine("Processing card " + (i + 1));
-
 				string card = input[i].Split(':')[1];
 				MatchCollection numbersIHave = Regex.Matches(card.Split('|')[0], @"(\d+)");
 				MatchCollection winningNumbers = Regex.Matches(card.Split('|')[1], @"(\d+)");
