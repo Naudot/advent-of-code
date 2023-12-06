@@ -7,19 +7,11 @@ namespace AdventOfCode.Year2023
 	{
 		protected override object ResolveFirstPart(string[] input)
 		{
-			ulong result = 1;
-
 			ulong[] times = Regex.Matches(input[0], @"(\d+)").Cast<Match>().Select(match => ulong.Parse(match.Value)).ToArray();
 			ulong[] distances = Regex.Matches(input[1], @"(\d+)").Cast<Match>().Select(match => ulong.Parse(match.Value)).ToArray();
 
-			for (int i = 0; i < times.Length; i++)
-			{
-				ulong time = times[i];
-				ulong distance = distances[i];
-				result *= GetWaysToBeat(time, distance);
-			}
-
-			return result;
+			return times.Select((value, index) => GetWaysToBeat(value, distances[index]))
+						.Aggregate((ulong)1, (x, y) => x * y);
 		}
 
 		protected override object ResolveSecondPart(string[] input)
@@ -31,6 +23,7 @@ namespace AdventOfCode.Year2023
 
 		private ulong GetWaysToBeat(ulong time, ulong distance)
 		{
+			// Best solution :)
 			ulong waysToBeat = 0;
 
 			for (ulong j = 0; j < time; j++)
@@ -42,6 +35,13 @@ namespace AdventOfCode.Year2023
 			}
 
 			return waysToBeat;
+
+			// Dirty and slow LINQ solution
+			//return 
+			//	(ulong)Enumerable
+			//	.Range(0, (int)time)
+			//	.Where(value => (ulong)value * (time - (ulong)value) > distance)
+			//	.Count();
 		}
 	}
 }
