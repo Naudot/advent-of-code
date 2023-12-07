@@ -40,28 +40,28 @@ namespace AdventOfCode.Year2023
 			'A'
 		};
 
-		private int[] values = new int[]
+		private int[] typeValues = new int[]
 		{
-			537824 * 6, // Five of a kind
-			537824 * 5, // Four of a kind
-			537824 * 4, // Full house
-			537824 * 3, // Three of a kind
-			537824 * 2, // Two pairs
-			537824 * 1, // One paire
-			0 // High card
+			(int)Math.Pow(14, 5) * 6, // Five of a kind
+			(int)Math.Pow(14, 5) * 5, // Four of a kind
+			(int)Math.Pow(14, 5) * 4, // Full house
+			(int)Math.Pow(14, 5) * 3, // Three of a kind
+			(int)Math.Pow(14, 5) * 2, // Two pairs
+			(int)Math.Pow(14, 5) * 1, // One paire
+			(int)Math.Pow(14, 5) * 0 // High card
 		};
 
 		protected override object ResolveFirstPart(string[] input)
 		{
-			return ResolveDay(input, false, firstPartCards);
+			return ResolveDay(input, firstPartCards, false);
 		}
 
 		protected override object ResolveSecondPart(string[] input)
 		{
-			return ResolveDay(input, true, secondPartCards);
+			return ResolveDay(input, secondPartCards, true);
 		}
 
-		private object ResolveDay(string[] input, bool useJocker, char[] cardReferences)
+		private object ResolveDay(string[] input, char[] cardReferences, bool useJocker)
 		{
 			List<(int, int)> valuesOfDecks = new List<(int, int)>();
 
@@ -75,19 +75,13 @@ namespace AdventOfCode.Year2023
 			valuesOfDecks = valuesOfDecks.OrderBy(item => item.Item1).ToList();
 
 			ulong finalValue = 0;
-
 			for (int i = 0; i < valuesOfDecks.Count; i++)
 			{
 				finalValue += (ulong)valuesOfDecks[i].Item2 * (ulong)(i + 1);
 			}
-
 			return finalValue;
 		}
 
-		// 253840749 too high 
-		// 253216559 too low
-		// 253296336 too low 
-		// 253609148 not right
 		public int GetValueOfType(string cardsDeck, bool useJocker)
 		{
 			int jockerCount = 0;
@@ -98,94 +92,94 @@ namespace AdventOfCode.Year2023
 				if (useJocker && cardsDeck[i] == 'J')
 				{
 					jockerCount++;
+					continue;
 				}
+
+				if (charCount.ContainsKey(cardsDeck[i]))
+					charCount[cardsDeck[i]]++;
 				else
-				{
-					if (charCount.ContainsKey(cardsDeck[i]))
-						charCount[cardsDeck[i]]++;
-					else
-						charCount.Add(cardsDeck[i], 1);
-				}
+					charCount.Add(cardsDeck[i], 1);
 			}
 
 			if (useJocker && jockerCount != 0)
 			{
 				if (jockerCount == 5 || jockerCount == 4)
 				{
-					return values[0];
+					return typeValues[0];
 				}
 
 				if (jockerCount == 3)
 				{
 					if (charCount.Where(pair => pair.Value == 2).Any())
 					{
-						return values[0];
+						return typeValues[0];
 					}
-					return values[1];
+					return typeValues[1];
 				}
 
 				if (jockerCount == 2)
 				{
 					if (charCount.Where(pair => pair.Value == 3).Any())
 					{
-						return values[0];
+						return typeValues[0];
 					}
 					if (charCount.Where(pair => pair.Value == 2).Any())
 					{
-						return values[1];
+						return typeValues[1];
 					}
 
-					return values[3];
+					return typeValues[3];
 				}
 
 				if (jockerCount == 1)
 				{
 					if (charCount.Where(pair => pair.Value == 4).Any())
 					{
-						return values[0];
+						return typeValues[0];
 					}
 					if (charCount.Where(pair => pair.Value == 3).Any())
 					{
-						return values[1];
+						return typeValues[1];
 					}
 					if (charCount.Where(pair => pair.Value == 2).Count() == 2)
 					{
-						return values[2];
+						return typeValues[2];
 					}
 					if (charCount.Where(pair => pair.Value == 2).Count() == 1)
 					{
-						return values[3];
+						return typeValues[3];
 					}
 
-					return values[5];
+					return typeValues[5];
 				}
 			}
 
 			if (charCount.Where(pair => pair.Value == 5).Any())
 			{
-				return values[0];
+				return typeValues[0];
 			}
 			if (charCount.Where(pair => pair.Value == 4).Any())
 			{
-				return values[1];
+				return typeValues[1];
 			}
 			if (charCount.Where(pair => pair.Value == 3).Count() == 1 && charCount.Where(pair => pair.Value == 2).Any())
 			{
-				return values[2];
+				return typeValues[2];
 			}
 			if (charCount.Where(pair => pair.Value == 3).Count() == 1 && !charCount.Where(pair => pair.Value == 2).Any())
 			{
-				return values[3];
+				return typeValues[3];
 			}
 			if (charCount.Where(pair => pair.Value == 2).Count() == 2)
 			{
-				return values[4];
+				return typeValues[4];
 			}
 			if (charCount.Where(pair => pair.Value == 2).Count() == 1)
 			{
-				return values[5];
+				return typeValues[5];
 			}
-			return values[6];
+
+			return typeValues[6];
 		}
 
 		public int GetValueOfCards(char[] cardReferences, string cardsDeck)
