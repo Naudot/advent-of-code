@@ -86,33 +86,18 @@ namespace AdventOfCode.Year2023
 
 		// 253840749 too high 
 		// 253216559 too low
-		// 253296336 too low
+		// 253296336 too low 
 		// 253609148 not right
 		public int GetValueOfType(string cardsDeck, bool useJocker)
 		{
+			int jockerCount = 0;
 			Dictionary<char, int> charCount = new Dictionary<char, int>();
 
 			for (int i = 0; i < cardsDeck.Length; i++)
 			{
-				if (useJocker)
+				if (useJocker && cardsDeck[i] == 'J')
 				{
-					if (cardsDeck[i] == 'J')
-					{
-						for (int j = 0; j < secondPartCards.Length; j++)
-						{
-							if (charCount.ContainsKey(secondPartCards[j]))
-								charCount[secondPartCards[j]]++;
-							else
-								charCount.Add(secondPartCards[j], 1);
-						}
-					}
-					else
-					{
-						if (charCount.ContainsKey(cardsDeck[i]))
-							charCount[cardsDeck[i]]++;
-						else
-							charCount.Add(cardsDeck[i], 1);
-					}
+					jockerCount++;
 				}
 				else
 				{
@@ -120,6 +105,59 @@ namespace AdventOfCode.Year2023
 						charCount[cardsDeck[i]]++;
 					else
 						charCount.Add(cardsDeck[i], 1);
+				}
+			}
+
+			if (useJocker && jockerCount != 0)
+			{
+				if (jockerCount == 5 || jockerCount == 4)
+				{
+					return values[0];
+				}
+
+				if (jockerCount == 3)
+				{
+					if (charCount.Where(pair => pair.Value == 2).Any())
+					{
+						return values[0];
+					}
+					return values[1];
+				}
+
+				if (jockerCount == 2)
+				{
+					if (charCount.Where(pair => pair.Value == 3).Any())
+					{
+						return values[0];
+					}
+					if (charCount.Where(pair => pair.Value == 2).Any())
+					{
+						return values[1];
+					}
+
+					return values[3];
+				}
+
+				if (jockerCount == 1)
+				{
+					if (charCount.Where(pair => pair.Value == 4).Any())
+					{
+						return values[0];
+					}
+					if (charCount.Where(pair => pair.Value == 3).Any())
+					{
+						return values[1];
+					}
+					if (charCount.Where(pair => pair.Value == 2).Count() == 2)
+					{
+						return values[2];
+					}
+					if (charCount.Where(pair => pair.Value == 2).Count() == 1)
+					{
+						return values[3];
+					}
+
+					return values[5];
 				}
 			}
 
