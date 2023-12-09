@@ -20,41 +20,29 @@ namespace AdventOfCode.Year2023
 
 			for (int i = 0; i < input.Length; i++)
 			{
+				int[] diff;
+				int[] current = input[i].Split(' ').Select(term => int.Parse(term)).ToArray();
+
 				List<int[]> arrays = new List<int[]>();
+				arrays.Add(current);
+
 				bool isFound = false;
-
-				int[] array = input[i].Split(' ').Select(term => int.Parse(term)).ToArray();
-				arrays.Add(array);
-
 				while (!isFound)
 				{
-					int[] diff = new int[array.Length - 1];
-
-					for (int j = 0; j < array.Length - 1; j++)
+					diff = new int[current.Length - 1];
+					for (int j = 0; j < current.Length - 1; j++)
 					{
-						int first = array[j];
-						int second = array[j + 1];
+						int first = current[j];
+						int second = current[j + 1];
 						diff[j] = second - first;
 					}
 
-					array = diff;
-					arrays.Add(array);
-
-					if (!diff.Where(value => value != 0).Any())
-					{
-						int lineSum = 0;
-
-						for (int k = 0; k < arrays.Count; k++)
-						{
-							int[] calcArray = arrays[arrays.Count - 1 - k];
-							lineSum += calcArray[calcArray.Length - 1];
-						}
-
-						sum += lineSum;
-						isFound = true;
-					}
+					current = diff;
+					arrays.Add(current);
+					isFound = !diff.Where(value => value != 0).Any();
 				}
 
+				sum += arrays.Select(array => array[array.Length - 1]).Sum();
 			}
 
 			return sum;
