@@ -35,63 +35,83 @@ namespace AdventOfCode.Year2023
 
 		protected override object ResolveFirstPart(string[] input)
 		{
-			string startLine = input.Where(line => line.Contains('S')).First();
-			int startX = Array.IndexOf(startLine.ToCharArray(), 'S');
-			int startY = Array.IndexOf(input, startLine);
-			Pipe start = new Pipe(startX, startY, Type.START, new Pipe(-1, -1, Type.START, null));
-			List<Pipe> nextsToProcess = new List<Pipe>() { start };
-
-			bool endpointFound = false;
-			int distance = 0;
-			while (!endpointFound)
-			{
-				List<Pipe> tmp = new List<Pipe>();
-				for (int i = 0; i < nextsToProcess.Count; i++)
-				{
-					Pipe nextToProcess = nextsToProcess[i];
-					List<Pipe> nexts = GetNexts(input, nextToProcess);
-
-					tmp.AddRange(nexts);
-
-					// It means one of the next has already been processed
-					if (nexts.Where(newPipe => newPipe.X == nextToProcess.X && newPipe.Y == nextToProcess.Y).Any())
-					{
-						endpointFound = true;
-					}
-					else if (tmp.Count == 2 && tmp[0].X == tmp[1].X && tmp[0].Y == tmp[1].Y)
-					{
-						endpointFound = true;
-					}
-				}
-
-				nextsToProcess = tmp;
-				distance++;
-			}
-
-			return distance;
+			return GetFullPipes(input).Count() / 2;
 		}
 
 		protected override object ResolveSecondPart(string[] input)
 		{
-			return string.Empty;
+			List<Pipe> fullPipes = GetFullPipes(input);
+
+			// 679 too high
+			// 500 too low
+			Pipe previousPipe = null;
+			int pointsInside = 0;
+			for (int y = 0; y < input.Length; y++)
+			{
+				//Console.WriteLine();
+				bool loopOpened = false;
+				for (int x = 0; x < input[y].Length; x++)
+				{
+					Pipe currentPipe = fullPipes.Where(pipe => pipe.X == x && pipe.Y == y).FirstOrDefault();
+
+					//Console.Write(currentPipe == null ? '.' : input[currentPipe.Y][currentPipe.X]);
+
+					bool isLoopOpener = 
+						currentPipe != null
+						&& !loopOpened
+						&& previousPipe == null;
+
+					bool isLoopCloser = 
+						currentPipe != null
+						&& loopOpened
+						&& (x == input[y].Length - 1 || fullPipes.Where(pipe => pipe.X == x + 1 && pipe.Y == y).FirstOrDefault() == null);
+
+					// If we are in a loop
+					if (loopOpened)
+					{
+						if (isLoopCloser)
+						{
+							loopOpened = false;
+						}
+						else if (currentPipe == null)
+						{
+							pointsInside++;
+						}
+					}
+					else
+					{
+						if (isLoopOpener)
+						{
+							loopOpened = true;
+						}
+					}
+
+					previousPipe = currentPipe;
+				}
+			}
+
+			return pointsInside;
 		}
 
-		private Type GetType(char c)
+		private List<Pipe> GetFullPipes(string[] input)
 		{
-			if (c == '|')
-				return Type.VERTICAL;
-			if (c == '-')
-				return Type.HORIZONTAL;
-			if (c == 'L')
-				return Type.L;
-			if (c == 'J')
-				return Type.J;
-			if (c == '7')
-				return Type.SEVEN;
-			if (c == 'F')
-				return Type.F;
+			string startLine = input.Where(line => line.Contains('S')).First();
+			int startX = Array.IndexOf(startLine.ToCharArray(), 'S');
+			int startY = Array.IndexOf(input, startLine);
 
-			return Type.START;
+			Pipe nextToProcess = new Pipe(startX, startY, Type.START, new Pipe(-1, -1, Type.START, null));
+			List<Pipe> fullPipes = new List<Pipe>() { nextToProcess };
+			while (true)
+			{
+				List<Pipe> nexts = GetNexts(input, nextToProcess);
+				if (nexts.Count == 0)
+					break;
+
+				fullPipes.Add(nexts[0]);
+				nextToProcess = nexts[0];
+			}
+
+			return fullPipes;
 		}
 
 		private List<Pipe> GetNexts(string[] input, Pipe pipe)
@@ -140,5 +160,24 @@ namespace AdventOfCode.Year2023
 
 			return nexts;
 		}
+		
+		private Type GetType(char c)
+		{
+			if (c == '|')
+				return Type.VERTICAL;
+			if (c == '-')
+				return Type.HORIZONTAL;
+			if (c == 'L')
+				return Type.L;
+			if (c == 'J')
+				return Type.J;
+			if (c == '7')
+				return Type.SEVEN;
+			if (c == 'F')
+				return Type.F;
+
+			return Type.START;
+		}
+
 	}
 }
