@@ -44,7 +44,6 @@ namespace AdventOfCode.Year2023
 
 			// 679 too high
 			// 500 too low
-			Pipe previousPipe = null;
 			int pointsInside = 0;
 			for (int y = 0; y < input.Length; y++)
 			{
@@ -58,8 +57,7 @@ namespace AdventOfCode.Year2023
 
 					bool isLoopOpener = 
 						currentPipe != null
-						&& !loopOpened
-						&& previousPipe == null;
+						&& !loopOpened;
 
 					bool isLoopCloser = 
 						currentPipe != null
@@ -85,8 +83,6 @@ namespace AdventOfCode.Year2023
 							loopOpened = true;
 						}
 					}
-
-					previousPipe = currentPipe;
 				}
 			}
 
