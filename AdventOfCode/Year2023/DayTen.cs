@@ -57,12 +57,13 @@ namespace AdventOfCode.Year2023
 
 					bool isLoopOpener = 
 						currentPipe != null
-						&& !loopOpened;
+						&& !loopOpened && (currentPipe.Type == Type.J || currentPipe.Type == Type.L);
 
 					bool isLoopCloser = 
 						currentPipe != null
 						&& loopOpened
-						&& (x == input[y].Length - 1 || fullPipes.Where(pipe => pipe.X == x + 1 && pipe.Y == y).FirstOrDefault() == null);
+						&& (x == input[y].Length - 1 || fullPipes.Where(pipe => pipe.X == x + 1 && pipe.Y == y).FirstOrDefault() == null)
+						 && (currentPipe.Type == Type.J || currentPipe.Type == Type.L);
 
 					// If we are in a loop
 					if (loopOpened)
