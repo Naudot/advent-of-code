@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -11,77 +9,7 @@ namespace AdventOfCode.Year2023
 	{
 		protected override object ResolveFirstPart(string[] input)
 		{
-			int sum = 0;
-
-			for (int i = 0; i < input.Length; i++)
-			{
-				Console.WriteLine("Begin " + input[i]);
-				string state = input[i].Split(' ')[0];
-				int[] values = input[i].Split(' ')[1].Split(',').Select(val => int.Parse(val)).ToArray();
-
-				int valSum = values.Sum();
-				int knownSum = state.Where(c => c == '#').Count();
-
-				// Only one arrangement is known
-				if (knownSum == valSum)
-				{
-					sum++;
-					continue;
-				}
-
-				int questionSum = state.Where(c => c == '?').Count();
-				int toProcess = valSum - knownSum; // We need to replace this amount of ? and check if conditions are met
-
-				// Regex pour valider si on a les bons groupes pour plus tard : ([#]+)
-
-				//int iterationsCount = 1;
-				//if (toProcess != questionSum)
-				//{
-				//	iterationsCount = Fact(questionSum) / (Fact(toProcess) * Fact(questionSum - toProcess));
-				//}
-
-				List<List<int>> combinaisons = GetCombinaisons(questionSum, toProcess);
-
-				for (int j = 0; j < combinaisons.Count; j++)
-				{
-					List<int> indexes = combinaisons[j].Select(combiValue => GetNthIndex(state, '?', combiValue + 1)).ToList();
-					string newState = state;
-					StringBuilder sb = new StringBuilder(newState);
-					for (int k = 0; k < newState.Length; k++)
-					{
-						if (sb[k] == '?')
-						{
-							sb[k] = indexes.Contains(k) ? '#' : '.';
-						}
-					}
-					newState = sb.ToString();
-
-					MatchCollection matchCollection = Regex.Matches(newState, @"([#]+)");
-
-					if (values.Length != matchCollection.Count)
-					{
-						continue;
-					}
-
-					bool matchValues = true;
-					for (int k = 0; k < matchCollection.Count; k++)
-					{
-						Match match = matchCollection[k];
-						string val = match.Groups[0].Value;
-
-						if (val.Where(c => c == '#').Count() != values[k])
-						{
-							matchValues = false;
-							break;
-						}
-					}
-
-					sum += (matchValues ? 1 : 0);
-				}
-
-			}
-
-			return sum;
+			return input.Select(line => GetArrangementCount(line)).Sum();
 		}
 
 		protected override object ResolveSecondPart(string[] input)
@@ -89,17 +17,63 @@ namespace AdventOfCode.Year2023
 			return string.Empty;
 		}
 
-		//private int Fact(int number)
-		//{
-		//	int result = number;
+		private int GetArrangementCount(string line)
+		{
+			string state = line.Split(' ')[0];
+			int[] values = line.Split(' ')[1].Split(',').Select(val => int.Parse(val)).ToArray();
 
-		//	for (int i = 1; i < number; i++)
-		//	{
-		//		result *= i;
-		//	}
+			int valSum = values.Sum();
+			int knownCount = state.Where(c => c == '#').Count();
 
-		//	return result;
-		//}
+			// Only one arrangement is known
+			if (knownCount == valSum)
+			{
+				return 1;
+			}
+
+			int unknownCount = state.Where(c => c == '?').Count();
+			int toProcess = valSum - knownCount; // We need to replace this amount of ? and check if conditions are met
+
+			int result = 0;
+			List<List<int>> combinaisons = GetCombinaisons(unknownCount, toProcess);
+
+			for (int j = 0; j < combinaisons.Count; j++)
+			{
+				List<int> indexes = combinaisons[j].Select(combiValue => GetNthIndex(state, '?', combiValue + 1)).ToList();
+				StringBuilder stringBuilder = new StringBuilder(state);
+				for (int k = 0; k < stringBuilder.Length; k++)
+				{
+					if (stringBuilder[k] == '?')
+					{
+						stringBuilder[k] = indexes.Contains(k) ? '#' : '.';
+					}
+				}
+
+				MatchCollection matchCollection = Regex.Matches(stringBuilder.ToString(), @"([#]+)");
+
+				if (values.Length != matchCollection.Count)
+				{
+					continue;
+				}
+
+				bool matchValues = true;
+				for (int k = 0; k < matchCollection.Count; k++)
+				{
+					Match match = matchCollection[k];
+					string val = match.Groups[0].Value;
+
+					if (val.Where(c => c == '#').Count() != values[k])
+					{
+						matchValues = false;
+						break;
+					}
+				}
+
+				result += (matchValues ? 1 : 0);
+			}
+
+			return result;
+		}
 
 		private List<List<int>> GetCombinaisons(int elementsCount, int processedElements)
 		{
