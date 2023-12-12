@@ -33,6 +33,14 @@ namespace AdventOfCode.Year2023
 			}
 		}
 
+		protected override bool DeactivateJIT
+		{
+			get
+			{
+				return true;
+			}
+		}
+
 		protected override object ResolveFirstPart(string[] input)
 		{
 			return GetFullPipes(input).Count() / 2;
@@ -42,46 +50,40 @@ namespace AdventOfCode.Year2023
 		{
 			List<Pipe> fullPipes = GetFullPipes(input);
 
-			// 679 too high
-			// 500 too low
 			int pointsInside = 0;
 			for (int y = 0; y < input.Length; y++)
 			{
-				//Console.WriteLine();
-				bool loopOpened = false;
+				Console.WriteLine();
 				for (int x = 0; x < input[y].Length; x++)
 				{
 					Pipe currentPipe = fullPipes.Where(pipe => pipe.X == x && pipe.Y == y).FirstOrDefault();
 
-					//Console.Write(currentPipe == null ? '.' : input[currentPipe.Y][currentPipe.X]);
-
-					bool isLoopOpener = 
-						currentPipe != null
-						&& !loopOpened;
-
-					bool isLoopCloser = 
-						currentPipe != null
-						&& loopOpened
-						&& (x == input[y].Length - 1 || fullPipes.Where(pipe => pipe.X == x + 1 && pipe.Y == y).FirstOrDefault() == null);
-
-					// If we are in a loop
-					if (loopOpened)
+					if (currentPipe != null)
 					{
-						if (isLoopCloser)
-						{
-							loopOpened = false;
-						}
-						else if (currentPipe == null)
-						{
-							pointsInside++;
-						}
+						Console.Write(GetChar(currentPipe.Type).ToString());
+						continue;
+					}
+
+					int walls = 0;
+
+					for (int i = 0; i < x + 1; i++)
+					{
+						char c = input[y][i];
+
+						Pipe testPipe = fullPipes.Where(pipe => pipe.X == i && pipe.Y == y).FirstOrDefault();
+
+						if ((c == '|' || c == 'L' || c == 'J' || c == 'S') && testPipe != null)
+							walls++;
+					}
+
+					if (walls != 0 && walls % 2 == 1)
+					{
+						pointsInside++;
+						Console.Write("I");
 					}
 					else
 					{
-						if (isLoopOpener)
-						{
-							loopOpened = true;
-						}
+						Console.Write(".");
 					}
 				}
 			}
@@ -175,5 +177,22 @@ namespace AdventOfCode.Year2023
 			return Type.START;
 		}
 
+		private char GetChar(Type type)
+		{
+			if (type == Type.VERTICAL)
+				return '|';
+			if (type == Type.HORIZONTAL)
+				return '-';
+			if (type == Type.L)
+				return 'L';
+			if (type == Type.J)
+				return 'J';
+			if (type == Type.SEVEN)
+				return '7';
+			if (type == Type.F)
+				return 'F';
+
+			return 'S';
+		}
 	}
 }
