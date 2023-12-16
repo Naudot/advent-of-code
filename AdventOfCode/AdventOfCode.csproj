@@ -165,6 +165,7 @@
     <Compile Include="Year2023\DayEleven.cs" />
     <Compile Include="Year2023\DayFifteen.cs" />
     <Compile Include="Year2023\DayFourteen.cs" />
+    <Compile Include="Year2023\DaySixteen.cs" />
     <Compile Include="Year2023\DayThirteen.cs" />
     <Compile Include="Year2023\DayNine.cs" />
     <Compile Include="Year2023\DayEight.cs" />
@@ -456,6 +457,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Year2023\Resources\inputDayFourteen.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Year2023\Resources\inputDaySixteen.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Year2023\Resources\inputDayThirteen.txt">
