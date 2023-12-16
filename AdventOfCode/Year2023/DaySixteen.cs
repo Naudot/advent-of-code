@@ -53,10 +53,68 @@ namespace AdventOfCode.Year2023
 
 		protected override object ResolveFirstPart(string[] input)
 		{
+			return GetEnergy(input, 0, 0, Direction.RIGHT);
+		}
+
+		protected override object ResolveSecondPart(string[] input)
+		{
+			int maxEnergy = 0;
+
+			for (int y = 0; y < input.Length; y++)
+			{
+				for (int x = 0; x < input[0].Length; x++)
+				{
+					if (y > 0 && y < input.Length - 1 && x > 0 && x < input[0].Length - 1)
+						continue;
+
+					if (y == 0 && x == 0)
+					{
+						maxEnergy = Math.Max(maxEnergy, GetEnergy(input, x, y, Direction.RIGHT));
+						maxEnergy = Math.Max(maxEnergy, GetEnergy(input, x, y, Direction.DOWN));
+					}
+					else if (y == 0 && x == input[0].Length - 1)
+					{
+						maxEnergy = Math.Max(maxEnergy, GetEnergy(input, x, y, Direction.LEFT));
+						maxEnergy = Math.Max(maxEnergy, GetEnergy(input, x, y, Direction.DOWN));
+					}
+					else if (y == input.Length - 1 && x == 0)
+					{
+						maxEnergy = Math.Max(maxEnergy, GetEnergy(input, x, y, Direction.RIGHT));
+						maxEnergy = Math.Max(maxEnergy, GetEnergy(input, x, y, Direction.UP));
+					}
+					else if (y == input.Length - 1 && x == input[0].Length - 1)
+					{
+						maxEnergy = Math.Max(maxEnergy, GetEnergy(input, x, y, Direction.LEFT));
+						maxEnergy = Math.Max(maxEnergy, GetEnergy(input, x, y, Direction.UP));
+					}
+					else if (y == 0)
+					{
+						maxEnergy = Math.Max(maxEnergy, GetEnergy(input, x, y, Direction.DOWN));
+					}
+					else if (x == 0)
+					{
+						maxEnergy = Math.Max(maxEnergy, GetEnergy(input, x, y, Direction.RIGHT));
+					}
+					else if (y == input.Length - 1)
+					{
+						maxEnergy = Math.Max(maxEnergy, GetEnergy(input, x, y, Direction.UP));
+					}
+					else if (x == input[0].Length - 1)
+					{
+						maxEnergy = Math.Max(maxEnergy, GetEnergy(input, x, y, Direction.LEFT));
+					}
+				}
+			}
+
+			return maxEnergy;
+		}
+
+		private int GetEnergy(string[] input, int startX, int startY, Direction direction)
+		{
 			int yLength = input.Length;
 			int xLength = input[0].Length;
 
-			Beam firstBeam = new Beam(0, 0, Direction.RIGHT);
+			Beam firstBeam = new Beam(startX, startY, direction);
 			List<Beam> beams = new List<Beam>();
 			beams.Add(firstBeam);
 
@@ -202,14 +260,26 @@ namespace AdventOfCode.Year2023
 				toAdd.Clear();
 			}
 
+			//WriteTiles(tiles);
+
 			int energizedSum = 0;
+			for (int y = 0; y < yLength; y++)
+				for (int x = 0; x < xLength; x++)
+					energizedSum += tiles[y, x].Directions.Count() != 0 ? 1 : 0;
+			return energizedSum;
+		}
+
+		private void WriteTiles(Tile[,] tiles)
+		{
+			int yLength = tiles.GetLength(0);
+			int xLength = tiles.GetLength(1);
+
 			for (int y = 0; y < yLength; y++)
 			{
 				Console.WriteLine();
 				for (int x = 0; x < xLength; x++)
 				{
 					int count = tiles[y, x].Directions.Count();
-					energizedSum += count != 0 ? 1 : 0;
 
 					if (tiles[y, x].TileType != Type.EMPTY)
 					{
@@ -229,13 +299,6 @@ namespace AdventOfCode.Year2023
 				}
 			}
 			Console.WriteLine();
-
-			return energizedSum;
-		}
-
-		protected override object ResolveSecondPart(string[] input)
-		{
-			return string.Empty;
 		}
 
 		private Type GetType(char c)
