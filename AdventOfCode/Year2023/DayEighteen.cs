@@ -1,6 +1,5 @@
 ﻿namespace AdventOfCode.Year2023
 {
-	// Type à déterminer une fois que la loop est complète
 	public enum GroundType
 	{
 		EMPTY,
@@ -28,7 +27,6 @@
 		{
 			int result = 0;
 
-			// Y, X
 			int sizeY = 450;
 			int sizeX = 550;
 			GroundType[,] ground = new GroundType[sizeY, sizeX];
@@ -36,7 +34,6 @@
 			List<(int, int)> dirs = new() { (1, 0), (0, 1), (-1, 0), (0, -1) };
 			(int, int) current = (sizeY / 2, sizeX / 2);
 
-			// TODO : Déterminer le type
 			ground[current.Item2, current.Item1] = GroundType.START;
 
 			for (int i = 0; i < input.Length; i++)
@@ -60,10 +57,6 @@
 						{
 							ground[current.Item2, current.Item1] = GroundType.VERTICAL;
 							result++;
-						}
-						else
-						{
-							Console.Write("Wtf");
 						}
 					}
 					else 
@@ -91,24 +84,18 @@
 							ground[current.Item2, current.Item1] = GroundType.L;
 							result++;
 						}
-						else if (dir == next)
-						{
-							Console.Write("Wtf");
-						}
 					}
 				}
 			}
 
-			Console.Write("Total wall here " + result);
-			string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-
 			// Write the string array to a new file named "WriteLines.txt".
-			using (StreamWriter outputFile = new StreamWriter(Path.Combine(docPath, "WriteLines.txt")))
+			//string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+			//using (StreamWriter outputFile = new StreamWriter(Path.Combine(docPath, "WriteLines.txt")))
 
 			// Now raycast to know inside points
 			for (int y = 0; y < sizeY; y++)
 			{
-				outputFile.WriteLine();
+				//outputFile.WriteLine();
 				//Console.WriteLine();
 				for (int x = 0; x < sizeX; x++)
 				{
@@ -117,14 +104,9 @@
 					for (int i = 0; i < x + 1; i++)
 					{
 						GroundType groundType = ground[y, i];
-
-						// TODO : Déterminer si c'est un mur, ou un F ou un 7
-						if (groundType != GroundType.EMPTY)
+						if (groundType == GroundType.VERTICAL || groundType == GroundType.F || groundType == GroundType.SEVEN)
 						{
-							if (groundType == GroundType.VERTICAL || groundType == GroundType.F || groundType == GroundType.SEVEN)
-							{
-								walls++;
-							}
+							walls++;
 						}
 					}
 
@@ -133,13 +115,11 @@
 						ground[y, x] = GroundType.LAVA;
 						result++;
 					}
-					outputFile.Write(GetChar(ground[y, x]));
+					//outputFile.Write(GetChar(ground[y, x]));
 					//Console.Write(GetChar(ground[y, x]));
 				}
 			}
 			//Console.WriteLine();
-
-			// 38572 too high
 
 			return result;
 		}
