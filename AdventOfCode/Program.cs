@@ -100,24 +100,24 @@
 //new Year2022.DayTwentyFour();
 //new Year2022.DayTwentyFive();
 
-//new Year2023.DayOne();
-//new Year2023.DayTwo();
-//new Year2023.DayThree();
-//new Year2023.DayFour();
-//new Year2023.DayFive();
-//new Year2023.DaySix();
-//new Year2023.DaySeven();
-//new Year2023.DayEight();
-//new Year2023.DayNine();
-//new Year2023.DayTen();
-//new Year2023.DayEleven();
-//new Year2023.DayTwelve();
-//new Year2023.DayThirteen();
-//new Year2023.DayFourteen();
-//new Year2023.DayFifteen();
-//new Year2023.DaySixteen();
-
-new AdventOfCode.Year2023.DaySeventeen();
+//new AdventOfCode.Year2023.DayOne();
+//new AdventOfCode.Year2023.DayTwo();
+//new AdventOfCode.Year2023.DayThree();
+//new AdventOfCode.Year2023.DayFour();
+//new AdventOfCode.Year2023.DayFive();
+//new AdventOfCode.Year2023.DaySix();
+//new AdventOfCode.Year2023.DaySeven();
+//new AdventOfCode.Year2023.DayEight();
+//new AdventOfCode.Year2023.DayNine();
+//new AdventOfCode.Year2023.DayTen();
+//new AdventOfCode.Year2023.DayEleven();
+//new AdventOfCode.Year2023.DayTwelve();
+//new AdventOfCode.Year2023.DayThirteen();
+//new AdventOfCode.Year2023.DayFourteen();
+//new AdventOfCode.Year2023.DayFifteen();
+//new AdventOfCode.Year2023.DaySixteen();
+//new AdventOfCode.Year2023.DaySeventeen();
+new AdventOfCode.Year2023.DayEighteen();
 
 //Day2015.CalculateAndLogResults();
 //Console.WriteLine();
@@ -135,5 +135,4 @@ new AdventOfCode.Year2023.DaySeventeen();
 //Console.WriteLine();
 //Day2022.CalculateAndLogResults();
 //Console.WriteLine();
-
 Day2023.CalculateAndLogResults();
