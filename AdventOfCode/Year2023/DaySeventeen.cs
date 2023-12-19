@@ -40,22 +40,21 @@
 					(int X, int Y) direction = directions[i];
 
 					bool isSameDirection = node.Direction.X == direction.X && node.Direction.Y == direction.Y;
-					//bool isStart = node.Direction.X == 0 && node.Direction.Y == 0;
 
 					// Can not go in a straight line more than 3 times
-					if (/*!isStart && */isSameDirection && node.DirectionRepeater > 3)
-						break;
+					if (isSameDirection && node.DirectionRepeater >= 2)
+						continue;
 
 					// We skip OOB positions
 					if (node.Position.X + direction.X < 0 
 						|| node.Position.Y + direction.Y < 0 
 						|| node.Position.X + direction.X > input[0].Length - 1 
 						|| node.Position.Y + direction.Y > input.Length - 1)
-						break;
+						continue;
 
 					// We can not go back
 					if (-node.Direction.X == direction.X && -node.Direction.Y == direction.Y)
-						break;
+						continue;
 
 					int newTotalCost = node.TotalCost + input[node.Position.Y + direction.Y][node.Position.X + direction.X] - '0';
 
