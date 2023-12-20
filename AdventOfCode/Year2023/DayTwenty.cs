@@ -15,12 +15,16 @@
 
 	public abstract class Module
 	{
+		public long ChangedCount = 0;
 		public string Name = string.Empty;
 		public List<Module> DestinationModules = new();
 		public PulseType LastReceivedPulseType = PulseType.LOW;
 
 		public void ProcessPulse(Module input, PulseType pulseType)
 		{
+			if (LastReceivedPulseType != pulseType)
+				ChangedCount++;
+
 			LastReceivedPulseType = pulseType;
 			ProcessPulseInternal(input, pulseType);
 		}
@@ -42,9 +46,10 @@
 		}
 	}
 
+	// % : Inverse le signal si on reçoit un LOW
 	public class FlipFlop : Module
 	{
-		public bool State; // false : off, true :on
+		public bool State;
 		
 		private bool mSendPulse;
 
@@ -79,6 +84,8 @@
 		}
 	}
 
+	// & : Si tous les inputs sont HIGH, on les passe en LOW
+	// Si un seul input est LOW on les passe en HIGH
 	public class Conjonction : Module
 	{
 		public Dictionary<Module, PulseType> Inputs = new();
@@ -106,7 +113,6 @@
 		{
 			Inputs[input] = pulseType;
 
-			// Then, if it remembers high pulses for all inputs, it sends a low pulse; otherwise, it sends a high pulse.
 			mPulseTypeToSend = PulseType.LOW;
 			if (Inputs.Where(module => module.Value == PulseType.LOW).Any())
 				mPulseTypeToSend = PulseType.HIGH;
@@ -139,15 +145,17 @@
 
 	public class DayTwenty : Day2023
 	{
-		protected override bool DeactivateJIT
+		protected override object ResolveFirstPart(string[] input)
 		{
-			get
-			{
-				return true;
-			}
+			return CalculateResult(input, false);
 		}
 
-		protected override object ResolveFirstPart(string[] input)
+		protected override object ResolveSecondPart(string[] input)
+		{
+			return CalculateResult(input, true);
+		}
+
+		private ulong CalculateResult(string[] input, bool isSecondPart)
 		{
 			Dictionary<string, Module> modules = new();
 			Broadcast broadcaster = new() { Name = "broadcaster" };
@@ -156,6 +164,8 @@
 			// First pass for module names
 			for (int i = 0; i < input.Length; i++)
 			{
+				if (input[i] == string.Empty || input[i].Contains("#")) continue;
+
 				string name = input[i].Split(" -> ")[0];
 				if (name == "broadcaster") continue;
 				modules.Add(name.Substring(1), name[0] == '%' ? new FlipFlop() { Name = name.Substring(1) } : new Conjonction() { Name = name.Substring(1) });
@@ -164,6 +174,8 @@
 			// Second pass for module destinations
 			for (int i = 0; i < input.Length; i++)
 			{
+				if (input[i] == string.Empty || input[i].Contains("#")) continue;
+
 				string rawName = input[i].Split(" -> ")[0];
 				string trueName = rawName.Substring(1);
 				if (rawName == "broadcaster") trueName = "broadcaster";
@@ -184,9 +196,14 @@
 				}
 			}
 
-			long lowPulsesSent = 0;
-			long highPulsesSent = 0;
-			for (int i = 0; i < 1000; i++)
+			ulong lowPulsesSent = 0;
+			ulong highPulsesSent = 0;
+
+			ulong secondPartResult = 1;
+			int soloConjection = modules.Where(module => module.Value is Conjonction conj && conj.Inputs.Count == 1).Count();
+			int buttonPress = isSecondPart ? 10000 : 1000;
+
+			for (int i = 0; i < buttonPress; i++)
 			{
 				Queue<DestinationPulse> destinationPulses = new Queue<DestinationPulse>();
 				destinationPulses.Enqueue(new DestinationPulse() { DestinationModule = broadcaster, PulseTypeToSend = PulseType.LOW });
@@ -200,28 +217,22 @@
 					else
 						highPulsesSent++;
 
-					if (i == 0)
-						Console.WriteLine(
-							(next.InputModule == null ? "button" : next.InputModule.Name)
-							+ "-" 
-							+ (next.PulseTypeToSend == PulseType.LOW ? "low" : "high") 
-							+ " -> " 
-							+ next.DestinationModule.Name);
+					if (isSecondPart && next.DestinationModule.Name == "rg" && next.PulseTypeToSend == PulseType.HIGH)
+					{
+						secondPartResult *= (ulong)(i + 1);
+						soloConjection--;
+						if (soloConjection == 0)
+						{
+							return secondPartResult;
+						}
+					}
 
 					next.DestinationModule.ProcessPulse(next.InputModule, next.PulseTypeToSend);
 					next.DestinationModule.GetDestinationPulses().ForEach(destPulse => destinationPulses.Enqueue(destPulse));
 				}
-
-				if (i < 10 || i == 19 || i == 99 || i == 999)
-					Console.WriteLine(i + ": low " + lowPulsesSent + " high " + highPulsesSent);
 			}
 
 			return lowPulsesSent * highPulsesSent;
-		}
-
-		protected override object ResolveSecondPart(string[] input)
-		{
-			return string.Empty;
 		}
 	}
 }
