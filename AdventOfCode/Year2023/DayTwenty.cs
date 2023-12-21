@@ -217,7 +217,7 @@
 					else
 						highPulsesSent++;
 
-					if (isSecondPart && next.DestinationModule.Name == "rg" && next.PulseTypeToSend == PulseType.HIGH)
+					if (isSecondPart && next.DestinationModule.DestinationModules.Count == 1 && next.DestinationModule.DestinationModules[0] is Untyped && next.PulseTypeToSend == PulseType.HIGH)
 					{
 						secondPartResult *= (ulong)(i + 1);
 						soloConjection--;
