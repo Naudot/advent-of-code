@@ -1,35 +1,35 @@
 ﻿namespace AdventOfCode.Year2023
 {
-	public class Brick
-	{
-		public (int X, int Y, int Z) Start;
-		public (int X, int Y, int Z) End;
-
-		public HashSet<(int, int, int)> GetCubes(bool fullZ, bool onlyTopZ)
-		{
-			HashSet<(int, int, int)> cubes = new();
-
-			if (Start.X != End.X)
-				for (int i = 0; i < End.X - Start.X + 1; i++)
-					cubes.Add((Start.X + i, Start.Y, Start.Z));
-			else if (Start.Y != End.Y)
-				for (int i = 0; i < End.Y - Start.Y + 1; i++)
-					cubes.Add((Start.X, Start.Y + i, Start.Z));
-			else if (Start.Z != End.Z)
-				if (fullZ)
-					for (int i = 0; i < End.Z - Start.Z + 1; i++)
-						cubes.Add((Start.X, Start.Y, Start.Z + i));
-				else
-					cubes.Add((Start.X, Start.Y, onlyTopZ ? End.Z : Start.Z));
-			else
-				cubes.Add((Start.X, Start.Y, Start.Z));
-
-			return cubes;
-		}
-	}
-
 	public class DayTwentyTwo : Day2023
 	{
+		public class Brick
+		{
+			public (int X, int Y, int Z) Start;
+			public (int X, int Y, int Z) End;
+
+			public HashSet<(int, int, int)> GetCubes(bool fullZ, bool onlyTopZ)
+			{
+				HashSet<(int, int, int)> cubes = new();
+
+				if (Start.X != End.X)
+					for (int i = 0; i < End.X - Start.X + 1; i++)
+						cubes.Add((Start.X + i, Start.Y, Start.Z));
+				else if (Start.Y != End.Y)
+					for (int i = 0; i < End.Y - Start.Y + 1; i++)
+						cubes.Add((Start.X, Start.Y + i, Start.Z));
+				else if (Start.Z != End.Z)
+					if (fullZ)
+						for (int i = 0; i < End.Z - Start.Z + 1; i++)
+							cubes.Add((Start.X, Start.Y, Start.Z + i));
+					else
+						cubes.Add((Start.X, Start.Y, onlyTopZ ? End.Z : Start.Z));
+				else
+					cubes.Add((Start.X, Start.Y, Start.Z));
+
+				return cubes;
+			}
+		}
+
 		protected override bool DeactivateJIT => true;
 
 		protected override object ResolveFirstPart(string[] input)

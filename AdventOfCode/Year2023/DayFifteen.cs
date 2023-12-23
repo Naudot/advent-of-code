@@ -1,22 +1,20 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 
 namespace AdventOfCode.Year2023
 {
-	public class Box
-	{
-		public List<Lens> Lenses = new List<Lens>();
-	}
-
-	public class Lens
-	{
-		public string Label;
-		public int Focus;
-	}
-
 	public class DayFifteen : Day2023
 	{
+		public class Box
+		{
+			public List<Lens> Lenses = new List<Lens>();
+		}
+
+		public class Lens
+		{
+			public string Label = string.Empty;
+			public int Focus;
+		}
+
 		protected override object ResolveFirstPart(string[] input)
 		{
 			int sum = 0;

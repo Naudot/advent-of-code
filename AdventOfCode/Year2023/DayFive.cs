@@ -1,25 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace AdventOfCode.Year2023
+﻿namespace AdventOfCode.Year2023
 {
-	public class Map
-	{
-		public string Begin;
-		public string End;
-		public List<Data> Dataset = new List<Data>();
-	}
-
-	public class Data
-	{
-		public ulong DestRangStart;
-		public ulong SourceRangStart;
-		public ulong RangeLength;
-	}
-
 	public class DayFive : Day2023
 	{
+		public class Map
+		{
+			public string Begin = string.Empty;
+			public string End = string.Empty;
+			public List<Data> Dataset = new List<Data>();
+		}
+
+		public class Data
+		{
+			public ulong DestRangStart;
+			public ulong SourceRangStart;
+			public ulong RangeLength;
+		}
+
 		protected override object ResolveFirstPart(string[] input)
 		{
 			ulong[] seeds = input[0].Replace("seeds: ", string.Empty).Split(' ').Select(seed => ulong.Parse(seed)).ToArray();

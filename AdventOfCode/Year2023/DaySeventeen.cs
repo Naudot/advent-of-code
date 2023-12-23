@@ -72,7 +72,6 @@
 
 		protected override object ResolveSecondPart(string[] input)
 		{
-			// 723 too low
 			// Right, Down, Left, Up
 			List<(int, int)> directions = new() { (1, 0), (0, 1), (-1, 0), (0, -1) };
 			PriorityQueue<Node, int> priorityQueue = new();

@@ -1,25 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace AdventOfCode.Year2023
+﻿namespace AdventOfCode.Year2023
 {
-	public enum Tilting
-	{
-		NORTH,
-		WEST,
-		SOUTH,
-		EAST
-	}
-
-	public enum Type
-	{
-		EMPTY,
-		ROCK,
-		BOULDER
-	}
-
 	public class DayFourteen : Day2023
 	{
+		public enum Tilting
+		{
+			NORTH,
+			WEST,
+			SOUTH,
+			EAST
+		}
+
+		public enum Type
+		{
+			EMPTY,
+			ROCK,
+			BOULDER
+		}
+
 		protected override bool DeactivateJIT
 		{
 			get

@@ -1,129 +1,131 @@
 ﻿namespace AdventOfCode.Year2023
 {
-	public enum PulseType
+	public class DayTwenty : Day2023
 	{
-		LOW,
-		HIGH
-	}
-
-	public class DestinationPulse
-	{
-		public Module InputModule;
-		public PulseType PulseTypeToSend;
-		public Module DestinationModule;
-	}
-
-	public abstract class Module
-	{
-		public long ChangedCount = 0;
-		public string Name = string.Empty;
-		public List<Module> DestinationModules = new();
-		public PulseType LastReceivedPulseType = PulseType.LOW;
-
-		public void ProcessPulse(Module input, PulseType pulseType)
+		public enum PulseType
 		{
-			if (LastReceivedPulseType != pulseType)
-				ChangedCount++;
-
-			LastReceivedPulseType = pulseType;
-			ProcessPulseInternal(input, pulseType);
+			LOW,
+			HIGH
 		}
 
-		public abstract List<DestinationPulse> GetDestinationPulses();
-
-		protected abstract void ProcessPulseInternal(Module input, PulseType pulseType);
-	}
-
-	public class Untyped : Module
-	{
-		public override List<DestinationPulse> GetDestinationPulses()
+		public class DestinationPulse
 		{
-			return new();
+			public Module InputModule;
+			public PulseType PulseTypeToSend;
+			public Module DestinationModule;
 		}
 
-		protected override void ProcessPulseInternal(Module input, PulseType pulseType)
+		public abstract class Module
 		{
-		}
-	}
+			public long ChangedCount = 0;
+			public string Name = string.Empty;
+			public List<Module> DestinationModules = new();
+			public PulseType LastReceivedPulseType = PulseType.LOW;
 
-	// % : Inverse le signal si on reçoit un LOW
-	public class FlipFlop : Module
-	{
-		public bool State;
-		
-		private bool mSendPulse;
-
-		public override List<DestinationPulse> GetDestinationPulses()
-		{
-			List<DestinationPulse> destinations = new();
-
-			if (mSendPulse)
+			public void ProcessPulse(Module input, PulseType pulseType)
 			{
+				if (LastReceivedPulseType != pulseType)
+					ChangedCount++;
+
+				LastReceivedPulseType = pulseType;
+				ProcessPulseInternal(input, pulseType);
+			}
+
+			public abstract List<DestinationPulse> GetDestinationPulses();
+
+			protected abstract void ProcessPulseInternal(Module input, PulseType pulseType);
+		}
+
+		public class Untyped : Module
+		{
+			public override List<DestinationPulse> GetDestinationPulses()
+			{
+				return new();
+			}
+
+			protected override void ProcessPulseInternal(Module input, PulseType pulseType)
+			{
+			}
+		}
+
+		// % : Inverse le signal si on reçoit un LOW
+		public class FlipFlop : Module
+		{
+			public bool State;
+
+			private bool mSendPulse;
+
+			public override List<DestinationPulse> GetDestinationPulses()
+			{
+				List<DestinationPulse> destinations = new();
+
+				if (mSendPulse)
+				{
+					for (int i = 0; i < DestinationModules.Count; i++)
+					{
+						destinations.Add(new()
+						{
+							InputModule = this,
+							DestinationModule = DestinationModules[i],
+							PulseTypeToSend = State ? PulseType.HIGH : PulseType.LOW
+						});
+					}
+				}
+
+				return destinations;
+			}
+
+			protected override void ProcessPulseInternal(Module input, PulseType pulseType)
+			{
+				mSendPulse = false;
+
+				if (pulseType == PulseType.HIGH) return;
+
+				State = !State;
+				mSendPulse = true;
+			}
+		}
+
+		// & : Si tous les inputs sont HIGH, on les passe en LOW
+		// Si un seul input est LOW on les passe en HIGH
+		public class Conjonction : Module
+		{
+			public Dictionary<Module, PulseType> Inputs = new();
+
+			private PulseType mPulseTypeToSend = PulseType.LOW;
+
+			public override List<DestinationPulse> GetDestinationPulses()
+			{
+				List<DestinationPulse> destinations = new();
+
 				for (int i = 0; i < DestinationModules.Count; i++)
 				{
 					destinations.Add(new()
 					{
 						InputModule = this,
 						DestinationModule = DestinationModules[i],
-						PulseTypeToSend = State ? PulseType.HIGH : PulseType.LOW
+						PulseTypeToSend = mPulseTypeToSend
 					});
 				}
+
+				return destinations;
 			}
 
-			return destinations;
-		}
-
-		protected override void ProcessPulseInternal(Module input, PulseType pulseType)
-		{
-			mSendPulse = false;
-
-			if (pulseType == PulseType.HIGH) return;
-
-			State = !State;
-			mSendPulse = true;
-		}
-	}
-
-	// & : Si tous les inputs sont HIGH, on les passe en LOW
-	// Si un seul input est LOW on les passe en HIGH
-	public class Conjonction : Module
-	{
-		public Dictionary<Module, PulseType> Inputs = new();
-
-		private PulseType mPulseTypeToSend = PulseType.LOW;
-
-		public override List<DestinationPulse> GetDestinationPulses()
-		{
-			List<DestinationPulse> destinations = new();
-
-			for (int i = 0; i < DestinationModules.Count; i++)
+			protected override void ProcessPulseInternal(Module input, PulseType pulseType)
 			{
-				destinations.Add(new()
-				{
-					InputModule = this,
-					DestinationModule = DestinationModules[i],
-					PulseTypeToSend = mPulseTypeToSend
-				});
+				Inputs[input] = pulseType;
+
+				mPulseTypeToSend = PulseType.LOW;
+				if (Inputs.Where(module => module.Value == PulseType.LOW).Any())
+					mPulseTypeToSend = PulseType.HIGH;
 			}
-
-			return destinations;
 		}
 
-		protected override void ProcessPulseInternal(Module input, PulseType pulseType)
+		public class Broadcast : Module
 		{
-			Inputs[input] = pulseType;
-
-			mPulseTypeToSend = PulseType.LOW;
-			if (Inputs.Where(module => module.Value == PulseType.LOW).Any())
-				mPulseTypeToSend = PulseType.HIGH;
-		}
-	}
-
-	public class Broadcast : Module
-	{
-		public override List<DestinationPulse> GetDestinationPulses()
-		{
-			List<DestinationPulse> destinations = new();
+			public override List<DestinationPulse> GetDestinationPulses()
+			{
+				List<DestinationPulse> destinations = new();
 
 				for (int i = 0; i < DestinationModules.Count; i++)
 				{
@@ -135,16 +137,14 @@
 					});
 				}
 
-			return destinations;
+				return destinations;
+			}
+
+			protected override void ProcessPulseInternal(Module input, PulseType pulseType)
+			{
+			}
 		}
 
-		protected override void ProcessPulseInternal(Module input, PulseType pulseType)
-		{
-		}
-	}
-
-	public class DayTwenty : Day2023
-	{
 		protected override object ResolveFirstPart(string[] input)
 		{
 			return CalculateResult(input, false);
