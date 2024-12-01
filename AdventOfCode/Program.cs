@@ -122,7 +122,10 @@
 //new AdventOfCode.Year2023.DayTwenty();
 //new AdventOfCode.Year2023.DayTwentyOne();
 //new AdventOfCode.Year2023.DayTwentyTwo();
-new AdventOfCode.Year2023.DayTwentyThree();
+//new AdventOfCode.Year2023.DayTwentyThree();
+//new AdventOfCode.Year2023.DayTwentyFour();
+
+new AdventOfCode.Year2024.DayOne();
 
 //Day2015.CalculateAndLogResults();
 //Console.WriteLine();
@@ -140,4 +143,6 @@ new AdventOfCode.Year2023.DayTwentyThree();
 //Console.WriteLine();
 //Day2022.CalculateAndLogResults();
 //Console.WriteLine();
-Day2023.CalculateAndLogResults();
+//Day2023.CalculateAndLogResults();
+//Console.WriteLine();
+Day2024.CalculateAndLogResults();
