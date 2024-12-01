@@ -196,6 +196,16 @@
 						}
 					}
 				}
+
+				if (paths.Count > 0)
+				{
+					int min = paths.Select(path => path.Weight).Min();
+					int minCount = paths.Where(path => path.Weight == min).Count();
+					int max = paths.Select(path => path.Weight).Max();
+					int maxCount = paths.Where(path => path.Weight == max).Count();
+
+					Console.WriteLine("Min " + min + " Count : " + minCount + " Max " + max + " Count " + maxCount);
+				}
 			}
 
 			for (int i = 0; i < endedPaths.Count; i++)
