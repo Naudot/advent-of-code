@@ -31,33 +31,18 @@
 
 			for (int i = 0; i < input.Length; i++)
 			{
-				string line = input[i];
-				string[] split = line.Split("   ");
+				string[] split = input[i].Split("   ");
 
-				int leftValue = int.Parse(split[0]);
-				int rightValue = int.Parse(split[1]);
+				int leftKey = int.Parse(split[0]);
+				int rightKey = int.Parse(split[1]);
 
-				if (leftValues.ContainsKey(leftValue))
-					leftValues[leftValue]++;
-				else
-					leftValues.Add(leftValue, 1);
-
-				if (rightValues.ContainsKey(rightValue))
-					rightValues[rightValue]++;
-				else
-					rightValues.Add(rightValue, 1);
+				leftValues[leftKey] = leftValues.GetValueOrDefault(leftKey, 0) + 1;
+				rightValues[rightKey] = rightValues.GetValueOrDefault(rightKey, 0) + 1;
 			}
 
 			int similarityScore = 0;
-
 			foreach (KeyValuePair<int, int> leftValuePair in leftValues)
-			{
-				int leftKey = leftValuePair.Key;
-				int countInLeft = leftValuePair.Value;
-				int countInRight = rightValues.ContainsKey(leftKey) ? rightValues[leftKey] : 0;
-				similarityScore += leftKey * countInLeft * countInRight;
-			}
-
+				similarityScore += leftValuePair.Key * leftValuePair.Value * rightValues.GetValueOrDefault(leftKey, 0);
 			return similarityScore;
 		}
 	}
