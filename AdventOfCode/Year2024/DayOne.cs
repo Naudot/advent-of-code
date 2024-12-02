@@ -42,7 +42,7 @@
 
 			int similarityScore = 0;
 			foreach (KeyValuePair<int, int> leftValuePair in leftValues)
-				similarityScore += leftValuePair.Key * leftValuePair.Value * rightValues.GetValueOrDefault(leftKey, 0);
+				similarityScore += leftValuePair.Key * leftValuePair.Value * rightValues.GetValueOrDefault(leftValuePair.Key, 0);
 			return similarityScore;
 		}
 	}
