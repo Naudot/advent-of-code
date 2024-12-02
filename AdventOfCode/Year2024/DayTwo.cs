@@ -4,49 +4,30 @@ namespace AdventOfCode.Year2024
 	{
 		protected override object ResolveFirstPart(string[] input)
 		{
-			int safeReportsCount = input.Length;
-
-			for (int i = 0; i < input.Length; i++)
-			{
-				int[] levels = input[i].Split(' ').Select(level => int.Parse(level)).ToArray();
-				safeReportsCount -= IsReportSafe(levels) ? 0 : 1;
-			}
-
-			return safeReportsCount;
+			return input.Select(line => line.Split(' ')
+							.Select(level => int.Parse(level))
+							.ToArray())
+						.Where(report => IsReportSafe(report))
+						.Count();
 		}
 
 		protected override object ResolveSecondPart(string[] input)
 		{
-			int safeReportsCount = input.Length;
-
-			for (int i = 0; i < input.Length; i++)
-			{
-				int[] levels = input[i].Split(' ').Select(level => int.Parse(level)).ToArray();
-				bool isSafe = IsReportSafe(levels);
-
-				if (!isSafe)
-				{
-					bool isOneReportSafeAmongTrimmedLevels = false;
-					for (int j = 0; j < levels.Length; j++)
-					{
-						int[] trimmedLevels = levels.Where((val, index) => index != j).ToArray();
-						isOneReportSafeAmongTrimmedLevels |= IsReportSafe(trimmedLevels);
-					}
-
-					if (!isOneReportSafeAmongTrimmedLevels)
-						safeReportsCount --;
-				}
-			}
-
-			return safeReportsCount;
+			return input.Select(line => line.Split(' ')
+							.Select(level => int.Parse(level))
+							.ToArray())
+						.Where(report => IsReportSafe(report) 
+							|| report.Select((_, indexToTrim) => IsReportSafe(report.Where((_, i) => i != indexToTrim).ToArray()))
+									 .Any(safe => safe))
+						.Count();
 		}
 
-		private bool IsReportSafe(int[] levels)
+		private bool IsReportSafe(int[] report)
 		{
-			bool isIncreasing = (levels[0] - levels[1]) < 0;
-			for (int j = 0; j < levels.Length - 1; j++)
+			bool isIncreasing = (report[0] - report[1]) < 0;
+			for (int j = 0; j < report.Length - 1; j++)
 			{
-				int diff = levels[j] - levels[j + 1];
+				int diff = report[j] - report[j + 1];
 				if (Math.Abs(diff) < 1 || Math.Abs(diff) > 3 || (isIncreasing ? diff > 0 : diff < 0))
 					return false;
 			}
