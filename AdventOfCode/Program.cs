@@ -126,7 +126,8 @@
 //new AdventOfCode.Year2023.DayTwentyFour();
 
 //new AdventOfCode.Year2024.DayOne();
-new AdventOfCode.Year2024.DayTwo();
+//new AdventOfCode.Year2024.DayTwo();
+new AdventOfCode.Year2024.DayThree();
 
 //Day2015.CalculateAndLogResults();
 //Console.WriteLine();
