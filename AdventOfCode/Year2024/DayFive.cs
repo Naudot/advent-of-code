@@ -8,8 +8,6 @@
 
 	public class DayFive : Day2024
 	{
-		protected override bool DeactivateJIT => true;
-
 		protected override object ResolveFirstPart(string[] input)
 		{
 			double result = 0;
