@@ -1,11 +1,5 @@
 ﻿namespace AdventOfCode.Year2024
 {
-	public class Node
-	{
-		public HashSet<int> NodesBefore = new();
-		public HashSet<int> NodesAfter = new();
-	}
-
 	public class DayFive : Day2024
 	{
 		protected override object ResolveFirstPart(string[] input)
@@ -20,49 +14,40 @@
 
 		private double ProcessPageUpdates(string[] input, bool isPartTwo)
 		{
+			int pagesIndex = Array.IndexOf(input, string.Empty) + 1;
 			double result = 0;
 
-			bool isPageUpdates = false;
-			for (int i = 0; i < input.Length; i++)
+			for (int i = pagesIndex; i < input.Length; i++)
 			{
-				if (input[i] == string.Empty)
+				int[] pageUpdate = input[i].Split(',').Select(val => int.Parse(val)).ToArray();
+				Dictionary<int, HashSet<int>> pagesCount = GetPages(input, pageUpdate);
+
+				int index = 0;
+				foreach (int pageNumber in pageUpdate)
 				{
-					isPageUpdates = true;
-					continue;
+					if (pagesCount[pageNumber].Count != index)
+						break;
+					index++;
 				}
 
-				if (isPageUpdates)
+				// P1
+				if (index == pageUpdate.Length && !isPartTwo)
+					result += pageUpdate[pageUpdate.Length / 2];
+
+				// P2
+				if (index != pageUpdate.Length && isPartTwo)
 				{
-					int[] pageUpdate = input[i].Split(',').Select(val => int.Parse(val)).ToArray();
-					Dictionary<int, Node> nodes = Parse(input, pageUpdate);
-
-					int index = 0;
-					foreach (int pageNumber in pageUpdate)
-					{
-						if (nodes[pageNumber].NodesBefore.Count != index)
-							break;
-						index++;
-					}
-
-					// P1
-					if (index == pageUpdate.Length && !isPartTwo)
-						result += pageUpdate[pageUpdate.Length / 2];
-
-					// P2
-					if (index != pageUpdate.Length && isPartTwo)
-					{
-						int[] orderedValues = nodes.OrderBy(node => node.Value.NodesBefore.Count).Select(node => node.Key).ToArray();
-						result += orderedValues[orderedValues.Length / 2];
-					}
+					int[] orderedValues = pagesCount.OrderBy(node => node.Value.Count).Select(node => node.Key).ToArray();
+					result += orderedValues[orderedValues.Length / 2];
 				}
 			}
 
 			return result;
 		}
 
-		private Dictionary<int, Node> Parse(string[] input, int[] interestedNumbers)
+		private Dictionary<int, HashSet<int>> GetPages(string[] input, int[] wantedPageNumbers)
 		{
-			Dictionary<int, Node> nodes = new();
+			Dictionary<int, HashSet<int>> pagesLink = new();
 
 			for (int i = 0; i < input.Length; i++)
 			{
@@ -70,22 +55,35 @@
 					break;
 
 				string[] values = input[i].Split('|');
-				int leftValue = int.Parse(values[0]);
-				int rightValue = int.Parse(values[1]);
+				int leftPage = int.Parse(values[0]);
+				int rightPage = int.Parse(values[1]);
 
-				if (!interestedNumbers.Contains(leftValue) || !interestedNumbers.Contains(rightValue))
+				if (!wantedPageNumbers.Contains(leftPage) || !wantedPageNumbers.Contains(rightPage))
 					continue;
 
-				if (!nodes.ContainsKey(leftValue))
-					nodes.Add(leftValue, new());
-				if (!nodes.ContainsKey(rightValue))
-					nodes.Add(rightValue, new());
+				if (!pagesLink.ContainsKey(leftPage))
+					pagesLink.Add(leftPage, new());
+				if (!pagesLink.ContainsKey(rightPage))
+					pagesLink.Add(rightPage, new());
 
-				nodes[leftValue].NodesAfter.Add(rightValue);
-				nodes[rightValue].NodesBefore.Add(leftValue);
+				pagesLink[rightPage].Add(leftPage);
 			}
 
-			return nodes;
+			return pagesLink;
+		}
+
+		private bool IsPageUpdateValid(int[] pageUpdate, Dictionary<int, HashSet<int>> pagesBeforeCount)
+		{
+			int index = 0;
+
+			foreach (int pageNumber in pageUpdate)
+			{
+				if (pagesBeforeCount[pageNumber].Count != index)
+					break;
+				index++;
+			}
+
+			return index == pageUpdate.Length;
 		}
 	}
 }
