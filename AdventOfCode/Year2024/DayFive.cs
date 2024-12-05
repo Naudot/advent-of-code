@@ -20,7 +20,7 @@
 			for (int i = pagesIndex; i < input.Length; i++)
 			{
 				int[] pageUpdate = input[i].Split(',').Select(val => int.Parse(val)).ToArray();
-				Dictionary<int, int> previousPages = GetPreviousPages(input, pageUpdate);
+				Dictionary<int, int> previousPages = GetPreviousPagesCount(input, pageUpdate);
 				bool isPageUpdateProperlyOrdered = IsPageUpdateProperlyOrdered(pageUpdate, previousPages);
 
 				// P1
@@ -38,9 +38,9 @@
 			return result;
 		}
 
-		private Dictionary<int, int> GetPreviousPages(string[] input, int[] wantedPageNumbers)
+		private Dictionary<int, int> GetPreviousPagesCount(string[] input, int[] wantedPageNumbers)
 		{
-			Dictionary<int, int> previousPages = new();
+			Dictionary<int, int> previousPagesCount = new();
 
 			for (int i = 0; i < input.Length; i++)
 			{
@@ -54,16 +54,15 @@
 				if (!wantedPageNumbers.Contains(leftPage) || !wantedPageNumbers.Contains(rightPage))
 					continue;
 
-				if (!previousPages.ContainsKey(leftPage))
-					previousPages.Add(leftPage, 0);
-				if (!previousPages.ContainsKey(rightPage))
-					previousPages.Add(rightPage, 0);
+				if (!previousPagesCount.ContainsKey(leftPage))
+					previousPagesCount.Add(leftPage, 0);
+				if (!previousPagesCount.ContainsKey(rightPage))
+					previousPagesCount.Add(rightPage, 0);
 
-				// Previous pages of 'rightPage' now contains the 'leftPage'
-				previousPages[rightPage]++;
+				previousPagesCount[rightPage]++;
 			}
 
-			return previousPages;
+			return previousPagesCount;
 		}
 
 		private bool IsPageUpdateProperlyOrdered(int[] pageUpdate, Dictionary<int, int> pagesBeforeCount)
