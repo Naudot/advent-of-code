@@ -20,7 +20,7 @@
 			for (int i = pagesIndex; i < input.Length; i++)
 			{
 				int[] pageUpdate = input[i].Split(',').Select(val => int.Parse(val)).ToArray();
-				Dictionary<int, HashSet<int>> previousPages = GetPreviousPages(input, pageUpdate);
+				Dictionary<int, int> previousPages = GetPreviousPages(input, pageUpdate);
 				bool isPageUpdateProperlyOrdered = IsPageUpdateProperlyOrdered(pageUpdate, previousPages);
 
 				// P1
@@ -30,7 +30,7 @@
 				// P2
 				if (!isPageUpdateProperlyOrdered && isPartTwo)
 				{
-					int[] orderedValues = previousPages.OrderBy(node => node.Value.Count).Select(node => node.Key).ToArray();
+					int[] orderedValues = previousPages.OrderBy(node => node.Value).Select(node => node.Key).ToArray();
 					result += orderedValues[orderedValues.Length / 2];
 				}
 			}
@@ -38,9 +38,9 @@
 			return result;
 		}
 
-		private Dictionary<int, HashSet<int>> GetPreviousPages(string[] input, int[] wantedPageNumbers)
+		private Dictionary<int, int> GetPreviousPages(string[] input, int[] wantedPageNumbers)
 		{
-			Dictionary<int, HashSet<int>> previousPages = new();
+			Dictionary<int, int> previousPages = new();
 
 			for (int i = 0; i < input.Length; i++)
 			{
@@ -55,21 +55,21 @@
 					continue;
 
 				if (!previousPages.ContainsKey(leftPage))
-					previousPages.Add(leftPage, new());
+					previousPages.Add(leftPage, 0);
 				if (!previousPages.ContainsKey(rightPage))
-					previousPages.Add(rightPage, new());
+					previousPages.Add(rightPage, 0);
 
 				// Previous pages of 'rightPage' now contains the 'leftPage'
-				previousPages[rightPage].Add(leftPage);
+				previousPages[rightPage]++;
 			}
 
 			return previousPages;
 		}
 
-		private bool IsPageUpdateProperlyOrdered(int[] pageUpdate, Dictionary<int, HashSet<int>> pagesBeforeCount)
+		private bool IsPageUpdateProperlyOrdered(int[] pageUpdate, Dictionary<int, int> pagesBeforeCount)
 		{
 			for (int i = 0; i < pageUpdate.Length; i++)
-				if (pagesBeforeCount[pageUpdate[i]].Count != i)
+				if (pagesBeforeCount[pageUpdate[i]] != i)
 					return false;
 			return true;
 		}
