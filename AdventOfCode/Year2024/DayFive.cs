@@ -20,24 +20,17 @@
 			for (int i = pagesIndex; i < input.Length; i++)
 			{
 				int[] pageUpdate = input[i].Split(',').Select(val => int.Parse(val)).ToArray();
-				Dictionary<int, HashSet<int>> pagesCount = GetPages(input, pageUpdate);
-
-				int index = 0;
-				foreach (int pageNumber in pageUpdate)
-				{
-					if (pagesCount[pageNumber].Count != index)
-						break;
-					index++;
-				}
+				Dictionary<int, HashSet<int>> previousPages = GetPreviousPages(input, pageUpdate);
+				bool isPageUpdateProperlyOrdered = IsPageUpdateProperlyOrdered(pageUpdate, previousPages);
 
 				// P1
-				if (index == pageUpdate.Length && !isPartTwo)
+				if (isPageUpdateProperlyOrdered && !isPartTwo)
 					result += pageUpdate[pageUpdate.Length / 2];
 
 				// P2
-				if (index != pageUpdate.Length && isPartTwo)
+				if (!isPageUpdateProperlyOrdered && isPartTwo)
 				{
-					int[] orderedValues = pagesCount.OrderBy(node => node.Value.Count).Select(node => node.Key).ToArray();
+					int[] orderedValues = previousPages.OrderBy(node => node.Value.Count).Select(node => node.Key).ToArray();
 					result += orderedValues[orderedValues.Length / 2];
 				}
 			}
@@ -45,9 +38,9 @@
 			return result;
 		}
 
-		private Dictionary<int, HashSet<int>> GetPages(string[] input, int[] wantedPageNumbers)
+		private Dictionary<int, HashSet<int>> GetPreviousPages(string[] input, int[] wantedPageNumbers)
 		{
-			Dictionary<int, HashSet<int>> pagesLink = new();
+			Dictionary<int, HashSet<int>> previousPages = new();
 
 			for (int i = 0; i < input.Length; i++)
 			{
@@ -61,29 +54,24 @@
 				if (!wantedPageNumbers.Contains(leftPage) || !wantedPageNumbers.Contains(rightPage))
 					continue;
 
-				if (!pagesLink.ContainsKey(leftPage))
-					pagesLink.Add(leftPage, new());
-				if (!pagesLink.ContainsKey(rightPage))
-					pagesLink.Add(rightPage, new());
+				if (!previousPages.ContainsKey(leftPage))
+					previousPages.Add(leftPage, new());
+				if (!previousPages.ContainsKey(rightPage))
+					previousPages.Add(rightPage, new());
 
-				pagesLink[rightPage].Add(leftPage);
+				// Previous pages of 'rightPage' now contains the 'leftPage'
+				previousPages[rightPage].Add(leftPage);
 			}
 
-			return pagesLink;
+			return previousPages;
 		}
 
-		private bool IsPageUpdateValid(int[] pageUpdate, Dictionary<int, HashSet<int>> pagesBeforeCount)
+		private bool IsPageUpdateProperlyOrdered(int[] pageUpdate, Dictionary<int, HashSet<int>> pagesBeforeCount)
 		{
-			int index = 0;
-
-			foreach (int pageNumber in pageUpdate)
-			{
-				if (pagesBeforeCount[pageNumber].Count != index)
-					break;
-				index++;
-			}
-
-			return index == pageUpdate.Length;
+			for (int i = 0; i < pageUpdate.Length; i++)
+				if (pagesBeforeCount[pageUpdate[i]].Count != i)
+					return false;
+			return true;
 		}
 	}
 }
