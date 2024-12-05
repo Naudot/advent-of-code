@@ -10,6 +10,16 @@
 	{
 		protected override object ResolveFirstPart(string[] input)
 		{
+			return ProcessPageUpdates(input, false);
+		}
+
+		protected override object ResolveSecondPart(string[] input)
+		{
+			return ProcessPageUpdates(input, true);
+		}
+
+		private double ProcessPageUpdates(string[] input, bool isPartTwo)
+		{
 			double result = 0;
 
 			bool isPageUpdates = false;
@@ -34,17 +44,20 @@
 						index++;
 					}
 
-					if (index == pageUpdate.Length)
-						result += pageUpdate[(pageUpdate.Count() / 2)];
+					// P1
+					if (index == pageUpdate.Length && !isPartTwo)
+						result += pageUpdate[pageUpdate.Length / 2];
+
+					// P2
+					if (index != pageUpdate.Length && isPartTwo)
+					{
+						int[] orderedValues = nodes.OrderBy(node => node.Value.NodesBefore.Count).Select(node => node.Key).ToArray();
+						result += orderedValues[orderedValues.Length / 2];
+					}
 				}
 			}
 
 			return result;
-		}
-
-		protected override object ResolveSecondPart(string[] input)
-		{
-			return 0;
 		}
 
 		private Dictionary<int, Node> Parse(string[] input, int[] interestedNumbers)
