@@ -6,30 +6,14 @@ namespace AdventOfCode.Year2024
 	{
 		protected override object ResolveFirstPart(string[] input)
 		{
-			int mapSize = input.Length;
-			char[,] map = new char[mapSize, mapSize];
-			Vector2 player = new(-1, -1);
-			Direction direction = Direction.NORTH;
-
-			for (int y = 0; y < input.Length; y++)
-			{
-				for (int x = 0; x < input[y].Length; x++)
-				{
-					char current = input[y][x];
-					map[y, x] = current;
-					if (current == '^')
-						player = new(x, y);
-				}
-			}
-
-			HashSet<Vector2> paths = new() { player };
+			(char[,] map, Vector2 guard) = GetMap(input);
+			Vector2 direction = new(0, -1);
+			HashSet<Vector2> paths = new() { guard };
 
 			while (true)
 			{
-				Vector2 delta = GetDelta(direction);
-				Vector2 nextPos = player + delta;
-
-				if (nextPos.X < 0 || nextPos.X >= mapSize || nextPos.Y < 0 || nextPos.Y >= mapSize)
+				Vector2 nextPos = guard + direction;
+				if (nextPos.X < 0 || nextPos.X >= input[0].Length || nextPos.Y < 0 || nextPos.Y >= input.Length)
 					break;
 
 				if (map[(int)nextPos.Y, (int)nextPos.X] == '#')
@@ -38,120 +22,103 @@ namespace AdventOfCode.Year2024
 				}
 				else
 				{
-					player = nextPos;
-					paths.Add(player);
+					guard = nextPos;
+					paths.Add(guard);
 				}
 			}
 
-			return paths.Count();
+			return paths.Count;
 		}
 
 		protected override object ResolveSecondPart(string[] input)
 		{
+			(char[,] map, Vector2 originalGuardPosition) = GetMap(input);
 			int mapSize = input.Length;
-			char[,] map = new char[mapSize, mapSize];
-			Vector2 originalPlayerPos = new(-1, -1);
-			Direction originalDirection = Direction.NORTH;
-
-			for (int y = 0; y < mapSize; y++)
-			{
-				for (int x = 0; x < mapSize; x++)
-				{
-					char current = input[y][x];
-					map[y, x] = current;
-					if (current == '^')
-						originalPlayerPos = new(x, y);
-				}
-			}
 
 			int loopCount = 0;
 
-			// OSEF
+			// Bruteforce
 			for (int y = 0; y < mapSize; y++)
 			{
 				for (int x = 0; x < mapSize; x++)
 				{
-					if (originalPlayerPos.X == x && originalPlayerPos.Y == y)
+					if (originalGuardPosition.X == x && originalGuardPosition.Y == y)
 						continue;
 
-					char tmp = map[y, x];
-					map[y, x] = '#';
-
 					bool loopHasBegun = false;
-					Vector2 loopPos = Vector2.Zero;
+					Vector2 loopStartPosition = Vector2.Zero;
 
-					Vector2 playerPos = originalPlayerPos;
-					Direction playerDirection = originalDirection;
-					HashSet<Vector2> paths = new() { playerPos };
+					Vector2 delta = new(0, -1);
+					Vector2 guard = originalGuardPosition;
+					HashSet<Vector2> paths = new() { guard };
 
 					while (true)
 					{
-						Vector2 delta = GetDelta(playerDirection);
-						Vector2 nextPos = playerPos + delta;
-
+						Vector2 nextPos = guard + delta;
 						if (nextPos.X < 0 || nextPos.X >= mapSize || nextPos.Y < 0 || nextPos.Y >= mapSize)
 							break;
 
-						if (map[(int)nextPos.Y, (int)nextPos.X] == '#')
+						bool isFakeObstacle = nextPos.X == x && nextPos.Y == y;
+						if (isFakeObstacle || map[(int)nextPos.Y, (int)nextPos.X] == '#')
 						{
-							playerDirection = GetNextDirection(playerDirection);
+							delta = GetNextDirection(delta);
 						}
 						else
 						{
-							playerPos = nextPos;
+							guard = nextPos;
 
 							if (loopHasBegun)
 							{
-								if (!paths.Contains(playerPos))
+								if (!paths.Contains(guard))
 								{
 									loopHasBegun = false;
 								}
-								else if (playerPos == loopPos)
+								else if (guard == loopStartPosition)
 								{
 									loopCount++;
 									break;
 								}
 							}
-
-							if (paths.Contains(playerPos) && !loopHasBegun)
+							else if (paths.Contains(guard))
 							{
 								loopHasBegun = true;
-								loopPos = playerPos;
+								loopStartPosition = guard;
 							}
 							
-							paths.Add(playerPos);
+							paths.Add(guard);
 						}
 					}
-
-					map[y, x] = tmp;
 				}
 			}
 
 			return loopCount;
 		}
 
-		private Vector2 GetDelta(Direction direction)
+		private (char[,], Vector2 guard) GetMap(string[] input)
 		{
-			return direction switch
-			{
-				Direction.NORTH => new(0, -1),
-				Direction.EAST => new(1, 0),
-				Direction.SOUTH => new(0, 1),
-				Direction.WEST => new(-1, 0),
-				_ => new(0, 0),
-			};
+			int mapSize = input.Length;
+			char[,] map = new char[input.Length, input[0].Length];
+			Vector2 guard = new(-1, -1);
+
+			for (int y = 0; y < input.Length; y++)
+				for (int x = 0; x < input[y].Length; x++)
+				{
+					char current = input[y][x];
+					map[y, x] = current;
+					if (current == '^')
+						guard = new(x, y);
+				}
+
+			return (map, guard);
 		}
 
-		private Direction GetNextDirection(Direction direction)
+		private Vector2 GetNextDirection(Vector2 direction)
 		{
-			return direction switch
-			{
-				Direction.NORTH => Direction.EAST,
-				Direction.EAST => Direction.SOUTH,
-				Direction.SOUTH => Direction.WEST,
-				Direction.WEST => Direction.NORTH,
-				_ => Direction.NORTH,
-			};
+			if (direction == new Vector2(0, -1)) return new(1, 0);
+			if (direction == new Vector2(1, 0)) return new(0, 1);
+			if (direction == new Vector2(0, 1)) return new(-1, 0);
+			if (direction == new Vector2(-1, 0)) return new(0, -1);
+			return new(0, 0);
 		}
 	}
 }
