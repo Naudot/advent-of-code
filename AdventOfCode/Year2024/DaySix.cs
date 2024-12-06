@@ -48,7 +48,86 @@ namespace AdventOfCode.Year2024
 
 		protected override object ResolveSecondPart(string[] input)
 		{
-			return 0;
+			int mapSize = input.Length;
+			char[,] map = new char[mapSize, mapSize];
+			Vector2 originalPlayerPos = new(-1, -1);
+			Direction originalDirection = Direction.NORTH;
+
+			for (int y = 0; y < mapSize; y++)
+			{
+				for (int x = 0; x < mapSize; x++)
+				{
+					char current = input[y][x];
+					map[y, x] = current;
+					if (current == '^')
+						originalPlayerPos = new(x, y);
+				}
+			}
+
+			int loopCount = 0;
+
+			// OSEF
+			for (int y = 0; y < mapSize; y++)
+			{
+				for (int x = 0; x < mapSize; x++)
+				{
+					if (originalPlayerPos.X == x && originalPlayerPos.Y == y)
+						continue;
+
+					char tmp = map[y, x];
+					map[y, x] = '#';
+
+					bool loopHasBegun = false;
+					Vector2 loopPos = Vector2.Zero;
+
+					Vector2 playerPos = originalPlayerPos;
+					Direction playerDirection = originalDirection;
+					HashSet<Vector2> paths = new() { playerPos };
+
+					while (true)
+					{
+						Vector2 delta = GetDelta(playerDirection);
+						Vector2 nextPos = playerPos + delta;
+
+						if (nextPos.X < 0 || nextPos.X >= mapSize || nextPos.Y < 0 || nextPos.Y >= mapSize)
+							break;
+
+						if (map[(int)nextPos.Y, (int)nextPos.X] == '#')
+						{
+							playerDirection = GetNextDirection(playerDirection);
+						}
+						else
+						{
+							playerPos = nextPos;
+
+							if (loopHasBegun)
+							{
+								if (!paths.Contains(playerPos))
+								{
+									loopHasBegun = false;
+								}
+								else if (playerPos == loopPos)
+								{
+									loopCount++;
+									break;
+								}
+							}
+
+							if (paths.Contains(playerPos) && !loopHasBegun)
+							{
+								loopHasBegun = true;
+								loopPos = playerPos;
+							}
+							
+							paths.Add(playerPos);
+						}
+					}
+
+					map[y, x] = tmp;
+				}
+			}
+
+			return loopCount;
 		}
 
 		private Vector2 GetDelta(Direction direction)
