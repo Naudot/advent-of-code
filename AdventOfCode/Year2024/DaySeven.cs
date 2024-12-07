@@ -19,35 +19,18 @@ namespace AdventOfCode.Year2024
 
 		protected override object ResolveFirstPart(string[] input)
 		{
-			double result = 0;
-
-			for (int i = 0; i < input.Length; i++)
-			{
-				bool isReaching = false;
-				string line = input[i];
-				string[] values = line.Split(':');
-				double sum = double.Parse(values[0]);
-				double[] operators = values[1].Split(' ').Where(val => val != string.Empty).Select(val => double.Parse(val)).ToArray();
-
-				Ope[] operationsRight = new Ope[operators.Length - 1];
-				isReaching |= IsReaching(sum, operators, operationsRight, 0, false);
-				Ope[] operationsLeft = new Ope[operators.Length - 1];
-				operationsLeft[0] = Ope.ADD;
-				isReaching |= IsReaching(sum, operators, operationsLeft, 0, false);
-
-				result += isReaching ? sum : 0;
-			}
-
-			return result;
+			return GetResult(input, false);
 		}
 
 		protected override object ResolveSecondPart(string[] input)
 		{
-			//Calculate(new double[] { 3, 2, 2, 3, 18, 7, 5 }, new Ope[] { Ope.CONCAT, Ope.CONCAT, Ope.MULT, Ope.MULT, Ope.MULT, Ope.MULT });
+			return GetResult(input, true);
+		}
 
+		private double GetResult(string[] input, bool isSecondPart)
+		{
 			double result = 0;
 
-			List<int> matchIndexes = new();
 			for (int i = 0; i < input.Length; i++)
 			{
 				bool isReaching = false;
@@ -56,42 +39,18 @@ namespace AdventOfCode.Year2024
 				double sum = double.Parse(values[0]);
 				double[] operators = values[1].Split(' ').Where(val => val != string.Empty).Select(val => double.Parse(val)).ToArray();
 
-				Ope[] operationsRight = new Ope[operators.Length - 1];
-				isReaching |= IsReaching(sum, operators, operationsRight, 0, false);
-				Ope[] operationsLeft = new Ope[operators.Length - 1];
-				operationsLeft[0] = Ope.ADD;
-				isReaching |= IsReaching(sum, operators, operationsLeft, 0, false);
+				Ope[] operationsMult = new Ope[operators.Length - 1];
+				isReaching |= IsReaching(sum, operators, operationsMult, 0, isSecondPart);
+				Ope[] operationsAdd = new Ope[operators.Length - 1];
+				operationsAdd[0] = Ope.ADD;
+				isReaching |= IsReaching(sum, operators, operationsAdd, 0, isSecondPart);
 
-				if (isReaching)
+				if (isSecondPart)
 				{
-					matchIndexes.Add(i);
-					result += sum;
+					Ope[] operationsConcat = new Ope[operators.Length - 1];
+					operationsConcat[0] = Ope.CONCAT;
+					isReaching |= IsReaching(sum, operators, operationsConcat, 0, isSecondPart);
 				}
-			}
-
-			Console.WriteLine(result + " before checking concat");
-
-			for (int i = 0; i < input.Length; i++)
-			{
-				if (matchIndexes.Contains(i))
-					continue;
-
-				bool isReaching = false;
-				string line = input[i];
-				string[] values = line.Split(':');
-				double sum = double.Parse(values[0]);
-				double[] operators = values[1].Split(' ').Where(val => val != string.Empty).Select(val => double.Parse(val)).ToArray();
-
-				Ope[] operationsRight = new Ope[operators.Length - 1];
-				isReaching |= IsReaching(sum, operators, operationsRight, 0, true);
-
-				Ope[] operationsMid = new Ope[operators.Length - 1];
-				operationsMid[0] = Ope.ADD;
-				isReaching |= IsReaching(sum, operators, operationsMid, 0, true);
-
-				Ope[] operationsLeft = new Ope[operators.Length - 1];
-				operationsLeft[0] = Ope.CONCAT;
-				isReaching |= IsReaching(sum, operators, operationsLeft, 0, true);
 
 				result += isReaching ? sum : 0;
 			}
@@ -122,15 +81,11 @@ namespace AdventOfCode.Year2024
 
 				if (!secondPart && result == sum)
 					return true;
-
 			}
 
+			// Wait for the end of calculations when using concatenation
 			if (secondPart && result == sum)
-			{
-				if (operations.Any(val => val == Ope.CONCAT))
-					Log(sum, operators, operations);
 				return true;
-			}
 
 			int newDepth = depthIndex + 1;
 			if (newDepth >= operations.Length)
@@ -150,29 +105,6 @@ namespace AdventOfCode.Year2024
 			return false;
 		}
 
-		private double Calculate(double[] operators, Ope[] operations)
-		{
-			double result = operators[0];
-
-			for (int i = 0; i < operations.Length; i++)
-			{
-				Ope ope = operations[i];
-
-				if (ope == Ope.MULT)
-					result *= operators[i + 1];
-				if (ope == Ope.ADD)
-					result += operators[i + 1];
-				if (ope == Ope.CONCAT)
-				{
-					int digit = CountDigits(operators[i + 1]);
-					result *= Math.Pow(10, digit);
-					result += operators[i + 1];
-				}
-			}
-
-			return result;
-		}
-
 		private static int CountDigits(double num)
 		{
 			int digits = 0;
@@ -182,25 +114,6 @@ namespace AdventOfCode.Year2024
 				num /= 10;
 			}
 			return digits;
-		}
-
-		private static void Log(double sum, double[] operators, Ope[] operations)
-		{
-			string log = string.Empty;
-
-			for (int i = 0; i < operators.Length; i++)
-			{
-				log += operators[i].ToString();
-
-				if (i < operations.Length)
-				{
-					log += " ";
-					log += operations[i] == Ope.MULT ? "*" : (operations[i] == Ope.ADD ? "+" : "||");
-					log += " ";
-				}
-			}
-
-			Console.WriteLine($"Processing {sum} \t \t {log}");
 		}
 	}
 }
