@@ -37,6 +37,7 @@ namespace AdventOfCode.Year2024
 				double sum = double.Parse(values[0]);
 				double[] operators = values[1].Split(' ').Where(val => val != string.Empty).Select(val => double.Parse(val)).ToArray();
 				Ope[] operations = new Ope[operators.Length - 1];
+
 				result += IsReaching(sum, operators, operations, 0, isSecondPart) ? sum : 0;
 			}
 
@@ -52,29 +53,26 @@ namespace AdventOfCode.Year2024
 			{
 				double result = operators[0];
 
-				Ope[] newOperations = new Ope[operations.Length];
-				Array.Copy(operations, newOperations, operations.Length);
-				newOperations[depthIndex] = (Ope)i;
+				operations[depthIndex] = (Ope)i;
 
-				for (int j = 0; j < newOperations.Length; j++)
+				for (int j = 0; j < operations.Length; j++)
 				{
-					Ope ope = newOperations[j];
+					Ope ope = operations[j];
 
 					if (ope == Ope.MULT)
 						result *= operators[j + 1];
-					if (ope == Ope.ADD)
+					else if (ope == Ope.ADD)
 						result += operators[j + 1];
-					if (secondPart && ope == Ope.CONCAT)
+					else if (secondPart && ope == Ope.CONCAT)
 					{
-						int digit = CountDigits(operators[j + 1]);
-						result *= Math.Pow(10, digit);
+						result *= Math.Pow(10, CountDigits(operators[j + 1]));
 						result += operators[j + 1];
 					}
 					if (result > sum)
 						break;
 				}
 
-				if (result == sum || IsReaching(sum, operators, newOperations, depthIndex + 1, secondPart))
+				if (result == sum || IsReaching(sum, operators, operations, depthIndex + 1, secondPart))
 					return true;
 			}
 
