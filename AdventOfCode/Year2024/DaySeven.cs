@@ -33,26 +33,11 @@ namespace AdventOfCode.Year2024
 
 			for (int i = 0; i < input.Length; i++)
 			{
-				bool isReaching = false;
-				string line = input[i];
-				string[] values = line.Split(':');
+				string[] values = input[i].Split(':');
 				double sum = double.Parse(values[0]);
 				double[] operators = values[1].Split(' ').Where(val => val != string.Empty).Select(val => double.Parse(val)).ToArray();
-
-				Ope[] operationsMult = new Ope[operators.Length - 1];
-				isReaching |= IsReaching(sum, operators, operationsMult, 0, isSecondPart);
-				Ope[] operationsAdd = new Ope[operators.Length - 1];
-				operationsAdd[0] = Ope.ADD;
-				isReaching |= IsReaching(sum, operators, operationsAdd, 0, isSecondPart);
-
-				if (isSecondPart)
-				{
-					Ope[] operationsConcat = new Ope[operators.Length - 1];
-					operationsConcat[0] = Ope.CONCAT;
-					isReaching |= IsReaching(sum, operators, operationsConcat, 0, isSecondPart);
-				}
-
-				result += isReaching ? sum : 0;
+				Ope[] operations = new Ope[operators.Length - 1];
+				result += IsReaching(sum, operators, operations, 0, isSecondPart) ? sum : 0;
 			}
 
 			return result;
@@ -60,45 +45,36 @@ namespace AdventOfCode.Year2024
 
 		private bool IsReaching(double sum, double[] operators, Ope[] operations, int depthIndex, bool secondPart)
 		{
-			double result = operators[0];
-
-			for (int i = 0; i < operations.Length; i++)
-			{
-				Ope ope = operations[i];
-
-				if (ope == Ope.MULT)
-					result *= operators[i + 1];
-				if (ope == Ope.ADD)
-					result += operators[i + 1];
-				if (ope == Ope.CONCAT && secondPart)
-				{
-					int digit = CountDigits(operators[i + 1]);
-					result *= Math.Pow(10, digit);
-					result += operators[i + 1];
-				}
-				if (result > sum)
-					break;
-
-				if (!secondPart && result == sum)
-					return true;
-			}
-
-			// Wait for the end of calculations when using concatenation
-			if (secondPart && result == sum)
-				return true;
-
-			int newDepth = depthIndex + 1;
-			if (newDepth >= operations.Length)
+			if (depthIndex >= operations.Length)
 				return false;
 
-			// We have two Ops
 			for (int i = 0; i < (secondPart ? 3 : 2); i++)
 			{
+				double result = operators[0];
+
 				Ope[] newOperations = new Ope[operations.Length];
 				Array.Copy(operations, newOperations, operations.Length);
-				newOperations[newDepth] = (Ope)i;
+				newOperations[depthIndex] = (Ope)i;
 
-				if (IsReaching(sum, operators, newOperations, newDepth, secondPart))
+				for (int j = 0; j < newOperations.Length; j++)
+				{
+					Ope ope = newOperations[j];
+
+					if (ope == Ope.MULT)
+						result *= operators[j + 1];
+					if (ope == Ope.ADD)
+						result += operators[j + 1];
+					if (secondPart && ope == Ope.CONCAT)
+					{
+						int digit = CountDigits(operators[j + 1]);
+						result *= Math.Pow(10, digit);
+						result += operators[j + 1];
+					}
+					if (result > sum)
+						break;
+				}
+
+				if (result == sum || IsReaching(sum, operators, newOperations, depthIndex + 1, secondPart))
 					return true;
 			}
 
