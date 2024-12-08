@@ -27,38 +27,30 @@
 					for (int j = i + 1; j < antenna.Value.Count; j++)
 					{
 						(int x, int y) secondAntenna = antenna.Value.ElementAt(j);
-
-						(int x, int y) firstDelta = ((secondAntenna.x - firstAntenna.x), (secondAntenna.y - firstAntenna.y));
-						(int x, int y) secondDelta = ((firstAntenna.x - secondAntenna.x), (firstAntenna.y - secondAntenna.y));
-
-						if (!isSecondPart)
-						{
-							(int x, int y) firstAntinode = (secondAntenna.x + firstDelta.x, secondAntenna.y + firstDelta.y);
-							if (firstAntinode.x >= 0 && firstAntinode.x < input[0].Length && firstAntinode.y >= 0 && firstAntinode.y < input.Length)
-								antinodes.Add(firstAntinode);
-
-							(int x, int y) secondAntinode = (firstAntenna.x + secondDelta.x, firstAntenna.y + secondDelta.y);
-							if (secondAntinode.x >= 0 && secondAntinode.x < input[0].Length && secondAntinode.y >= 0 && secondAntinode.y < input.Length)
-								antinodes.Add(secondAntinode);
-						}
-						else
-						{
-							(int x, int y) firstAntinode = (firstAntenna.x + firstDelta.x, firstAntenna.y + firstDelta.y);
-							while (firstAntinode.x >= 0 && firstAntinode.x < input[0].Length && firstAntinode.y >= 0 && firstAntinode.y < input.Length)
-							{
-								antinodes.Add(firstAntinode);
-								firstAntinode = (firstAntinode.x + firstDelta.x, firstAntinode.y + firstDelta.y);
-							}
-
-							(int x, int y) secondAntinode = (secondAntenna.x + secondDelta.x, secondAntenna.y + secondDelta.y);
-							while (secondAntinode.x >= 0 && secondAntinode.x < input[0].Length && secondAntinode.y >= 0 && secondAntinode.y < input.Length)
-							{
-								antinodes.Add(secondAntinode);
-								secondAntinode = (secondAntinode.x + secondDelta.x, secondAntinode.y + secondDelta.y);
-							}
-						}
+						GetAntinodesOfAntennas(firstAntenna, secondAntenna, isSecondPart, input.Length).ForEach(val => antinodes.Add(val));
+						GetAntinodesOfAntennas(secondAntenna, firstAntenna, isSecondPart, input.Length).ForEach(val => antinodes.Add(val));
 					}
 				}
+			}
+
+			return antinodes;
+		}
+
+		private static List<(int, int)> GetAntinodesOfAntennas((int x, int y) startAntenna, (int x, int y) endAntenna, bool isSecondPart, int mapSize)
+		{
+			List<(int, int)> antinodes = new();
+
+			(int x, int y) delta = ((endAntenna.x - startAntenna.x), (endAntenna.y - startAntenna.y));
+			(int x, int y) departure = isSecondPart ? startAntenna : endAntenna;
+			(int x, int y) antinode = (departure.x + delta.x, departure.y + delta.y);
+
+			while (antinode.x >= 0 && antinode.x < mapSize && antinode.y >= 0 && antinode.y < mapSize)
+			{
+				antinodes.Add(antinode);
+				antinode = (antinode.x + delta.x, antinode.y + delta.y);
+
+				if (!isSecondPart)
+					break;
 			}
 
 			return antinodes;
