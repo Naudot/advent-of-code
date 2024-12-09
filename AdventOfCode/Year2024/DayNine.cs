@@ -104,6 +104,105 @@
 				}
 			}
 
+			return CalculateSize(spaces, false);
+		}
+
+		protected override object ResolveSecondPart(string[] input)
+		{
+			Dictionary<int, Space> filesDic = new();
+			List<Space> spaces = new();
+			int lastFileID = 0;
+
+			for (int i = 0; i < input[0].Length; i++)
+			{
+				int size = input[0][i] - '0';
+
+				if (i % 2 == 0)
+				{
+					int spaceBefore = 0;
+					if (i > 0)
+						spaceBefore = input[0][i - 1] - '0';
+
+					int id = i / 2;
+					Space file = new() { Type = SpaceType.FILE, Size = size, ID = id, SpaceBefore = spaceBefore };
+					spaces.Add(file);
+					filesDic.Add(id, file);
+					lastFileID = id;
+				}
+				else
+				{
+					spaces.Add(new() { Type = SpaceType.FREE, ID = -1, Size = size });
+				}
+			}
+
+			do
+			{
+				//LogSecondPart(spaces);
+
+				Space fileSpace = filesDic[lastFileID];
+
+				for (int i = 0; i < spaces.Count; i++)
+				{
+					Space space = spaces[i];
+
+					if (fileSpace == space)
+					{
+						break;
+					}
+
+					if (space.Type == SpaceType.FILE)
+						continue;
+
+					// We take the first available file space that fit our file
+					if (space.Size >= fileSpace.Size)
+					{
+						(space.Type, fileSpace.Type) = (SpaceType.FILE, SpaceType.FREE);
+						(space.ID, fileSpace.ID) = (fileSpace.ID, -1);
+
+						if (space.Size > fileSpace.Size)
+						{
+							int sizeLeft = space.Size - fileSpace.Size;
+							Space newFreeSpace = new()
+							{
+								Type = SpaceType.FREE,
+								Size = sizeLeft
+							};
+							spaces.Insert(i + 1, newFreeSpace);
+						}
+
+						space.Size = fileSpace.Size;
+						break;
+					}
+				}
+
+				lastFileID--;
+			} while (lastFileID > 0);
+			
+			long sum = 0;
+			int position = 0;
+
+			for (int i = 0; i < spaces.Count; i++)
+			{
+				Space space = spaces[i];
+
+				if (space.Type != SpaceType.FILE)
+				{
+					position += space.Size;
+					continue;
+				}
+
+				for (int j = 0; j < space.Size; j++)
+				{
+					sum += space.ID * position;
+					position++;
+				}
+			}
+
+			return sum;
+		}
+
+		private long CalculateSize(List<Space> spaces, bool isSecondPart)
+		{
 			long sum = 0;
 			int position = 0;
 
@@ -133,8 +232,11 @@
 						//}
 
 						// We reached a free memory not fully filled, which means this is the end of the memory packaging
-						if (j >= space.IDs.Count)
-							return sum;
+						if (!isSecondPart)
+						{
+							if (j >= space.IDs.Count)
+								return sum;
+						}
 
 						sum += space.IDs[j] * position;
 					}
@@ -146,9 +248,16 @@
 			return -1;
 		}
 
-		protected override object ResolveSecondPart(string[] input)
+		private void LogSecondPart(List<Space> spaces)
 		{
-			return 0;
+			for (int i = 0; i < spaces.Count; i++)
+			{
+				Space space = spaces[i];
+
+				for (int j = 0; j < space.Size; j++)
+					Console.Write(space.Type == SpaceType.FREE ? "." : space.ID);
+			}
+			Console.WriteLine();
 		}
 	}
 }
