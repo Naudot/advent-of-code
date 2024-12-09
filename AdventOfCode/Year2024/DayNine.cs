@@ -2,20 +2,11 @@
 {
 	public class DayNine : Day2024
 	{
-		public enum SpaceType
-		{
-			FILE,
-			FREE
-		}
-
 		public class Space
 		{
-			public SpaceType Type;
+			public int ID = -1;
 			public int Size;
-
-			public int ID; // For File
 			public int SpaceBefore = 0; // For File;
-
 			public List<int> IDs = new(); // For Free
 		}
 
@@ -40,14 +31,14 @@
 						spaceBefore = input[0][i - 1] - '0';
 
 					int id = i / 2;
-					Space file = new() { Type = SpaceType.FILE, Size = size, ID = id, SpaceBefore = spaceBefore };
+					Space file = new() { Size = size, ID = id, SpaceBefore = spaceBefore };
 					spaces.Add(file);
 					filesDic.Add(id, file);
 					lastFileID = id;
 				}
 				else
 				{
-					spaces.Add(new() { Type = SpaceType.FREE, ID = -1, Size = size });
+					spaces.Add(new() { Size = size });
 				}
 
 				endMemoryPosition += size;
@@ -57,7 +48,7 @@
 			{
 				Space space = spaces[i];
 
-				if (space.Type == SpaceType.FILE)
+				if (space.ID != -1)
 				{
 					beginMemoryPosition += space.Size;
 					continue;
@@ -105,11 +96,11 @@
 
 				for (int j = 0; j < space.Size; j++)
 				{
-					if (space.Type == SpaceType.FILE)
+					if (space.ID != -1)
 					{
 						sum += space.ID * position;
 					}
-					else if (space.Type == SpaceType.FREE)
+					else
 					{
 						// We reached a free memory not fully filled, which means this is the end of the memory packaging
 						if (j >= space.IDs.Count)
@@ -142,14 +133,14 @@
 						spaceBefore = input[0][i - 1] - '0';
 
 					int id = i / 2;
-					Space file = new() { Type = SpaceType.FILE, Size = size, ID = id, SpaceBefore = spaceBefore };
+					Space file = new() { Size = size, ID = id, SpaceBefore = spaceBefore };
 					spaces.Add(file);
 					filesDic.Add(id, file);
 					lastFileID = id;
 				}
 				else
 				{
-					spaces.Add(new() { Type = SpaceType.FREE, ID = -1, Size = size });
+					spaces.Add(new() { ID = -1, Size = size });
 				}
 			}
 
@@ -166,13 +157,12 @@
 						break;
 					}
 
-					if (space.Type == SpaceType.FILE)
+					if (space.ID != -1)
 						continue;
 
 					// We take the first available file space that fit our file
 					if (space.Size >= fileSpace.Size)
 					{
-						(space.Type, fileSpace.Type) = (SpaceType.FILE, SpaceType.FREE);
 						(space.ID, fileSpace.ID) = (fileSpace.ID, -1);
 
 						if (space.Size > fileSpace.Size)
@@ -180,7 +170,7 @@
 							int sizeLeft = space.Size - fileSpace.Size;
 							Space newFreeSpace = new()
 							{
-								Type = SpaceType.FREE,
+								ID = -1,
 								Size = sizeLeft
 							};
 							spaces.Insert(i + 1, newFreeSpace);
@@ -201,7 +191,7 @@
 			{
 				Space space = spaces[i];
 
-				if (space.Type != SpaceType.FILE)
+				if (space.ID == -1)
 				{
 					position += space.Size;
 					continue;
