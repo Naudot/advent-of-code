@@ -19,14 +19,6 @@
 			public List<int> IDs = new(); // For Free
 		}
 
-		protected override bool DeactivateJIT
-		{
-			get
-			{
-				return true;
-			}
-		}
-
 		protected override object ResolveFirstPart(string[] input)
 		{
 			Dictionary<int, Space> filesDic = new();
@@ -104,7 +96,33 @@
 				}
 			}
 
-			return CalculateSize(spaces, false);
+			long sum = 0;
+			int position = 0;
+
+			for (int i = 0; i < spaces.Count; i++)
+			{
+				Space space = spaces[i];
+
+				for (int j = 0; j < space.Size; j++)
+				{
+					if (space.Type == SpaceType.FILE)
+					{
+						sum += space.ID * position;
+					}
+					else if (space.Type == SpaceType.FREE)
+					{
+						// We reached a free memory not fully filled, which means this is the end of the memory packaging
+						if (j >= space.IDs.Count)
+							return sum;
+
+						sum += space.IDs[j] * position;
+					}
+
+					position++;
+				}
+			}
+
+			return -1;
 		}
 
 		protected override object ResolveSecondPart(string[] input)
@@ -137,8 +155,6 @@
 
 			do
 			{
-				//LogSecondPart(spaces);
-
 				Space fileSpace = filesDic[lastFileID];
 
 				for (int i = 0; i < spaces.Count; i++)
@@ -199,65 +215,6 @@
 			}
 
 			return sum;
-		}
-
-		private long CalculateSize(List<Space> spaces, bool isSecondPart)
-		{
-			long sum = 0;
-			int position = 0;
-
-			for (int i = 0; i < spaces.Count; i++)
-			{
-				Space space = spaces[i];
-
-				for (int j = 0; j < space.Size; j++)
-				{
-					if (space.Type == SpaceType.FILE)
-					{
-						sum += space.ID * position;
-						//Console.WriteLine("[" + space.ID + "] x " + space.Size);
-					}
-					else if (space.Type == SpaceType.FREE)
-					{
-						//Dictionary<int, int> idsCount = new();
-						//for (int k = 0; k < space.IDs.Count; k++)
-						//{
-						//	if (!idsCount.ContainsKey(space.IDs[k]))
-						//		idsCount.Add(space.IDs[k], 0);
-						//	idsCount[space.IDs[k]]++;
-						//}
-						//foreach (KeyValuePair<int, int> item in idsCount)
-						//{
-						//	Console.WriteLine("[" + item.Key + "] x " + item.Value);
-						//}
-
-						// We reached a free memory not fully filled, which means this is the end of the memory packaging
-						if (!isSecondPart)
-						{
-							if (j >= space.IDs.Count)
-								return sum;
-						}
-
-						sum += space.IDs[j] * position;
-					}
-
-					position++;
-				}
-			}
-
-			return -1;
-		}
-
-		private void LogSecondPart(List<Space> spaces)
-		{
-			for (int i = 0; i < spaces.Count; i++)
-			{
-				Space space = spaces[i];
-
-				for (int j = 0; j < space.Size; j++)
-					Console.Write(space.Type == SpaceType.FREE ? "." : space.ID);
-			}
-			Console.WriteLine();
 		}
 	}
 }
