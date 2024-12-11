@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace AdventOfCode.Year2021
+﻿namespace AdventOfCode.Year2021
 {
 	public class DayOne : Day2021
 	{

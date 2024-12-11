@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace AdventOfCode.Year2021
+﻿namespace AdventOfCode.Year2021
 {
 	public class DayFifteen : Day2021
 	{

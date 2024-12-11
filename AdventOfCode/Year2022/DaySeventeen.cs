@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace AdventOfCode.Year2022
+﻿namespace AdventOfCode.Year2022
 {
 	/// <summary>
 	/// For this day, my Y axe ascends from bottom to top.
