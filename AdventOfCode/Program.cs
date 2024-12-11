@@ -11,7 +11,7 @@
 //new AdventOfCode.Year2015.DayNine();
 //new AdventOfCode.Year2015.DayTen();
 //new AdventOfCode.Year2015.DayEleven();
-new AdventOfCode.Year2015.DayTwelve();
+//new AdventOfCode.Year2015.DayTwelve();
 
 //new AdventOfCode.Year2016.DayOne();
 
@@ -136,8 +136,9 @@ new AdventOfCode.Year2015.DayTwelve();
 //new AdventOfCode.Year2024.DayEight();
 //new AdventOfCode.Year2024.DayNine();
 //new AdventOfCode.Year2024.DayTen();
+new AdventOfCode.Year2024.DayEleven();
 
-Day2015.CalculateAndLogResults();
+//Day2015.CalculateAndLogResults();
 //Console.WriteLine();
 //Day2016.CalculateAndLogResults();
 //Console.WriteLine();
@@ -155,4 +156,4 @@ Day2015.CalculateAndLogResults();
 //Console.WriteLine();
 //Day2023.CalculateAndLogResults();
 //Console.WriteLine();
-//Day2024.CalculateAndLogResults();
+Day2024.CalculateAndLogResults();
