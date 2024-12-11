@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace AdventOfCode.Year2017
+﻿namespace AdventOfCode.Year2017
 {
 	public class DayOne : Day2017
 	{
