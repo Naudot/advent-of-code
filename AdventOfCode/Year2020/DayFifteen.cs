@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace AdventOfCode.Year2020
+﻿namespace AdventOfCode.Year2020
 {
 	public class DayFifteen : Day2020
 	{

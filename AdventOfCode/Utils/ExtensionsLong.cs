@@ -49,7 +49,6 @@
 		}
 	}
 
-	// https://stackoverflow.com/questions/4483886/how-can-i-get-a-count-of-the-total-number-of-digits-in-a-number/51099524#51099524
 	public static bool AreDigitsEven(this long n, out int digitsCount)
 	{
 		if (n >= 0)

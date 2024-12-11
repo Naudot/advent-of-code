@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace AdventOfCode.Year2020
+﻿namespace AdventOfCode.Year2020
 {
 	public class DayTwentyFive : Day2020
 	{

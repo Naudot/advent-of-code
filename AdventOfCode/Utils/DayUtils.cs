@@ -2,14 +2,6 @@
 
 namespace AdventOfCode
 {
-	public enum Direction
-	{
-		NORTH,
-		EAST,
-		SOUTH,
-		WEST
-	}
-
 	public abstract class Day
 	{
 		#region Implementation
