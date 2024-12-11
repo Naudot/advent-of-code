@@ -28,7 +28,7 @@ namespace AdventOfCode.Year2024
 					{
 						Add(newStonesMap, 1, stoneCount.Value);
 					}
-					else if (AreDigitsEven(stoneCount.Key, out int digits))
+					else if (stoneCount.Key.AreDigitsEven(out int digits))
 					{
 						long power = (long)Math.Pow(10, digits / 2);
 						Add(newStonesMap, stoneCount.Key / power, stoneCount.Value);
@@ -51,17 +51,6 @@ namespace AdventOfCode.Year2024
 				dic[key] += value;
 			else
 				dic.Add(key, value);
-		}
-
-		private static bool AreDigitsEven(long num, out int digits)
-		{
-			digits = 0;
-			while (num >= 1)
-			{
-				digits++;
-				num /= 10;
-			}
-			return digits % 2 == 0;
 		}
 	}
 }

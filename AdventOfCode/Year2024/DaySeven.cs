@@ -27,15 +27,15 @@ namespace AdventOfCode.Year2024
 			return GetResult(input, true);
 		}
 
-		private double GetResult(string[] input, bool isSecondPart)
+		private long GetResult(string[] input, bool isSecondPart)
 		{
-			double result = 0;
+			long result = 0;
 
 			for (int i = 0; i < input.Length; i++)
 			{
 				string[] values = input[i].Split(':');
-				double sum = double.Parse(values[0]);
-				double[] operators = values[1].Split(' ').Where(val => val != string.Empty).Select(val => double.Parse(val)).ToArray();
+				long sum = long.Parse(values[0]);
+				long[] operators = values[1].Split(' ').Where(val => val != string.Empty).Select(val => long.Parse(val)).ToArray();
 				Ope[] operations = new Ope[operators.Length - 1];
 
 				result += IsReaching(sum, operators, operations, 0, isSecondPart) ? sum : 0;
@@ -44,14 +44,14 @@ namespace AdventOfCode.Year2024
 			return result;
 		}
 
-		private bool IsReaching(double sum, double[] operators, Ope[] operations, int depthIndex, bool secondPart)
+		private bool IsReaching(long sum, long[] operators, Ope[] operations, int depthIndex, bool secondPart)
 		{
 			if (depthIndex >= operations.Length)
 				return false;
 
 			for (int i = 0; i < (secondPart ? 3 : 2); i++)
 			{
-				double result = operators[0];
+				long result = operators[0];
 
 				operations[depthIndex] = (Ope)i;
 
@@ -65,7 +65,7 @@ namespace AdventOfCode.Year2024
 						result += operators[j + 1];
 					else if (secondPart && ope == Ope.CONCAT)
 					{
-						result *= Math.Pow(10, CountDigits(operators[j + 1]));
+						result *= (long)Math.Pow(10, operators[j + 1].CountDigits());
 						result += operators[j + 1];
 					}
 					if (result > sum)
@@ -77,17 +77,6 @@ namespace AdventOfCode.Year2024
 			}
 
 			return false;
-		}
-
-		private static int CountDigits(double num)
-		{
-			int digits = 0;
-			while (num >= 1)
-			{
-				digits++;
-				num /= 10;
-			}
-			return digits;
 		}
 	}
 }
