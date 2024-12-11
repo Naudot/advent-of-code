@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 
 namespace AdventOfCode.Year2015
 {
@@ -17,7 +16,7 @@ namespace AdventOfCode.Year2015
 		{
 			string customInput = "1113122113";
 
-			StringBuilder stringBuilder = new StringBuilder();
+			StringBuilder stringBuilder = new();
 			for (int i = 0; i < 40; i++)
 			{
 				stringBuilder.Clear();
@@ -49,7 +48,7 @@ namespace AdventOfCode.Year2015
 		{
 			string customInput = "1113122113";
 
-			StringBuilder stringBuilder = new StringBuilder();
+			StringBuilder stringBuilder = new();
 			for (int i = 0; i < 50; i++)
 			{
 				stringBuilder.Clear();

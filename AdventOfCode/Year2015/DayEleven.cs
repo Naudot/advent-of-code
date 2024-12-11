@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace AdventOfCode.Year2015
+﻿namespace AdventOfCode.Year2015
 {
 	public class DayEleven : Day2015
 	{
@@ -17,7 +15,7 @@ namespace AdventOfCode.Year2015
 		private string GetNext(string input)
 		{
 			// First element is last string element
-			List<int> intPass = new List<int>();
+			List<int> intPass = new();
 			for (int i = 0; i < input.Length; i++)
 			{
 				intPass.Add(input[input.Length - 1 - i]);

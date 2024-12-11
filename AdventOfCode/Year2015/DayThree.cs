@@ -2,119 +2,85 @@
 {
 	public class DayThree : Day2015
 	{
-		protected override object ResolveFirstPart()
+		protected override object ResolveFirstPart(string[] input)
 		{
-			char[] input = File.ReadAllText(GetResourcesPath()).ToCharArray();
-
 			int north = 0;
 			int east = 0;
 
-			HashSet<Tuple<int, int>> cases = new HashSet<Tuple<int, int>>();
+			HashSet<(int y, int x)> cases = new();
 
-			cases.Add(new Tuple<int, int>(0, 0));
+			cases.Add((0, 0));
 
-			for (int i = 0; i < input.Length; i++)
+			for (int i = 0; i < input[0].Length; i++)
 			{
-				if (input[i] == '<')
-				{
+				if (input[0][i] == '<')
 					east -= 1;
-				}
-				if (input[i] == '>')
-				{
+				if (input[0][i] == '>')
 					east += 1;
-				}
-				if (input[i] == '^')
-				{
+				if (input[0][i] == '^')
 					north += 1;
-				}
-				if (input[i] == 'v')
-				{
+				if (input[0][i] == 'v')
 					north -= 1;
-				}
 
-				if (cases.FirstOrDefault(t => t.Item1 == north && t.Item2 == east) == null)
-				{
-					cases.Add(new Tuple<int, int>(north, east));
-				}
+				if (!cases.Contains((north, east)))
+					cases.Add((north, east));
 			}
 
 			return cases.Count;
 		}
 
-		protected override object ResolveSecondPart()
+		protected override object ResolveSecondPart(string[] input)
 		{
-			char[] input = File.ReadAllText(GetResourcesPath()).ToCharArray();
-
 			int northSanta = 0;
 			int eastSanta = 0;
 
 			int northRobotSanta = 0;
 			int eastRobotSanta = 0;
 
-			HashSet<Tuple<int, int>> cases = new HashSet<Tuple<int, int>>();
+			HashSet<(int, int)> cases = new HashSet<(int, int)>();
 
-			cases.Add(new Tuple<int, int>(0, 0));
+			cases.Add((0, 0));
 
-			for (int i = 0; i < input.Length; i++)
+			for (int i = 0; i < input[0].Length; i++)
 			{
-				if (input[i] == '<')
+				if (input[0][i] == '<')
 				{
 					if (i % 2 == 0)
-					{
 						eastSanta -= 1;
-					}
 					else
-					{
 						eastRobotSanta -= 1;
-					}
 				}
-				if (input[i] == '>')
+				if (input[0][i] == '>')
 				{
 					if (i % 2 == 0)
-					{
 						eastSanta += 1;
-					}
 					else
-					{
 						eastRobotSanta += 1;
-					}
 				}
-				if (input[i] == '^')
+				if (input[0][i] == '^')
 				{
 					if (i % 2 == 0)
-					{
 						northSanta += 1;
-					}
 					else
-					{
 						northRobotSanta += 1;
-					}
 				}
-				if (input[i] == 'v')
+				if (input[0][i] == 'v')
 				{
 					if (i % 2 == 0)
-					{
 						northSanta -= 1;
-					}
 					else
-					{
 						northRobotSanta -= 1;
-					}
 				}
 
 				if (i % 2 == 0)
 				{
-					if (cases.FirstOrDefault(t => t.Item1 == northSanta && t.Item2 == eastSanta) == null)
-					{
-						cases.Add(new Tuple<int, int>(northSanta, eastSanta));
-					}
+					if (!cases.Contains((northSanta, eastSanta)))
+						cases.Add((northSanta, eastSanta));
 				}
 				else
 				{
-					if (cases.FirstOrDefault(t => t.Item1 == northRobotSanta && t.Item2 == eastRobotSanta) == null)
-					{
-						cases.Add(new Tuple<int, int>(northRobotSanta, eastRobotSanta));
-					}
+					if (!cases.Contains((northRobotSanta, eastRobotSanta)))
+						cases.Add((northRobotSanta, eastRobotSanta));
 				}
 			}
 

@@ -2,12 +2,10 @@
 {
 	public class DaySeven : Day2015
 	{
-		public Dictionary<string, Operation> wires = new Dictionary<string, Operation>();
+		public Dictionary<string, Operation> wires = new();
 
-		protected override object ResolveFirstPart()
+		protected override object ResolveFirstPart(string[] inputs)
 		{
-			string[] inputs = File.ReadAllLines(GetResourcesPath());
-
 			for (int i = 0; i < inputs.Length; i++)
 			{
 				string input = inputs[i];
@@ -41,10 +39,9 @@
 			return wires["a"].Evaluate(wires);
 		}
 
-		protected override object ResolveSecondPart()
+		protected override object ResolveSecondPart(string[] inputs)
 		{
 			wires.Clear();
-			string[] inputs = File.ReadAllLines(GetResourcesPath());
 
 			for (int i = 0; i < inputs.Length; i++)
 			{
@@ -94,7 +91,7 @@
 			string rightValue = groups[2];
 			string targetWire = groups[4];
 
-			Operation operand = new Operation()
+			Operation operand = new()
 			{
 				TargetWire = targetWire,
 				LeftValue = leftValue,
@@ -112,7 +109,7 @@
 			string rightValue = groups[2];
 			string targetWire = groups[4];
 
-			Operation operand = new Operation()
+			Operation operand = new()
 			{
 				TargetWire = targetWire,
 				LeftValue = leftValue,
@@ -130,7 +127,7 @@
 			string rightValue = groups[1];
 			string targetWire = groups[3];
 
-			Operation operand = new Operation()
+			Operation operand = new()
 			{
 				TargetWire = targetWire,
 				LeftValue = string.Empty,
@@ -148,7 +145,7 @@
 			string rightValue = groups[2];
 			string targetWire = groups[4];
 
-			Operation operand = new Operation()
+			Operation operand = new()
 			{
 				TargetWire = targetWire,
 				LeftValue = leftValue,
@@ -166,7 +163,7 @@
 			string rightValue = groups[2];
 			string targetWire = groups[4];
 
-			Operation operand = new Operation()
+			Operation operand = new()
 			{
 				TargetWire = targetWire,
 				LeftValue = leftValue,
@@ -183,7 +180,7 @@
 			string leftValue = groups[0];
 			string targetWire = groups[2];
 
-			Operation operand = new Operation()
+			Operation operand = new()
 			{
 				TargetWire = targetWire,
 				LeftValue = leftValue,
@@ -196,10 +193,10 @@
 
 		public class Operation
 		{
-			public string TargetWire;
-			public string Operand;
-			public string LeftValue;
-			public string RightValue;
+			public string TargetWire = string.Empty;
+			public string Operand = string.Empty;
+			public string LeftValue = string.Empty;
+			public string RightValue = string.Empty;
 
 			public ushort Evaluate(Dictionary<string, Operation> wires)
 			{

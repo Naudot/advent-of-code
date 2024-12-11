@@ -2,10 +2,9 @@
 {
 	public class DayTwo : Day2015
 	{
-		protected override object ResolveFirstPart()
+		protected override object ResolveFirstPart(string[] input)
 		{
 			int result = 0;
-			string[] input = File.ReadAllLines(GetResourcesPath());
 			for (int i = 0; i < input.Length; i++)
 			{
 				string[] dimensions = input[i].Split('x');
@@ -21,10 +20,9 @@
 			return result;
 		}
 
-		protected override object ResolveSecondPart()
+		protected override object ResolveSecondPart(string[] input)
 		{
 			int result = 0;
-			string[] input = File.ReadAllLines(GetResourcesPath());
 			for (int i = 0; i < input.Length; i++)
 			{
 				string[] dimensions = input[i].Split('x');

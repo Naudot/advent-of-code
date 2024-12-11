@@ -4,10 +4,8 @@ namespace AdventOfCode.Year2015
 {
 	public class DaySix : Day2015
 	{
-		protected override object ResolveFirstPart()
+		protected override object ResolveFirstPart(string[] input)
 		{
-			string[] input = File.ReadAllLines(GetResourcesPath());
-
 			bool[,] lights = new bool[1000, 1000];
 
 			int result = 0;
@@ -52,10 +50,8 @@ namespace AdventOfCode.Year2015
 			return result;
 		}
 
-		protected override object ResolveSecondPart()
+		protected override object ResolveSecondPart(string[] input)
 		{
-			string[] input = File.ReadAllLines(GetResourcesPath());
-
 			int[,] lights = new int[1000, 1000];
 
 			int result = 0;

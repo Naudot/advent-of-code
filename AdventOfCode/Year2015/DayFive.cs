@@ -2,10 +2,8 @@
 {
 	public class DayFive : Day2015
 	{
-		protected override object ResolveFirstPart()
+		protected override object ResolveFirstPart(string[] input)
 		{
-			string[] input = File.ReadAllLines(GetResourcesPath());
-
 			char[] vowels = new char[] { 'a', 'e', 'i', 'o', 'u' };
 
 			int result = 0;
@@ -54,10 +52,8 @@
 			return result;
 		}
 
-		protected override object ResolveSecondPart()
+		protected override object ResolveSecondPart(string[] input)
 		{
-			string[] input = File.ReadAllLines(GetResourcesPath());
-
 			int result = 0;
 
 			int[,] objects = new int[26, 26];

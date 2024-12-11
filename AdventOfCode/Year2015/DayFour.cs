@@ -11,7 +11,7 @@ namespace AdventOfCode.Year2015
 			int result = 0;
 
 			// Convert the byte array to hexadecimal string
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 
 			string stringResult;
 			do
@@ -37,7 +37,7 @@ namespace AdventOfCode.Year2015
 			int result = 0;
 
 			// Convert the byte array to hexadecimal string
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 
 			string stringResult;
 			do

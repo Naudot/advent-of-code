@@ -4,10 +4,8 @@ namespace AdventOfCode.Year2015
 {
 	public class DayEight : Day2015
 	{
-		protected override object ResolveFirstPart()
+		protected override object ResolveFirstPart(string[] input)
 		{
-			string[] input = File.ReadAllLines(GetResourcesPath());
-
 			int stringCount = 0;
 			int literalCount = 0;
 
@@ -21,10 +19,8 @@ namespace AdventOfCode.Year2015
 			return stringCount - literalCount;
 		}
 
-		protected override object ResolveSecondPart()
+		protected override object ResolveSecondPart(string[] input)
 		{
-			string[] input = File.ReadAllLines(GetResourcesPath());
-
 			int stringCount = 0;
 			int literalCount = 0;
 
