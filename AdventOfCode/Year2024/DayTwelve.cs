@@ -5,7 +5,7 @@ namespace AdventOfCode.Year2024
 		public class Region
 		{
 			public char Symbol;
-			public HashSet<(int, int)> Plots = new();
+			public HashSet<(int x, int y)> Plots = new();
 		}
 
 		protected override bool DeactivateJIT => true;
@@ -115,6 +115,83 @@ namespace AdventOfCode.Year2024
 		private int GetSides(Region region)
 		{
 			int sides = 0;
+
+			// Count up and down sides
+
+			int minX = region.Plots.Select(plot => plot.x).Min();
+			int minY = region.Plots.Select(plot => plot.y).Min();
+			int maxX = region.Plots.Select(plot => plot.x).Max();
+			int maxY = region.Plots.Select(plot => plot.y).Max();
+
+			for (int y = minY; y <= maxY; y++)
+			{
+				bool hasUpSideBegun = false;
+				bool hasDownSideBegun = false;
+				for (int x = minX; x <= maxX; x++)
+				{
+					(int x, int y) position = (x, y);
+					(int x, int y) upPosition = (x, y - 1);
+
+					if (region.Plots.Contains(position) && !region.Plots.Contains(upPosition))
+						hasUpSideBegun = true;
+					else if (!region.Plots.Contains(position) || region.Plots.Contains(upPosition))
+					{
+						if (hasUpSideBegun)
+							sides++;
+						hasUpSideBegun = false;
+					}
+					(int x, int y) downPosition = (x, y + 1);
+
+					if (region.Plots.Contains(position) && !region.Plots.Contains(downPosition))
+						hasDownSideBegun = true;
+					else if (!region.Plots.Contains(position) || region.Plots.Contains(downPosition))
+					{
+						if (hasDownSideBegun)
+							sides++;
+						hasDownSideBegun = false;
+					}
+				}
+				if (hasUpSideBegun)
+					sides++;
+				if (hasDownSideBegun)
+					sides++;
+			}
+
+			for (int x = minX; x <= maxX; x++)
+			{
+				bool hasLeftSideBegun = false;
+				bool hasRightSideBegun = false;
+				for (int y = minY; y <= maxY; y++)
+				{
+					(int x, int y) position = (x, y);
+					(int x, int y) leftPosition = (x - 1, y);
+
+					if (region.Plots.Contains(position) && !region.Plots.Contains(leftPosition))
+						hasLeftSideBegun = true;
+					else if (!region.Plots.Contains(position) || region.Plots.Contains(leftPosition))
+					{
+						if (hasLeftSideBegun)
+							sides++;
+						hasLeftSideBegun = false;
+					}
+					(int x, int y) rightPosition = (x + 1, y);
+
+					if (region.Plots.Contains(position) && !region.Plots.Contains(rightPosition))
+						hasRightSideBegun = true;
+					else if (!region.Plots.Contains(position) || region.Plots.Contains(rightPosition))
+					{
+						if (hasRightSideBegun)
+							sides++;
+						hasRightSideBegun = false;
+					}
+				}
+				if (hasLeftSideBegun)
+					sides++;
+				if (hasRightSideBegun)
+					sides++;
+			}
+
+			Console.WriteLine($"A region of {region.Symbol} plants with price {region.Plots.Count} * {sides} = {region.Plots.Count * sides}.");
 
 			return sides;
 		}
