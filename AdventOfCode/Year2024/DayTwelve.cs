@@ -8,8 +8,6 @@ namespace AdventOfCode.Year2024
 			public HashSet<(int x, int y)> Plots = new();
 		}
 
-		protected override bool DeactivateJIT => true;
-
 		protected override object ResolveFirstPart(string[] input)
 		{
 			return GetRegions(input)
@@ -33,54 +31,33 @@ namespace AdventOfCode.Year2024
 			{
 				for (int x = 0; x < input[y].Length; x++)
 				{
-					if (processedPlots.Contains((x, y)))
+					(int x, int y) position = (x, y);
+
+					if (processedPlots.Contains(position))
 						continue;
 
 					char symbol = input[y][x];
-					List<(int x, int y)> toProcess = new() { (x, y) };
-					Region region = new() { Symbol = symbol, Plots = new() { (x, y) } };
+					List<(int x, int y)> toProcess = new() { position };
+					Region region = new() { Symbol = symbol, Plots = new() { position } };
 
-					while (toProcess.Count > 0)
+					do
 					{
-						(int x, int y) position = toProcess[0];
+						position = toProcess[0];
 						toProcess.Remove(position);
 
-						(int x, int y) leftPosition = (position.x - 1, position.y);
-						(int x, int y) upPosition = (position.x, position.y - 1);
-						(int x, int y) rightPosition = (position.x + 1, position.y);
-						(int x, int y) downPosition = (position.x, position.y + 1);
-
-						// Left
-						if (leftPosition.x >= 0)
-							if (input[leftPosition.y][leftPosition.x] == symbol && !region.Plots.Contains(leftPosition))
-							{
-								region.Plots.Add(leftPosition);
-								toProcess.Add(leftPosition);
-							}
-						// Up
-						if (upPosition.y >= 0)
-							if (input[upPosition.y][upPosition.x] == symbol && !region.Plots.Contains(upPosition))
-							{
-								region.Plots.Add(upPosition);
-								toProcess.Add(upPosition);
-							}
-						// Right
-						if (rightPosition.x < input[y].Length)
-							if (input[rightPosition.y][rightPosition.x] == symbol && !region.Plots.Contains(rightPosition))
-							{
-								region.Plots.Add(rightPosition);
-								toProcess.Add(rightPosition);
-							}
-						// Down
-						if (downPosition.y < input.Length)
-							if (input[downPosition.y][downPosition.x] == symbol && !region.Plots.Contains(downPosition))
-							{
-								region.Plots.Add(downPosition);
-								toProcess.Add(downPosition);
-							}
+						for (int i = 0; i < StaticBank.Directions.Count; i++)
+						{
+							(int x, int y) direction = (position.x + StaticBank.Directions[i].x, position.y + StaticBank.Directions[i].y);
+							if (StaticBank.IsInBoundaries(direction, input))
+								if (input[direction.y][direction.x] == symbol && !region.Plots.Contains(direction))
+								{
+									region.Plots.Add(direction);
+									toProcess.Add(direction);
+								}
+						}
 
 						processedPlots.Add(position);
-					}
+					} while (toProcess.Count > 0);
 
 					regions.Add(region);
 				}
@@ -116,8 +93,6 @@ namespace AdventOfCode.Year2024
 		{
 			int sides = 0;
 
-			// Count up and down sides
-
 			int minX = region.Plots.Select(plot => plot.x).Min();
 			int minY = region.Plots.Select(plot => plot.y).Min();
 			int maxX = region.Plots.Select(plot => plot.x).Max();
@@ -130,8 +105,8 @@ namespace AdventOfCode.Year2024
 				for (int x = minX; x <= maxX; x++)
 				{
 					(int x, int y) position = (x, y);
-					(int x, int y) upPosition = (x, y - 1);
 
+					(int x, int y) upPosition = (x, y - 1);
 					if (region.Plots.Contains(position) && !region.Plots.Contains(upPosition))
 						hasUpSideBegun = true;
 					else if (!region.Plots.Contains(position) || region.Plots.Contains(upPosition))
@@ -140,8 +115,8 @@ namespace AdventOfCode.Year2024
 							sides++;
 						hasUpSideBegun = false;
 					}
-					(int x, int y) downPosition = (x, y + 1);
 
+					(int x, int y) downPosition = (x, y + 1);
 					if (region.Plots.Contains(position) && !region.Plots.Contains(downPosition))
 						hasDownSideBegun = true;
 					else if (!region.Plots.Contains(position) || region.Plots.Contains(downPosition))
@@ -164,8 +139,8 @@ namespace AdventOfCode.Year2024
 				for (int y = minY; y <= maxY; y++)
 				{
 					(int x, int y) position = (x, y);
-					(int x, int y) leftPosition = (x - 1, y);
 
+					(int x, int y) leftPosition = (x - 1, y);
 					if (region.Plots.Contains(position) && !region.Plots.Contains(leftPosition))
 						hasLeftSideBegun = true;
 					else if (!region.Plots.Contains(position) || region.Plots.Contains(leftPosition))
@@ -174,8 +149,8 @@ namespace AdventOfCode.Year2024
 							sides++;
 						hasLeftSideBegun = false;
 					}
-					(int x, int y) rightPosition = (x + 1, y);
 
+					(int x, int y) rightPosition = (x + 1, y);
 					if (region.Plots.Contains(position) && !region.Plots.Contains(rightPosition))
 						hasRightSideBegun = true;
 					else if (!region.Plots.Contains(position) || region.Plots.Contains(rightPosition))
@@ -191,7 +166,7 @@ namespace AdventOfCode.Year2024
 					sides++;
 			}
 
-			Console.WriteLine($"A region of {region.Symbol} plants with price {region.Plots.Count} * {sides} = {region.Plots.Count * sides}.");
+			//Console.WriteLine($"A region of {region.Symbol} plants with price {region.Plots.Count} * {sides} = {region.Plots.Count * sides}.");
 
 			return sides;
 		}
