@@ -12,7 +12,20 @@ namespace AdventOfCode.Year2024
 
 		protected override object ResolveFirstPart(string[] input)
 		{
-			// Build regions and map
+			return GetRegions(input)
+				.Select(region => region.Plots.Count() * GetPerimeter(region))
+				.Sum();
+		}
+
+		protected override object ResolveSecondPart(string[] input)
+		{
+			return GetRegions(input)
+				.Select(region => region.Plots.Count() * GetSides(region))
+				.Sum();
+		}
+
+		private List<Region> GetRegions(string[] input)
+		{
 			List<Region> regions = new();
 			HashSet<(int, int)> processedPlots = new();
 
@@ -73,14 +86,7 @@ namespace AdventOfCode.Year2024
 				}
 			}
 
-			return regions
-				.Select(region => region.Plots.Count() * GetPerimeter(region))
-				.Sum();
-		}
-
-		protected override object ResolveSecondPart(string[] input)
-		{
-			return 0;
+			return regions;
 		}
 
 		private int GetPerimeter(Region region)
@@ -101,9 +107,16 @@ namespace AdventOfCode.Year2024
 				perimeter += plotPerimeter;
 			}
 
-			Console.WriteLine($"A region of {region.Symbol} plants with price {region.Plots.Count} * {perimeter} = {region.Plots.Count * perimeter}.");
+			//Console.WriteLine($"A region of {region.Symbol} plants with price {region.Plots.Count} * {perimeter} = {region.Plots.Count * perimeter}.");
 
 			return perimeter;
+		}
+
+		private int GetSides(Region region)
+		{
+			int sides = 0;
+
+			return sides;
 		}
 	}
 }
