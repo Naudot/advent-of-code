@@ -2,6 +2,14 @@ namespace AdventOfCode.Year2024
 {
 	public class DayEleven : Day2024
 	{
+		protected override bool DeactivateJIT
+		{
+			get
+			{
+				return false;
+			}
+		}
+
 		protected override object ResolveFirstPart(string[] input)
 		{
 			return GetSum(input, 25);
