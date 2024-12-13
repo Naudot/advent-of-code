@@ -29,7 +29,7 @@ namespace AdventOfCode.Year2024
 				(long x, long y) b = (long.Parse(matchB.Groups[1].Value), long.Parse(matchB.Groups[2].Value));
 				(long x, long y) prize = (long.Parse(matchPrize.Groups[1].Value), long.Parse(matchPrize.Groups[2].Value));
 
-				sum += GetPerfectInputValue(a, b, prize);
+				sum += GetPerfectInputValue(a, b, prize, false);
 			}
 
 			return sum;
@@ -37,20 +37,43 @@ namespace AdventOfCode.Year2024
 
 		protected override object ResolveSecondPart(string[] input)
 		{
-			return 0;
+			long sum = 0;
+
+			for (long i = 0; i < input.Length; i += 4)
+			{
+				if (i + 2 >= input.Length)
+					break;
+
+				Match matchA = Regex.Match(input[i], @"Button A: X\+(\d+), Y\+(\d+)");
+				Match matchB = Regex.Match(input[i + 1], @"Button B: X\+(\d+), Y\+(\d+)");
+				Match matchPrize = Regex.Match(input[i + 2], @"Prize: X=(\d+), Y=(\d+)");
+
+				(long x, long y) a = (long.Parse(matchA.Groups[1].Value), long.Parse(matchA.Groups[2].Value));
+				(long x, long y) b = (long.Parse(matchB.Groups[1].Value), long.Parse(matchB.Groups[2].Value));
+				(long x, long y) prize = (long.Parse(matchPrize.Groups[1].Value), long.Parse(matchPrize.Groups[2].Value));
+
+				sum += GetPerfectInputValue(a, b, prize, true);
+			}
+
+			return sum;
 		}
 
-		private long GetPerfectInputValue((long x, long y) a, (long x, long y) b, (long x, long y) prize)
+		private long GetPerfectInputValue((long x, long y) a, (long x, long y) b, (long x, long y) prize, bool isSecondPart)
 		{
+			//if (isSecondPart)
+			//	prize = (prize.x + 10000000000000, prize.y + 10000000000000);
+
 			long xMin = Math.Min(a.x, b.x);
 			long xMax = Math.Max(a.x, b.x);
 			long xLoopMax = prize.x / xMin;
 			long xLoopMin = prize.x / xMax;
+			bool xMinIsA = xMin == a.x;
 
 			long yMin = Math.Min(a.y, b.y);
 			long yMax = Math.Max(a.y, b.y);
 			long yLoopMax = prize.y / yMin;
 			long yLoopMin = prize.y / yMax;
+			bool yMinIsA = yMin == a.y;
 
 			HashSet<(long pushA, long pushB)> solutions = new();
 
@@ -67,18 +90,9 @@ namespace AdventOfCode.Year2024
 			}
 
 			long tokenCount = long.MaxValue;
-			(long, long) finalSolution = (0, 0);
 
 			foreach ((long pushA, long pushB) solution in solutions)
-			{
-				if (solution.pushA * 3 + solution.pushB < tokenCount)
-				{
-					finalSolution = solution;
-					tokenCount = solution.pushA * 3 + solution.pushB;
-				}
-			}
-
-			Console.WriteLine(finalSolution + " for " + prize);
+				tokenCount = Math.Min(tokenCount, solution.pushA * 3 + solution.pushB);
 
 			return tokenCount == long.MaxValue ? 0 : tokenCount;
 		}
