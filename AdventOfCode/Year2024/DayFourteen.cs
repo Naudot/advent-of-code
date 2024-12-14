@@ -78,7 +78,7 @@ namespace AdventOfCode.Year2024
 			int mapHeight = robots.Select(robot => robot.Position.y).Max() + 1;
 
 			int seconds = 0;
-			int loop = 8368; // 4934 too low, 8368 too high
+			int loop = 20000;
 
 			while (seconds < loop)
 			{
@@ -121,10 +121,7 @@ namespace AdventOfCode.Year2024
 
 				int safetyScore = robotCount.Aggregate((a, b) => a + b);
 
-				if (seconds <= 4934)
-					continue;
-
-				if (safetyScore < 10)
+				if (safetyScore < 15)
 				{
 					for (int y = 0; y < mapHeight; y++)
 					{
