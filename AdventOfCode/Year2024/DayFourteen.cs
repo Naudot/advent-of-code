@@ -73,7 +73,6 @@ namespace AdventOfCode.Year2024
 		protected override object ResolveSecondPart(string[] input)
 		{
 			// Score, second
-			List<(int, int)> safetyScores = new();
 			List<Robot> robots = GetRobots(input);
 			int mapWidth = robots.Select(robot => robot.Position.x).Max() + 1;
 			int mapHeight = robots.Select(robot => robot.Position.y).Max() + 1;
@@ -103,33 +102,24 @@ namespace AdventOfCode.Year2024
 				int sizeY = 10;
 				int verticalGap = mapHeight - sizeY * 2;
 
-				int offsetY = 0;
-				for (int divisionY = 0; divisionY < 2; divisionY++)
+				int offsetX = 0;
+				for (int divisionX = 0; divisionX < 2; divisionX++)
 				{
-					int offsetX = 0;
-					for (int divisionX = 0; divisionX < 2; divisionX++)
-					{
-						int lowX = offsetX;
-						int highX = offsetX + sizeX;
+					int lowX = offsetX;
+					int highX = offsetX + sizeX;
 
-						int lowY = offsetY;
-						int highY = offsetY + sizeY;
+					int count = robots.Count(robot =>
+							robot.Position.x >= lowX
+						&& robot.Position.x < highX
+						&& robot.Position.y >= 0
+						&& robot.Position.y < 20);
 
-						int count = robots.Count(robot =>
-								robot.Position.x >= lowX
-							&& robot.Position.x < highX
-							&& robot.Position.y >= lowY
-							&& robot.Position.y < highY);
+					robotCount.Add(count);
 
-						robotCount.Add(count);
-
-						offsetX += horizontalGap;
-					}
-					offsetY += verticalGap;
+					offsetX += horizontalGap;
 				}
 
 				int safetyScore = robotCount.Aggregate((a, b) => a + b);
-				safetyScores.Add((safetyScore, seconds));
 
 				if (seconds <= 4934)
 					continue;
@@ -149,8 +139,6 @@ namespace AdventOfCode.Year2024
 					Console.WriteLine("At second " + seconds);
 				}
 			}
-
-			safetyScores.Sort();
 
 			return seconds;
 		}
