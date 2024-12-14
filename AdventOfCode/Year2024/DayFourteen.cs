@@ -41,16 +41,6 @@ namespace AdventOfCode.Year2024
 					robot.Position.y += mapHeight;
 			}
 
-			for (int y = 0; y < mapHeight; y++)
-			{
-				for (int x = 0; x < mapWidth; x++)
-				{
-					int count = robots.Count(robot => robot.Position == (x, y));
-					Console.Write(count == 0 ? '.' : count.ToString());
-				}
-				Console.WriteLine();
-			}
-
 			List<int> robotCount = new();
 
 			int mapDivision = 2;
@@ -82,7 +72,87 @@ namespace AdventOfCode.Year2024
 
 		protected override object ResolveSecondPart(string[] input)
 		{
-			return 0;
+			// Score, second
+			List<(int, int)> safetyScores = new();
+			List<Robot> robots = GetRobots(input);
+			int mapWidth = robots.Select(robot => robot.Position.x).Max() + 1;
+			int mapHeight = robots.Select(robot => robot.Position.y).Max() + 1;
+
+			int seconds = 0;
+			int loop = 8368; // 4934 too low, 8368 too high
+
+			while (seconds < loop)
+			{
+				seconds++;
+
+				for (int i = 0; i < robots.Count; i++)
+				{
+					Robot robot = robots[i];
+					robot.Position = ((robot.Position.x + robot.Velocity.x) % mapWidth,
+									  (robot.Position.y + robot.Velocity.y) % mapHeight);
+					if (robot.Position.x < 0)
+						robot.Position.x += mapWidth;
+					if (robot.Position.y < 0)
+						robot.Position.y += mapHeight;
+				}
+
+				List<int> robotCount = new();
+
+				int sizeX = 20;
+				int horizontalGap = mapWidth - sizeX * 2;
+				int sizeY = 10;
+				int verticalGap = mapHeight - sizeY * 2;
+
+				int offsetY = 0;
+				for (int divisionY = 0; divisionY < 2; divisionY++)
+				{
+					int offsetX = 0;
+					for (int divisionX = 0; divisionX < 2; divisionX++)
+					{
+						int lowX = offsetX;
+						int highX = offsetX + sizeX;
+
+						int lowY = offsetY;
+						int highY = offsetY + sizeY;
+
+						int count = robots.Count(robot =>
+								robot.Position.x >= lowX
+							&& robot.Position.x < highX
+							&& robot.Position.y >= lowY
+							&& robot.Position.y < highY);
+
+						robotCount.Add(count);
+
+						offsetX += horizontalGap;
+					}
+					offsetY += verticalGap;
+				}
+
+				int safetyScore = robotCount.Aggregate((a, b) => a + b);
+				safetyScores.Add((safetyScore, seconds));
+
+				if (seconds <= 4934)
+					continue;
+
+				if (safetyScore < 10)
+				{
+					for (int y = 0; y < mapHeight; y++)
+					{
+						for (int x = 0; x < mapWidth; x++)
+						{
+							int count = robots.Count(robot => robot.Position == (x, y));
+							Console.Write(count == 0 ? '.' : count.ToString());
+						}
+						Console.WriteLine();
+					}
+
+					Console.WriteLine("At second " + seconds);
+				}
+			}
+
+			safetyScores.Sort();
+
+			return seconds;
 		}
 
 		private List<Robot> GetRobots(string[] input)
