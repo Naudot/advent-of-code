@@ -127,9 +127,9 @@ namespace AdventOfCode.Year2024
 				(int x, int y) nextDirection = (robotPosition.x + directionToPush.x, robotPosition.y + directionToPush.y);
 				HashSet<(int x, int y)> nextObjs = new() { robotPosition };
 
-				WriteMap(warehouse, mapWidth, mapHeight);
+				//WriteMap(warehouse, mapWidth, mapHeight);
 
-				Console.WriteLine("Will move to " + StaticBank.GetSymbolOfDirection(directionToPush));
+				//Console.WriteLine("Will move to " + StaticBank.GetSymbolOfDirection(directionToPush));
 
 				do
 				{
@@ -181,7 +181,7 @@ namespace AdventOfCode.Year2024
 
 			long sum = 0;
 			for (int y = 0; y < mapHeight; y++)
-				for (int x = 0; x < mapHeight; x++)
+				for (int x = 0; x < mapWidth; x++)
 					if (warehouse[x, y] == Warehouse.BOX_LEFT)
 						sum += 100 * y + x;
 			return sum;
