@@ -25,6 +25,17 @@
 		};
 	}
 
+	public static char GetSymbolOfDirection((int x, int y) direction)
+	{
+		return direction switch
+		{
+			(0, -1) => '^',
+			(1, 0) => '>',
+			(0, 1) => 'v',
+			_ => '<'
+		};
+	}
+
 	public static (int x, int y) GetValueOfDirection(Direction direction)
 	{
 		return direction switch
