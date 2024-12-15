@@ -12,14 +12,6 @@ namespace AdventOfCode.Year2024
 
 	public class DayFifteen : Day2024
 	{
-		protected override bool DeactivateJIT
-		{
-			get
-			{
-				return true;
-			}
-		}
-
 		protected override object ResolveFirstPart(string[] input)
 		{
 			int mapSize = input[0].Length;
@@ -128,7 +120,6 @@ namespace AdventOfCode.Year2024
 				HashSet<(int x, int y)> nextObjs = new() { robotPosition };
 
 				//WriteMap(warehouse, mapWidth, mapHeight);
-
 				//Console.WriteLine("Will move to " + StaticBank.GetSymbolOfDirection(directionToPush));
 
 				do
@@ -177,7 +168,7 @@ namespace AdventOfCode.Year2024
 				} while (!ContainsWall(nextObjs, warehouse));
 			}
 
-			WriteMap(warehouse, mapWidth, mapHeight);
+			//WriteMap(warehouse, mapWidth, mapHeight);
 
 			long sum = 0;
 			for (int y = 0; y < mapHeight; y++)
