@@ -28,7 +28,7 @@
 			return GetBestPath(input, false).bestPath.Value;
 		}
 
-		protected override object ResolveSecondPart(string[] input, object firstPartResult)
+		protected override object ResolveSecondPart(string[] input)
 		{
 			return GetBestPath(input, true).distinctPositionsCount;
 		}
