@@ -2,8 +2,6 @@
 {
 	public class DaySixteen : Day2024
 	{
-		protected override bool DeactivateJIT => true;
-
 		public enum Labyrinth
 		{
 			GROUND,
@@ -23,6 +21,8 @@
 			public bool HasReachedEnd;
 		}
 
+		protected override bool DeactivateJIT => true;
+
 		protected override object ResolveFirstPart(string[] input)
 		{
 			return GetBestPath(input, false).bestPath.Value;
@@ -38,10 +38,11 @@
 			(Labyrinth[,] labyrinth, Node startNode) = GetLabyrinth(input);
 			Node bestPath = new() { Value = float.MaxValue };
 
+			// My second part consist in comparing the known best path to optimize my list of current paths
 			if (isSecondPart)
 				bestPath = GetBestPath(input, false).bestPath;
 
-			List<Node> finishedPaths = new();
+			HashSet<(int, int)> distinctPositions = new();
 			List<Node> currentPaths = new() { startNode };
 			while (currentPaths.Any(path => !path.HasReachedEnd))
 			{
@@ -91,21 +92,27 @@
 						if (labyrinth[newNode.Position.x, newNode.Position.y] == Labyrinth.END)
 						{
 							newNode.HasReachedEnd = true;
+
+							// So during the second part, we do not replace the best path, since we already fetched it
 							if (!isSecondPart && bestPath.Value > newNode.Value)
 								bestPath = newNode;
-							if (isSecondPart && newNode.Value == bestPath.Value) // TODO : Tester cela
-								finishedPaths.Add(newNode);
+
+							if (newNode.Value == bestPath.Value)
+								newNode.PreviousPositions.ToList().ForEach(pos => distinctPositions.Add(pos));
 						}
 						else
 						{
 							if (bestPath.Value < newNode.Value)
 								newNode.HasReachedEnd = true;
 
-							if (isSecondPart)
+							// Second part optimizations
+							// If my current node has a weight value which is diverging too much from the best path value, I discard it
+							// And the magic value 2000 perfectly works, which is WTF :)
+							if (isSecondPart && 
+								(bestPath.PreviousPositions.Count <= newNode.PreviousPositions.Count || 
+								 newNode.Value - bestPath.ValuedPositions[newNode.PreviousPositions.Count - 1] > 2000))
 							{
-								if (bestPath.PreviousPositions.Count <= newNode.PreviousPositions.Count
-								|| newNode.Value - bestPath.ValuedPositions[newNode.PreviousPositions.Count - 1] > 2000) // Wtf ça marche parfaitement :)
-									newNode.HasReachedEnd = true;
+								newNode.HasReachedEnd = true;
 							}
 						}
 
@@ -117,35 +124,21 @@
 				currentPaths = newPaths;
 				Console.WriteLine("Processing " + currentPaths.Count);
 
+				// First part optimizations
+				// I remove paths if similar paths are better
 				if (!isSecondPart)
 				{
 					List<Node> toClean = new();
 					for (int i = 0; i < currentPaths.Count; i++)
 					{
 						Node node = currentPaths[i];
-						List<Node> similarPaths = currentPaths.Where(path => path.Position == node.Position).ToList();
-
-						for (int j = 0; j < similarPaths.Count; j++)
-						{
-							if (similarPaths[j].Value < node.Value)
-							{
-								toClean.Add(node);
-								break;
-							}
-						}
+						if (currentPaths.Any(path => path.Position == node.Position && path.Value < node.Value))
+							toClean.Add(node);
 					}
+
 					for (int i = 0; i < toClean.Count; i++)
 						currentPaths.Remove(toClean[i]);
 				}
-			}
-
-			HashSet<(int x, int y)> distinctPositions = new();
-
-			if (isSecondPart)
-			{
-				for (int i = 0; i < finishedPaths.Count; i++)
-					foreach ((int, int) pos in finishedPaths[i].PreviousPositions)
-						distinctPositions.Add(pos);
 			}
 
 			return (bestPath, distinctPositions.Count + 1);
