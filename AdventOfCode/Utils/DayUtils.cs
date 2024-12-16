@@ -10,6 +10,7 @@ namespace AdventOfCode
 		protected virtual object ResolveSecondPart() { return 0; }
 		protected virtual object ResolveFirstPart(string[] input = null) { return 0; }
 		protected virtual object ResolveSecondPart(string[] input = null) { return 0; }
+		protected virtual object ResolveSecondPart(string[] input = null, object firstPartResult = null) { return 0; }
 
 		#endregion
 	}
@@ -61,7 +62,7 @@ namespace AdventOfCode
 					day.ResolveSecondPart(input); // Force the JIT pass
 				}
 				stopwatch.Restart();
-				object secondResult = day.ResolveSecondPart(input);
+				object secondResult = day.ResolveSecondPart(input, firstResult);
 				stopwatch.Stop();
 				double secondTime = stopwatch.Elapsed.TotalMilliseconds * 1000;
 
