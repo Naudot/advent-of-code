@@ -17,6 +17,7 @@
 			public (int x, int y) Direction;
 			public (int x, int y) Position;
 			public HashSet<(int x, int y)> PreviousPositions = new();
+			public List<float> ValuedPositions = new();
 
 			public float Value = float.MaxValue;
 			public bool HasReachedEnd;
@@ -24,13 +25,13 @@
 
 		protected override object ResolveFirstPart(string[] input)
 		{
-			return GetBestPathValue(input);
+			return GetBestPath(input);
 		}
 
 		protected override object ResolveSecondPart(string[] input, object firstPartResult)
 		{
 			(Labyrinth[,] labyrinth, Node startNode) = GetLabyrinth(input);
-			float bestPathValue = (float)firstPartResult;
+			Node bestPath = (Node)firstPartResult;
 
 			List<Node> finishedPaths = new();
 			List<Node> currentPaths = new() { startNode };
@@ -73,8 +74,11 @@
 							{
 								current.Position
 							},
-							Value = current.Value + ((nextPaths[j].dirX, nextPaths[j].dirY) == current.Direction ? 1 : 1001)
+							Value = current.Value + ((nextPaths[j].dirX, nextPaths[j].dirY) == current.Direction ? 1 : 1001),
+							ValuedPositions = new(current.ValuedPositions)
 						};
+
+						newNode.ValuedPositions.Add(newNode.Value);
 
 						if (labyrinth[newNode.Position.x, newNode.Position.y] == Labyrinth.END)
 						{
@@ -83,7 +87,11 @@
 						}
 						else
 						{
-							if (bestPathValue < newNode.Value)
+							
+							if (bestPath.Value < newNode.Value
+								// Optimization
+								|| bestPath.PreviousPositions.Count <= newNode.PreviousPositions.Count
+								|| newNode.Value - bestPath.ValuedPositions[newNode.PreviousPositions.Count - 1] > 2000) // Wtf ça marche parfaitement :)
 								newNode.HasReachedEnd = true;
 						}
 
@@ -93,6 +101,7 @@
 				}
 
 				currentPaths = newPaths;
+				Console.WriteLine("Processing " + currentPaths.Count);
 			}
 
 			HashSet<(int x, int y)> distinctPositions = new();
@@ -102,10 +111,10 @@
 			return distinctPositions.Count + 1;
 		}
 
-		private float GetBestPathValue(string[] input)
+		private Node GetBestPath(string[] input)
 		{
 			(Labyrinth[,] labyrinth, Node startNode) = GetLabyrinth(input);
-			float bestPathValue = int.MaxValue;
+			Node bestPath = new() { Value = float.MaxValue };
 
 			List<Node> currentPaths = new() { startNode };
 			while (currentPaths.Any(path => !path.HasReachedEnd))
@@ -147,18 +156,21 @@
 							{
 								current.Position
 							},
-							Value = current.Value + ((nextPaths[j].dirX, nextPaths[j].dirY) == current.Direction ? 1 : 1001)
+							Value = current.Value + ((nextPaths[j].dirX, nextPaths[j].dirY) == current.Direction ? 1 : 1001),
+							ValuedPositions = new(current.ValuedPositions)
 						};
+
+						newNode.ValuedPositions.Add(newNode.Value);
 
 						if (labyrinth[newNode.Position.x, newNode.Position.y] == Labyrinth.END)
 						{
 							newNode.HasReachedEnd = true;
-							if (bestPathValue > newNode.Value)
-								bestPathValue = newNode.Value;
+							if (bestPath.Value > newNode.Value)
+								bestPath = newNode;
 						}
 						else
 						{
-							if (bestPathValue < newNode.Value)
+							if (bestPath.Value < newNode.Value)
 								newNode.HasReachedEnd = true;
 						}
 
@@ -189,7 +201,7 @@
 					currentPaths.Remove(toClean[i]);
 			}
 
-			return bestPathValue;
+			return bestPath;
 		}
 
 		private (Labyrinth[,] labyrinth, Node startNode) GetLabyrinth(string[] input)
