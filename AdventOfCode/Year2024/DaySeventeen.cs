@@ -6,12 +6,12 @@
 
 		protected override object ResolveFirstPart(string[] input)
 		{
-			int regA = int.Parse(input[0].Split(':')[1].Trim());
-			int regB = int.Parse(input[1].Split(':')[1].Trim());
-			int regC = int.Parse(input[2].Split(':')[1].Trim());
-			List<int> program = input[4].Split(':')[1].Trim().Split(',').Select(val => val[0] - '0').ToList();
+			long regA = long.Parse(input[0].Split(':')[1].Trim());
+			long regB = long.Parse(input[1].Split(':')[1].Trim());
+			long regC = long.Parse(input[2].Split(':')[1].Trim());
+			List<long> program = input[4].Split(':')[1].Trim().Split(',').Select(val => (long)(val[0] - '0')).ToList();
 
-			List<int> outProgram = GetOutput(input, regA, regB, regC, program, -1);
+			List<long> outProgram = GetOutput(input, regA, regB, regC, program);
 
 			string log = string.Empty;
 			for (int i = 0; i < outProgram.Count; i++)
@@ -21,23 +21,22 @@
 
 		protected override object ResolveSecondPart(string[] input)
 		{
-			int regA = 0;
-			int regB = int.Parse(input[1].Split(':')[1].Trim());
-			int regC = int.Parse(input[2].Split(':')[1].Trim());
-			List<int> program = input[4].Split(':')[1].Trim().Split(',').Select(val => val[0] - '0').ToList();
+			// 35 184 372 088 832 - 1 -> Bound Max
+			long regA = 35184372088832 - 1;
+			long regB = long.Parse(input[1].Split(':')[1].Trim());
+			long regC = long.Parse(input[2].Split(':')[1].Trim());
 
-			List<int> outProgram = GetOutput(input, regA, regB, regC, program, program.Count);
+			List<long> program = input[4].Split(':')[1].Trim().Split(',').Select(val => (long)(val[0] - '0')).ToList();
+			List<long> outProgram = GetOutput(input, regA, regB, regC, program);
 
-			//while (!AreListEquals(outProgram, program))
-			//{
-			//	outProgram = GetOutput(input, regA, regB, regC, program, program.Count);
-			//	regA++;
-			//}
-
-			return regA;
+			string log = string.Empty;
+			for (int i = 0; i < outProgram.Count; i++)
+				log += outProgram[i].ToString() + ",";
+			Console.WriteLine(log.Substring(0, log.Length - 1));
+			return log.Substring(0, log.Length - 1);
 		}
 
-		private bool AreListEquals(List<int> first, List<int> second)
+		private bool AreListEquals(List<long> first, List<long> second)
 		{
 			if (first.Count != second.Count)
 				return false;
@@ -49,99 +48,88 @@
 			return true;
 		}
 
-		private List<int> GetOutput(string[] input, int regAStartValue, int regB, int regC, List<int> program, int maxOutputCount)
+		private List<long> GetOutput(string[] input, long regAStartValue, long regB, long regC, List<long> program)
 		{
-			int regA = regAStartValue;
+			// 2,4, 1,3, 7,5, 1,5, 0,3, 4,1, 5,5, 3,0
+			// 2,4 -> Dans B : Trois derniers bits du registre A
+			// 1,3 -> Dans B : XOR 011 de B
+			// 7,5 -> Dans C : Division de A par 2 puissance B
+			// 1,5 -> Dans B : XOR 101 de B
+			// 0,3 -> Dans A : A divisé par 8
+			// 4,1 -> Dans B : XOR B par C
+			// 5,5 -> Affichage : Affichage de la valeur des derniers bits de B (modulo 8)
+			// 3,0 -> Si A n'est pas égale à 0, on recommence
+
+			long regA = regAStartValue;
 
 			int pointer = 0;
-			List<int> outProgram = new();
+			List<long> outProgram = new();
 
 			while (pointer > -1 && pointer < program.Count)
 			{
-				int opCode = program[pointer];
-				int operand = program[pointer + 1];
-				int comboOperand = GetComboOperandValue(operand, regA, regB, regC);
+				long opCode = program[pointer];
+				long operand = program[pointer + 1];
 
-				bool hasModifiedPointer = false;
+				bool hasModifiedPolonger = false;
 
 				// adv : Division
 				if (opCode == 0)
 				{
-					int numerator = regA;
-					int denominator = (int)Math.Pow(2, comboOperand);
-
-					regA = numerator / denominator;
+					long tmp = regA;
+					regA /= 8; // Instruction 0 uniquement appelée avec 3 ce qui donne 8 en dénominateur
+					Console.WriteLine("RegA = " + regA + " - " + tmp + " (A) / " + 8);
 				}
 				// bxl
 				if (opCode == 1)
 				{
 					regB ^= operand;
+					Console.WriteLine("RegB = " + regB + " - XOR Operand " + operand);
 				}
 				// bst
 				if (opCode == 2)
 				{
-					regB = comboOperand % 8;
+					regB = regA % 8; // Instruction 2 uniquement appelée avec Registre A
+					Console.WriteLine("RegB = " + regB + " - RegA " + regA + " % 8");
 				}
 				// jnz
 				if (opCode == 3)
 				{
 					if (regA != 0)
 					{
-						pointer = operand;
-						hasModifiedPointer = true;
+						Console.WriteLine("Reg A != 0, on continue");
+						Console.WriteLine();
+						pointer = (int)operand;
+						hasModifiedPolonger = true;
 					}
 				}
 				// bxc
 				if (opCode == 4)
 				{
+					long tmp = regB;
 					regB ^= regC;
+					Console.WriteLine("RegB = " + regB + " - " + tmp + " (B) XOR par " + regC + " (C)");
 				}
 				// out
 				if (opCode == 5)
 				{
-					int moduled = comboOperand % 8;
+					long moduled = regB % 8; // Instruction 5 uniquement appelée avec Registre B
 					outProgram.Add(moduled);
-
-					if (maxOutputCount != -1 && outProgram.Count > maxOutputCount)
-						break;
-				}
-				// bdv
-				if (opCode == 6)
-				{
-					int numerator = regA;
-					int denominator = (int)Math.Pow(2, comboOperand);
-
-					regB = numerator / denominator;
+					Console.WriteLine("Sortie : " + moduled + " - RegB " + regB + " modulé par 8");
 				}
 				// cdv
 				if (opCode == 7)
 				{
-					int numerator = regA;
-					int denominator = (int)Math.Pow(2, comboOperand);
+					long denominator = (long)Math.Pow(2, regB); // Instruction 7 uniquement appelée avec Registre B
+					regC = regA / denominator;
 
-					regC = numerator / denominator;
+					Console.WriteLine("RegC = " + regC + " - " + regA + " (A) / " + denominator + " (2 ^ RegB " + regB + ")");
 				}
 
-				if (!hasModifiedPointer)
+				if (!hasModifiedPolonger)
 					pointer += 2;
 			}
 
 			return outProgram;
-		}
-
-		private int GetComboOperandValue(int operand, int regA, int regB, int regC)
-		{
-			if (operand == 7)
-				Console.WriteLine("Error");
-
-			if (operand == 4)
-				return regA;
-			if (operand == 5)
-				return regB;
-			if (operand == 6)
-				return regC;
-
-			return operand;
 		}
 	}
 }
