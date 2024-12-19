@@ -126,7 +126,7 @@ namespace AdventOfCode.Year2024
 
 				foreach ((long nodeEdgeIndex, long weight) in graph.GetAdjacencyList()[minDistance])
 				{
-					if (!shortestPathTreeSet[nodeEdgeIndex] && distances[minDistance] != int.MaxValue && distances[minDistance] + weight < distances[v])
+					if (!shortestPathTreeSet[nodeEdgeIndex] && distances[minDistance] != int.MaxValue && distances[minDistance] + weight < distances[nodeEdgeIndex])
 					{
 						distances[nodeEdgeIndex] = distances[minDistance] + weight;
 					}
