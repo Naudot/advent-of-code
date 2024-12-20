@@ -4,6 +4,8 @@
 	{
 		protected override bool DeactivateJIT => true;
 
+		private Dictionary<int, long> memoise = new();
+
 		protected override object ResolveFirstPart(string[] input)
 		{
 			HashSet<string> towels = input[0].Split(", ").ToHashSet();
@@ -28,8 +30,8 @@
 
 			for (int i = 2; i < input.Length; i++)
 			{
-				HashSet<string> solutions = new();
-				count += GetPatternCount(solutions, towels, input[i], 0, maxTowelSize);
+				memoise.Clear();
+				count += GetPatternCount(towels, input[i], 0, 0);
 			}
 
 			return count;
@@ -63,31 +65,42 @@
 			return maxPointer;
 		}
 
-		private long GetPatternCount(HashSet<string> solutions, HashSet<string> towels, string pattern, int pointer, int maxTowelSize)
+		private long GetPatternCount(HashSet<string> towels, string pattern, int pointer, int depth)
 		{
+			// Si là où on est positionné dans le pattern, il y a déjà une solution, on l'utilise
+			if (memoise.ContainsKey(pointer))
+				return memoise[pointer];
+
 			long finalCount = 0;
 
+			// Pour la taille du pattern
 			for (int j = pointer; j < pattern.Length; j++)
 			{
+				Console.WriteLine(j + " " + depth);
+
 				int size = j - pointer + 1;
 				string sub = pattern.Substring(pointer, size);
 
-				if (size > maxTowelSize)
-					break;
-
+				// Dès qu'on trouve un sous-pattern correspondant à une serviette
 				if (towels.Contains(sub))
 				{
-					finalCount += GetPatternCount(solutions, towels, pattern, pointer + size, maxTowelSize);
+					// On compte toutes les possibilités des sous patterns
+					finalCount += GetPatternCount(towels, pattern, pointer + size, depth + 1);
 
+					// Si on atteint la fin du pattern, on peut dire qu'on a trouvé une possibilité
+					// Et on la mémoise.
 					if (pointer + size == pattern.Length)
 					{
+						if (!memoise.ContainsKey(pointer))
+							memoise.Add(pointer, finalCount + 1);
 
-
-						Console.WriteLine("Count " + pattern.Substring(0, pointer) + " Pointer " + pointer);
 						return finalCount + 1;
 					}
 				}
 			}
+
+			if (!memoise.ContainsKey(pointer))
+				memoise.Add(pointer, finalCount);
 
 			return finalCount;
 		}

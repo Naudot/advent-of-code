@@ -144,8 +144,8 @@
 //new AdventOfCode.Year2024.DaySixteen();
 //new AdventOfCode.Year2024.DaySeventeen();
 //new AdventOfCode.Year2024.DayEighteen();
-//new AdventOfCode.Year2024.DayNineteen();
-new AdventOfCode.Year2024.DayTwenty();
+new AdventOfCode.Year2024.DayNineteen();
+//new AdventOfCode.Year2024.DayTwenty();
 
 //Day2015.CalculateAndLogResults();
 //Console.WriteLine();
