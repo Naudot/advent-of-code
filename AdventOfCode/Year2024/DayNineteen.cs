@@ -76,7 +76,7 @@
 
 					if (pointer + size == pattern.Length)
 					{
-						Console.WriteLine("Count " + pattern.Substring(0, pattern.Length) + " Pointer " + pointer);
+						Console.WriteLine("Count " + pattern.Substring(0, pointer) + " Pointer " + pointer);
 						return finalCount + 1;
 					}
 				}
