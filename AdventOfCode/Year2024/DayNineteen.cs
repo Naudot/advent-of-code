@@ -25,8 +25,13 @@
 			HashSet<string> towels = input[0].Split(", ").ToHashSet();
 			int maxTowelSize = towels.Select(towel => towel.Length).Max();
 			long count = 0;
+
 			for (int i = 2; i < input.Length; i++)
-				count += GetPatternCount(towels, input[i], 0, maxTowelSize);
+			{
+				HashSet<string> solutions = new();
+				count += GetPatternCount(solutions, towels, input[i], 0, maxTowelSize);
+			}
+
 			return count;
 		}
 
@@ -58,7 +63,7 @@
 			return maxPointer;
 		}
 
-		private long GetPatternCount(HashSet<string> towels, string pattern, int pointer, int maxTowelSize)
+		private long GetPatternCount(HashSet<string> solutions, HashSet<string> towels, string pattern, int pointer, int maxTowelSize)
 		{
 			long finalCount = 0;
 
@@ -72,10 +77,12 @@
 
 				if (towels.Contains(sub))
 				{
-					finalCount += GetPatternCount(towels, pattern, pointer + size, maxTowelSize);
+					finalCount += GetPatternCount(solutions, towels, pattern, pointer + size, maxTowelSize);
 
 					if (pointer + size == pattern.Length)
 					{
+
+
 						Console.WriteLine("Count " + pattern.Substring(0, pointer) + " Pointer " + pointer);
 						return finalCount + 1;
 					}
