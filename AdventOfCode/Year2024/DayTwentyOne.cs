@@ -58,10 +58,18 @@
 			for (int i = 0; i < codes.Length; i++)
 			{
 				string code = codes[i];
-				int complexity = GetComplexity(code.ToList(), 0, 3, 2);
-				result += int.Parse(code.Split('A')[0]) * complexity;
+
+				GetComplexity(code.ToList(), 0, 2, 0);
+				Console.WriteLine();
+				GetComplexity(code.ToList(), 0, 2, 1);
+				Console.WriteLine();
+
+				int complexity = GetComplexity(code.ToList(), 0, 2, 2);
+				int val = int.Parse(code.Split('A')[0]);
+				result += complexity * val;
 
 				Console.WriteLine();
+				Console.WriteLine(complexity + " * " + val);
 			}
 
 			return result;
@@ -85,10 +93,41 @@
 			{
 				bool useNumKeypad = depth == 0;
 				int height = useNumKeypad ? 4 : 2;
-				Dictionary< char, (int, int)> usedPad = useNumKeypad ? numKeypad : dirKeypad;
+				Dictionary<char, (int, int)> usedPad = useNumKeypad ? numKeypad : dirKeypad;
+				(int x, int y) startPos = usedPad[startChar];
+				(int x, int y) endPos = usedPad[targetChar];
+				(int x, int y) forbiddenPos = usedPad[' '];
 
-				List<(int, int)> directionsToGo = GetDirectionsToPosition(3, height, usedPad[startChar], usedPad[targetChar], usedPad[' '], useNumKeypad);
+				List<(int, int)> directionsToGo = GetDirectionsToPosition(3, height, startPos, endPos, forbiddenPos, useNumKeypad);
 				List<char> toPushNext = directionsToGo.Select(dir => directionsChar[dir]).ToList();
+
+				List<char> distinctChars = toPushNext.Distinct().ToList();
+				for (int j = 0; j < distinctChars.Count; j++)
+				{
+					// Arriving at the target can be done in any order but the best order is when same chars must be pushed
+					List<char> toPushSorted = new(toPushNext);
+					toPushSorted = toPushSorted.OrderBy(c => c == distinctChars[j]).ToList();
+					(int x, int y) tempPos = startPos;
+					bool isReachingForbiddenChar = false;
+					// Which is bad if we arrive on the forbidden character
+					for (int k = 0; k < toPushSorted.Count; k++)
+					{
+						if (tempPos == forbiddenPos ||
+							tempPos.x < 0 ||
+							tempPos.x >= 3 ||
+							tempPos.y < 0 ||
+							tempPos.y >= height)
+							isReachingForbiddenChar = true;
+						(int x, int y) charDirection = directionsChar.First(pair => pair.Value == toPushSorted[k]).Key;
+						tempPos = (tempPos.x + charDirection.x, tempPos.y + charDirection.y);
+					}
+					if (!isReachingForbiddenChar)
+					{
+						toPushNext = toPushSorted;
+						break;
+					}
+				}
+
 				toPushNext.Add('A');
 
 				if (depth == logDepth)
@@ -142,8 +181,8 @@
 						if (nextPos.x < 0 || 
 							nextPos.x >= width || 
 							nextPos.y < 0 || 
-							nextPos.y >= height || 
-							(nextPos.x == forbiddenPos.x && nextPos.y == forbiddenPos.y) || 
+							nextPos.y >= height ||
+							(nextPos.x == forbiddenPos.x && nextPos.y == forbiddenPos.y) ||
 							node.Positions.Contains(nextPos))
 							continue;
 
