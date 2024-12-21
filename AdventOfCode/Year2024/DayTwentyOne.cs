@@ -58,18 +58,9 @@
 			for (int i = 0; i < codes.Length; i++)
 			{
 				string code = codes[i];
-
-				GetComplexity(code.ToList(), 0, 2, 0);
-				Console.WriteLine();
-				GetComplexity(code.ToList(), 0, 2, 1);
-				Console.WriteLine();
-
-				int complexity = GetComplexity(code.ToList(), 0, 2, 2);
+				int complexity = GetComplexity(code.ToList(), 0, 2, -1);
 				int val = int.Parse(code.Split('A')[0]);
 				result += complexity * val;
-
-				Console.WriteLine();
-				Console.WriteLine(complexity + " * " + val);
 			}
 
 			return result;
@@ -84,11 +75,9 @@
 		{
 			int complexity = 0;
 
-			// When the robot arrives at the numeric keypad, its robotic arm is pointed at the A button in the bottom right corner. 
 			char startChar = 'A';
 			char targetChar = toPush[0];
 
-			// This loop is moving through the numerical keypad with the first directionnal keypad
 			for (int i = 0; i < toPush.Count; i++)
 			{
 				bool useNumKeypad = depth == 0;
@@ -101,15 +90,16 @@
 				List<(int, int)> directionsToGo = GetDirectionsToPosition(3, height, startPos, endPos, forbiddenPos, useNumKeypad);
 				List<char> toPushNext = directionsToGo.Select(dir => directionsChar[dir]).ToList();
 
+				// For each different char, I check if there is a valid sorted solution
+				// Indeed, arriving at the target can be done in any order
+				// but the best order is when the same chars must be pushed in a row to avoid
+				// useless movements later
 				List<char> distinctChars = toPushNext.Distinct().ToList();
 				for (int j = 0; j < distinctChars.Count; j++)
 				{
-					// Arriving at the target can be done in any order but the best order is when same chars must be pushed
-					List<char> toPushSorted = new(toPushNext);
-					toPushSorted = toPushSorted.OrderBy(c => c == distinctChars[j]).ToList();
+					List<char> toPushSorted = toPushNext.OrderBy(c => c == distinctChars[j]).ToList();
 					(int x, int y) tempPos = startPos;
 					bool isReachingForbiddenChar = false;
-					// Which is bad if we arrive on the forbidden character
 					for (int k = 0; k < toPushSorted.Count; k++)
 					{
 						if (tempPos == forbiddenPos ||
