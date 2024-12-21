@@ -11,7 +11,7 @@
 			public List<(int x, int y)> Directions = new();
 		}
 
-		private static Dictionary<char, (int x, int y)> keypad = new()
+		private static Dictionary<char, (int x, int y)> numKeypad = new()
 		{
 			{ '7', (0, 0) },
 			{ '8', (1, 0) },
@@ -58,7 +58,10 @@
 			for (int i = 0; i < codes.Length; i++)
 			{
 				string code = codes[i];
-				result += int.Parse(code.Split('A')[0]) * GetComplexity(code);
+				int complexity = GetComplexity(code.ToList(), 0, 3, 2);
+				result += int.Parse(code.Split('A')[0]) * complexity;
+
+				Console.WriteLine();
 			}
 
 			return result;
@@ -69,47 +72,42 @@
 			return 0;
 		}
 
-		private int GetComplexity(string code)
+		private int GetComplexity(List<char> toPush, int depth, int stopDepth, int logDepth)
 		{
+			int complexity = 0;
+
 			// When the robot arrives at the numeric keypad, its robotic arm is pointed at the A button in the bottom right corner. 
-			char startNumericalChar = 'A';
-			char targetNumericalChar = code[0];
+			char startChar = 'A';
+			char targetChar = toPush[0];
 
 			// This loop is moving through the numerical keypad with the first directionnal keypad
-			for (int j = 0; j < code.Length; j++)
+			for (int i = 0; i < toPush.Count; i++)
 			{
-				List<(int, int)> directionsToGo = GetDirectionsToPosition(3, 4, keypad[startNumericalChar], keypad[targetNumericalChar], keypad[' '], true);
-				List<char> toPushByFirstRobot = directionsToGo.Select(dir => directionsChar[dir]).ToList();
-				toPushByFirstRobot.Add('A');
-				//for (int k = 0; k < toPushByFirstRobot.Count; k++)
-				//	Console.Write(toPushByFirstRobot[k]);
+				bool useNumKeypad = depth == 0;
+				int height = useNumKeypad ? 4 : 2;
+				Dictionary< char, (int, int)> usedPad = useNumKeypad ? numKeypad : dirKeypad;
 
-				// For each numerical to push, the robot must navigate in a directionnal keypad
-				char firstDirStartChar = 'A';
-				char firstDirTargetChar = toPushByFirstRobot[0];
+				List<(int, int)> directionsToGo = GetDirectionsToPosition(3, height, usedPad[startChar], usedPad[targetChar], usedPad[' '], useNumKeypad);
+				List<char> toPushNext = directionsToGo.Select(dir => directionsChar[dir]).ToList();
+				toPushNext.Add('A');
 
-				// This loop is moving through the first directionnal keypad with the second directionnal keypad
-				for (int k = 0; k < toPushByFirstRobot.Count; k++)
+				if (depth == logDepth)
+					for (int j = 0; j < toPushNext.Count; j++)
+						Console.Write(toPushNext[j]);
+
+				if (depth == stopDepth)
+					complexity += toPushNext.Count;
+				else
+					complexity += GetComplexity(toPushNext, depth + 1, stopDepth, logDepth);
+
+				if (i + 1 < toPush.Count)
 				{
-					List<(int, int)> directionsOnFirstDirKeypad = GetDirectionsToPosition(3, 2, dirKeypad[firstDirStartChar], dirKeypad[firstDirTargetChar], dirKeypad[' '], false);
-					List<char> toPushBySecondRobot = directionsOnFirstDirKeypad.Select(dir => directionsChar[dir]).ToList();
-					toPushBySecondRobot.Add('A');
-					//for (int l = 0; l < toPushBySecondRobot.Count; l++)
-					//	Console.Write(toPushBySecondRobot[l]);
-
-					if (k + 1 < toPushByFirstRobot.Count)
-					{
-						firstDirStartChar = toPushByFirstRobot[k];
-						firstDirTargetChar = toPushByFirstRobot[k + 1];
-					}
-				}
-
-				if (j + 1 < code.Length)
-				{
-					startNumericalChar = code[j];
-					targetNumericalChar = code[j + 1];
+					startChar = toPush[i];
+					targetChar = toPush[i + 1];
 				}
 			}
+
+			return complexity;
 		}
 
 		private List<(int, int)> GetDirectionsToPosition(
@@ -152,9 +150,10 @@
 						Node newNode = new()
 						{
 							Position = nextPos,
-							Positions = new(node.Positions) { nextPos },
+							Positions = new(node.Positions),
 							Directions = new(node.Directions)
 						};
+						newNode.Positions.Add(nextPos);
 						newNode.Directions.Add(direction);
 						newNodes.Add(newNode);
 					}
