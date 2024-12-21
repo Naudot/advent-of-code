@@ -2,6 +2,8 @@
 {
 	public class DayTwentyOne : Day2024
 	{
+		protected override bool DeactivateJIT => true;
+
 		public class Node
 		{
 			public (int x, int y) Position;
@@ -9,7 +11,39 @@
 			public List<(int x, int y)> Directions = new();
 		}
 
-		protected override bool DeactivateJIT => true;
+		private static Dictionary<char, (int x, int y)> keypad = new()
+		{
+			{ '7', (0, 0) },
+			{ '8', (1, 0) },
+			{ '9', (2, 0) },
+			{ '4', (0, 1) },
+			{ '5', (1, 1) },
+			{ '6', (2, 1) },
+			{ '1', (0, 2) },
+			{ '2', (1, 2) },
+			{ '3', (2, 2) },
+			{ ' ', (0, 3) },
+			{ '0', (1, 3) },
+			{ 'A', (2, 3) },
+		};
+
+		private static Dictionary<char, (int x, int y)> dirKeypad = new()
+		{
+			{ ' ', (0, 0) },
+			{ '^', (1, 0) },
+			{ 'A', (2, 0) },
+			{ '<', (0, 1) },
+			{ 'v', (1, 1) },
+			{ '>', (2, 1) }
+		};
+
+		private static Dictionary<(int dirX, int dirY), char> directionsChar = new()
+		{
+			{ (0, -1), '^' },
+			{ (-1, 0), '<' },
+			{ (0, 1), 'v' },
+			{ (1, 0), '>' }
+		};
 
 		private Dictionary<((int startX, int startY), (int targetX, int targetY)), List<(int posX, int posY)>> keypadMemoise = new();
 		private Dictionary<((int startX, int startY), (int targetX, int targetY)), List<(int posX, int posY)>> directionnalMemoise = new();
@@ -18,92 +52,13 @@
 		{
 			long result = 0;
 
-			Dictionary<char, (int x, int y)> keypad = new()
-			{
-				{ '7', (0, 0) },
-				{ '8', (1, 0) },
-				{ '9', (2, 0) },
-				{ '4', (0, 1) },
-				{ '5', (1, 1) },
-				{ '6', (2, 1) },
-				{ '1', (0, 2) },
-				{ '2', (1, 2) },
-				{ '3', (2, 2) },
-				{ ' ', (0, 3) },
-				{ '0', (1, 3) },
-				{ 'A', (2, 3) },
-			};
-
-			Dictionary<char, (int x, int y)> dirKeypad = new()
-			{
-				{ ' ', (0, 0) },
-				{ '^', (1, 0) },
-				{ 'A', (2, 0) },
-				{ '<', (0, 1) },
-				{ 'v', (1, 1) },
-				{ '>', (2, 1) }
-			};
-
-			Dictionary<(int dirX, int dirY), char> directionsChar = new()
-			{
-				{ (0, -1), '^'  },
-				{ (-1, 0), '<' },
-				{ (0, 1),'v' },
-				{ (1, 0), '>' }
-			};
-
 			string[] codes = input;
 
 			// For each code
 			for (int i = 0; i < codes.Length; i++)
 			{
 				string code = codes[i];
-
-				int complexity = 0;
-
-				//// When the robot arrives at the numeric keypad, its robotic arm is pointed at the A button in the bottom right corner. 
-				//char startNumericalChar = 'A';
-				//char targetNumericalChar = code[0];
-
-				//// This loop is moving through the numerical keypad with the first directionnal keypad
-				//for (int j = 0; j < code.Length; j++)
-				//{
-				//	List<(int, int)> directionsToGo = GetDirectionsToPosition(3, 4, keypad[startNumericalChar], keypad[targetNumericalChar], keypad[' '], true);
-				//	List<char> toPushByFirstRobot = directionsToGo.Select(dir => directionsChar[dir]).ToList();
-				//	toPushByFirstRobot.Add('A');
-				//	//for (int k = 0; k < toPushByFirstRobot.Count; k++)
-				//	//	Console.Write(toPushByFirstRobot[k]);
-
-				//	// For each numerical to push, the robot must navigate in a directionnal keypad
-				//	char firstDirStartChar = 'A';
-				//	char firstDirTargetChar = toPushByFirstRobot[0];
-
-				//	// This loop is moving through the first directionnal keypad with the second directionnal keypad
-				//	for (int k = 0; k < toPushByFirstRobot.Count; k++)
-				//	{
-				//		List<(int, int)> directionsOnFirstDirKeypad = GetDirectionsToPosition(3, 2, dirKeypad[firstDirStartChar], dirKeypad[firstDirTargetChar], dirKeypad[' '], false);
-				//		List<char> toPushBySecondRobot = directionsOnFirstDirKeypad.Select(dir => directionsChar[dir]).ToList();
-				//		toPushBySecondRobot.Add('A');
-				//		//for (int l = 0; l < toPushBySecondRobot.Count; l++)
-				//		//	Console.Write(toPushBySecondRobot[l]);
-
-				//		if (k + 1 < toPushByFirstRobot.Count)
-				//		{
-				//			firstDirStartChar = toPushByFirstRobot[k];
-				//			firstDirTargetChar = toPushByFirstRobot[k + 1];
-				//		}
-				//	}
-
-				//	if (j + 1 < code.Length)
-				//	{
-				//		startNumericalChar = code[j];
-				//		targetNumericalChar = code[j + 1];
-				//	}
-				//}
-
-				//Console.WriteLine();
-
-				result += int.Parse(code.Split('A')[0]) * complexity;
+				result += int.Parse(code.Split('A')[0]) * GetComplexity(code);
 			}
 
 			return result;
@@ -114,7 +69,7 @@
 			return 0;
 		}
 
-		private int GetComplexity()
+		private int GetComplexity(string code)
 		{
 			// When the robot arrives at the numeric keypad, its robotic arm is pointed at the A button in the bottom right corner. 
 			char startNumericalChar = 'A';
