@@ -1,11 +1,18 @@
 ﻿using Newtonsoft.Json.Linq;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace AdventOfCode.Year2015
 {
 	public class DayTwelve : Day2015
 	{
+		protected override bool DeactivateJIT
+		{
+			get
+			{
+				return true;
+			}
+		}
+
 		protected override object ResolveFirstPart(string[] input)
 		{
 			return Regex.Matches(input[0], @"\d+|-\d+").Sum(match => int.Parse(match.Value));
@@ -13,29 +20,24 @@ namespace AdventOfCode.Year2015
 
 		protected override object ResolveSecondPart(string[] input)
 		{
-			JObject? val = Newtonsoft.Json.JsonConvert.DeserializeObject<JObject>(input[0]);
-			int value = Value(val);
-
-			return 0;
+			return ComputeValue(Newtonsoft.Json.JsonConvert.DeserializeObject<JObject>(input[0]));
 		}
 
-		private int Value(JObject? val)
+		private int ComputeValue(JToken? val)
 		{
-			if (val.Type == JTokenType.Property)
+			int sum = 0;
+
+			if (val?.Type == JTokenType.Object)
 			{
-
-			}
-			//else if ()
-			//{
-
-			//}
-
-			for (int i = 0; i < val?.Count; i++)
-			{
-				Console.WriteLine(val.Children().ElementAt(i));
+				for (int i = 0; i < val.Children().Count(); i++)
+				{
+					Console.WriteLine(val.Children().ElementAt(i) + " Toto");
+					ComputeValue(val.Children().ElementAt(i));
+				}
+				//Console.WriteLine(val.Name, val.Value().[0]);
 			}
 
-			return 0;
+			return sum;
 		}
 	}
 }
