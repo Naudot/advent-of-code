@@ -16,6 +16,7 @@
 			public (int x, int y) Position;
 			public HashSet<(int x, int y)> PreviousPositions = new();
 			public List<float> ValuedPositions = new();
+			public int AllowedCheatTimeLeft = 0;
 
 			public float Value = float.MaxValue;
 			public bool HasReachedEnd;
@@ -27,24 +28,20 @@
 		{
 			(Racetrack[,] racetrack, Node startNode) = GetRacetrack(input);
 
-			int baseTime = GetTime(racetrack, startNode);
+			int baseTime = GetTime(racetrack, startNode, 0);
 
 			// Time saved, count
 			Dictionary<int, int> cheatTimes = new();
 
 			for (int y = 1; y < input.Length - 1; y++)
 			{
-				Console.WriteLine("Processing Y " + y);
 				for (int x = 1; x < input.Length - 1; x++)
 				{
-					Console.WriteLine("Processing X " + x);
+					Console.WriteLine("Processing (" + x + "," + y + ")");
 					if (racetrack[x, y] != Racetrack.WALL)
 						continue;
 
-					Racetrack old = racetrack[x, y];
-					racetrack[x, y] = Racetrack.GROUND;
-
-					int newTime = GetTime(racetrack, startNode);
+					int newTime = GetTime(racetrack, startNode, 1);
 
 					if (newTime < baseTime)
 					{
@@ -54,15 +51,11 @@
 						else
 							cheatTimes.Add(timeSaved, 1);
 					}
-
-					racetrack[x, y] = old;
 				}
 			}
 
 			foreach (KeyValuePair<int, int> item in cheatTimes.OrderBy(pair => pair.Key))
-			{
 				Console.WriteLine("- There are " + item.Value +" cheats that save " + item.Key + " picoseconds.");
-			}
 
 			return cheatTimes.Where(pair => pair.Key >= 100).Select(pair => pair.Value).Sum();
 		}
@@ -72,9 +65,9 @@
 			return 0;
 		}
 
-		private int GetTime(Racetrack[,] racetrack, Node startNode)
+		private int GetTime(Racetrack[,] racetrack, Node startNode, int allowedCheatTime)
 		{
-			Node bestPath = new() { Value = float.MaxValue };
+			Node bestPath = new() { Value = float.MaxValue, AllowedCheatTimeLeft = allowedCheatTime };
 
 			HashSet<(int, int)> distinctPositions = new();
 			List<Node> currentPaths = new() { startNode };
@@ -86,20 +79,31 @@
 				for (int i = 0; i < currentPaths.Count; i++)
 				{
 					Node current = currentPaths[i];
-					List<(int x, int y, int dirX, int dirY)> nextPaths = new();
+					List<(int x, int y, int dirX, int dirY, bool hasCheated)> nextPaths = new();
 
 					for (int j = 0; j < StaticBank.Directions.Count; j++)
 					{
 						(int x, int y) direction = StaticBank.Directions[j];
 						(int x, int y) nextPosition = (current.Position.x + direction.x, current.Position.y + direction.y);
+
+						if (nextPosition.x < 0 || nextPosition.y < 0 || nextPosition.x >= racetrack.Length || nextPosition.y >= racetrack.Length)
+							continue;
+
 						Racetrack next = racetrack[nextPosition.x, nextPosition.y];
+						bool hasCheated = false;
 
 						if (next == Racetrack.WALL)
-							continue;
+						{
+							if (current.AllowedCheatTimeLeft == 0)
+								continue;
+							else
+								hasCheated = true;
+						}
+
 						if (current.PreviousPositions.Contains(nextPosition))
 							continue;
 
-						nextPaths.Add((nextPosition.x, nextPosition.y, direction.x, direction.y));
+						nextPaths.Add((nextPosition.x, nextPosition.y, direction.x, direction.y, hasCheated));
 					}
 
 					if (nextPaths.Count == 0)
@@ -119,7 +123,8 @@
 								current.Position
 							},
 							Value = current.Value + 1,
-							ValuedPositions = new(current.ValuedPositions)
+							ValuedPositions = new(current.ValuedPositions),
+							AllowedCheatTimeLeft = current.AllowedCheatTimeLeft - (nextPaths[j].hasCheated ? -1 : 0)
 						};
 
 						newNode.ValuedPositions.Add(newNode.Value);
@@ -149,7 +154,6 @@
 				}
 
 				currentPaths = newPaths;
-				//Console.WriteLine("Processing " + currentPaths.Count);
 
 				// I remove paths if similar paths are better
 				List<Node> toClean = new();
@@ -159,7 +163,6 @@
 					if (currentPaths.Any(path => path.Position == node.Position && path.Value < node.Value))
 						toClean.Add(node);
 				}
-
 				for (int i = 0; i < toClean.Count; i++)
 					currentPaths.Remove(toClean[i]);
 			}
