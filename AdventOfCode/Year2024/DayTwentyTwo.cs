@@ -37,9 +37,7 @@
 
 						if (sequencesValues.ContainsKey(sequence))
 						{
-							if (sequencesValues[sequence].ContainsKey(buyerIndex))
-								sequencesValues[sequence][buyerIndex] = newPrice > sequencesValues[sequence][buyerIndex] ? newPrice : sequencesValues[sequence][buyerIndex];
-							else
+							if (!sequencesValues[sequence].ContainsKey(buyerIndex))
 								sequencesValues[sequence].Add(buyerIndex, newPrice);
 						}
 						else
@@ -52,19 +50,10 @@
 				}
 			}
 
-			// 382 : Too low
-			// 2140 : Too high
-
-			sequencesValues = sequencesValues.OrderByDescending(pair => pair.Value.Values.Sum()).ToDictionary(pair => pair.Key, pair => pair.Value);
-
-			//foreach (KeyValuePair<(long, long, long, long), Dictionary<int, long>> sequence in sequencesValues)
-			//{
-			//	Console.Write(sequence.Key.Item1 + " " + sequence.Key.Item2 + " " + sequence.Key.Item3 + " " + sequence.Key.Item4 + " ");
-			//	Console.Write("has total value of " + sequence.Value.Values.Sum());
-			//	Console.WriteLine();
-			//}
-
-			return sequencesValues.First().Value.Values.Sum();
+			Dictionary<(long, long, long, long), long> sequencesComputed = sequencesValues
+				.OrderByDescending(pair => pair.Value.Values.Sum())
+				.ToDictionary(pair => pair.Key, pair => pair.Value.Values.Sum());
+			return sequencesComputed.First().Value;
 		}
 
 		private long GetHashedSecret(long secret, int interationsCount)
