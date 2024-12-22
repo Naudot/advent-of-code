@@ -79,14 +79,9 @@
 			// For each code
 			for (int i = 0; i < codes.Length; i++)
 			{
-				// 348675369134078 : too high
-				// 139292403700976 : too low
-
 				string code = codes[i];
 				long complexity = GetComplexity(code.ToList(), 0, 25, 3);
 				long val = long.Parse(code.Split('A')[0]);
-
-				//Console.WriteLine(complexity + " * " + val);
 
 				result += complexity * val;
 			}
@@ -120,7 +115,7 @@
 				// Indeed, arriving at the target can be done in any order
 				// but the best order is when the same chars must be pushed in a row to avoid
 				// useless movements later
-				List<List<char>> toPushNexts = new();
+				List<List<char>> possibilitiesToPush = new();
 				List<char> distinctChars = toPushNext.Distinct().ToList();
 				for (int j = 0; j < distinctChars.Count; j++)
 				{
@@ -139,31 +134,21 @@
 						tempPos = (tempPos.x + charDirection.x, tempPos.y + charDirection.y);
 					}
 					if (!isReachingForbiddenChar)
-					{
-						toPushNexts.Add(toPushSorted);
-					}
+						possibilitiesToPush.Add(toPushSorted);
 				}
 
-				//if (toPushNexts.Count == 0)
-				//	toPushNexts.Add(new());
-				//toPushNexts[0].Add('A');
-				//if (depth == stopDepth)
-				//	complexity += toPushNexts[0].Count;
-				//else
-				//	complexity += GetComplexity(toPushNexts[0], depth + 1, stopDepth, logDepth);
-
-				if (toPushNexts.Count == 0)
-					toPushNexts.Add(new());
+				if (possibilitiesToPush.Count == 0)
+					possibilitiesToPush.Add(new());
 
 				List<long> complexities = new();
-				for (int j = 0; j < toPushNexts.Count; j++)
+				for (int j = 0; j < possibilitiesToPush.Count; j++)
 				{
-					toPushNexts[j].Add('A');
+					possibilitiesToPush[j].Add('A');
 					
 					if (depth == stopDepth)
-						complexities.Add(toPushNexts[j].Count);
+						complexities.Add(possibilitiesToPush[j].Count);
 					else
-						complexities.Add(GetComplexity(toPushNexts[j], depth + 1, stopDepth, logDepth));
+						complexities.Add(GetComplexity(possibilitiesToPush[j], depth + 1, stopDepth, logDepth));
 				}
 				complexity += complexities.Min();
 
