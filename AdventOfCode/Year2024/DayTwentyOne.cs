@@ -48,6 +48,8 @@
 		private Dictionary<((int startX, int startY), (int targetX, int targetY)), List<(int posX, int posY)>> keypadMemoise = new();
 		private Dictionary<((int startX, int startY), (int targetX, int targetY)), List<(int posX, int posY)>> directionnalMemoise = new();
 
+		private Dictionary<(string, int depth), long> complexityMemoise = new();
+
 		protected override object ResolveFirstPart(string[] input)
 		{
 			long result = 0;
@@ -58,8 +60,8 @@
 			for (int i = 0; i < codes.Length; i++)
 			{
 				string code = codes[i];
-				int complexity = GetComplexity(code.ToList(), 0, 2, -1);
-				int val = int.Parse(code.Split('A')[0]);
+				long complexity = GetComplexity(code.ToList(), 0, 2, -1);
+				long val = long.Parse(code.Split('A')[0]);
 				result += complexity * val;
 			}
 
@@ -68,12 +70,36 @@
 
 		protected override object ResolveSecondPart(string[] input)
 		{
-			return 0;
+			complexityMemoise.Clear();
+
+			long result = 0;
+
+			string[] codes = input;
+
+			// For each code
+			for (int i = 0; i < codes.Length; i++)
+			{
+				// 348675369134078 : too high
+				// 139292403700976 : too low
+
+				string code = codes[i];
+				long complexity = GetComplexity(code.ToList(), 0, 25, 3);
+				long val = long.Parse(code.Split('A')[0]);
+
+				//Console.WriteLine(complexity + " * " + val);
+
+				result += complexity * val;
+			}
+
+			return result;
 		}
 
-		private int GetComplexity(List<char> toPush, int depth, int stopDepth, int logDepth)
+		private long GetComplexity(List<char> toPush, int depth, int stopDepth, int logDepth)
 		{
-			int complexity = 0;
+			if (complexityMemoise.ContainsKey((new string(toPush.ToArray()), depth)))
+				return complexityMemoise[(new string(toPush.ToArray()), depth)];
+
+			long complexity = 0;
 
 			char startChar = 'A';
 			char targetChar = toPush[0];
@@ -94,6 +120,7 @@
 				// Indeed, arriving at the target can be done in any order
 				// but the best order is when the same chars must be pushed in a row to avoid
 				// useless movements later
+				List<List<char>> toPushNexts = new();
 				List<char> distinctChars = toPushNext.Distinct().ToList();
 				for (int j = 0; j < distinctChars.Count; j++)
 				{
@@ -113,21 +140,32 @@
 					}
 					if (!isReachingForbiddenChar)
 					{
-						toPushNext = toPushSorted;
-						break;
+						toPushNexts.Add(toPushSorted);
 					}
 				}
 
-				toPushNext.Add('A');
+				//if (toPushNexts.Count == 0)
+				//	toPushNexts.Add(new());
+				//toPushNexts[0].Add('A');
+				//if (depth == stopDepth)
+				//	complexity += toPushNexts[0].Count;
+				//else
+				//	complexity += GetComplexity(toPushNexts[0], depth + 1, stopDepth, logDepth);
 
-				if (depth == logDepth)
-					for (int j = 0; j < toPushNext.Count; j++)
-						Console.Write(toPushNext[j]);
+				if (toPushNexts.Count == 0)
+					toPushNexts.Add(new());
 
-				if (depth == stopDepth)
-					complexity += toPushNext.Count;
-				else
-					complexity += GetComplexity(toPushNext, depth + 1, stopDepth, logDepth);
+				List<long> complexities = new();
+				for (int j = 0; j < toPushNexts.Count; j++)
+				{
+					toPushNexts[j].Add('A');
+					
+					if (depth == stopDepth)
+						complexities.Add(toPushNexts[j].Count);
+					else
+						complexities.Add(GetComplexity(toPushNexts[j], depth + 1, stopDepth, logDepth));
+				}
+				complexity += complexities.Min();
 
 				if (i + 1 < toPush.Count)
 				{
@@ -135,6 +173,9 @@
 					targetChar = toPush[i + 1];
 				}
 			}
+
+			if (!complexityMemoise.ContainsKey((new string(toPush.ToArray()), depth)))
+				complexityMemoise.Add((new string(toPush.ToArray()), depth), complexity);
 
 			return complexity;
 		}
