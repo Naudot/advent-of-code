@@ -11,53 +11,60 @@
 
 		protected override object ResolveSecondPart(string[] input)
 		{
-			//long[] buyers = input.Select(line => long.Parse(line)).ToArray();
+			long[] buyers = input.Select(line => long.Parse(line)).ToArray();
+			Dictionary<(long, long, long, long), Dictionary<int, long>> sequencesValues = new();
 
-			//Dictionary<(long, long, long, long), (long count, List<long> values)> sequencesValues = new();
+			for (int buyerIndex = 0; buyerIndex < buyers.Length; buyerIndex++)
+			{
+				long secret = buyers[buyerIndex];
+				long newPrice = secret % 10;
 
-			//for (int i = 0; i < buyers.Length; i++)
+				List<long> sequenceChanges = new();
+
+				for (int j = 0; j < 2000; j++)
+				{
+					long oldPrice = newPrice;
+
+					secret = GetHashedSecret(secret, 1);
+					newPrice = secret % 10;
+					long change = newPrice - oldPrice;
+
+					sequenceChanges.Add(change);
+
+					if (sequenceChanges.Count == 4)
+					{
+						(long, long, long, long) sequence = (sequenceChanges[0], sequenceChanges[1], sequenceChanges[2], sequenceChanges[3]);
+
+						if (sequencesValues.ContainsKey(sequence))
+						{
+							if (sequencesValues[sequence].ContainsKey(buyerIndex))
+								sequencesValues[sequence][buyerIndex] = newPrice > sequencesValues[sequence][buyerIndex] ? newPrice : sequencesValues[sequence][buyerIndex];
+							else
+								sequencesValues[sequence].Add(buyerIndex, newPrice);
+						}
+						else
+						{
+							sequencesValues.Add(sequence, new() { { buyerIndex, newPrice } });
+						}
+
+						sequenceChanges.RemoveAt(0);
+					}
+				}
+			}
+
+			// 382 : Too low
+			// 2140 : Too high
+
+			sequencesValues = sequencesValues.OrderByDescending(pair => pair.Value.Values.Sum()).ToDictionary(pair => pair.Key, pair => pair.Value);
+
+			//foreach (KeyValuePair<(long, long, long, long), Dictionary<int, long>> sequence in sequencesValues)
 			//{
-			//	long secret = buyers[i];
-			//	long banana = secret % 10;
-
-			//	List<long> sequence = new();
-
-			//	for (int j = 0; j < 2000; j++)
-			//	{
-			//		long change = banana;
-
-			//		secret = GetHashedSecret(secret, 1);
-			//		banana = secret % 10;
-					
-			//		change = banana - change;
-
-			//		sequence.Add(change);
-
-			//		if (sequence.Count == 4)
-			//		{
-			//			(long, long, long, long) sequences = (sequence[0], sequence[1], sequence[2], sequence[3]);
-
-			//			if (sequencesValues.ContainsKey(sequences))
-			//				sequencesValues[sequences] = (sequencesValues[sequences].count + 1, new(sequencesValues[sequences].values) { banana });
-			//			else
-			//				sequencesValues.Add(sequences, (1, new() { banana }));
-
-			//			sequence.RemoveAt(0);
-			//		}
-			//	}
+			//	Console.Write(sequence.Key.Item1 + " " + sequence.Key.Item2 + " " + sequence.Key.Item3 + " " + sequence.Key.Item4 + " ");
+			//	Console.Write("has total value of " + sequence.Value.Values.Sum());
+			//	Console.WriteLine();
 			//}
 
-			//foreach (KeyValuePair<(long, long, long, long), (long count, List<long> values)> sequence in sequencesValues)
-			//{
-			//	if (sequence.Value.count == input.Length)
-			//	{
-			//		Console.Write(sequence.Key.Item1 + " " + sequence.Key.Item2 + " " + sequence.Key.Item2 + " " + sequence.Key.Item3 + " ");
-			//		Console.Write("has max value of " + sequence.Value.values.Max());
-			//		Console.WriteLine();
-			//	}
-			//}
-
-			return 0;
+			return sequencesValues.First().Value.Values.Sum();
 		}
 
 		private long GetHashedSecret(long secret, int interationsCount)
