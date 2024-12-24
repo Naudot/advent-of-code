@@ -409,6 +409,9 @@
     <None Update="Year2024\Resources\inputDayTwenty.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Year2024\Resources\inputDayTwentyFour.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Year2024\Resources\inputDayTwentyOne.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
