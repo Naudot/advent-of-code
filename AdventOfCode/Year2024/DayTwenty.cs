@@ -25,20 +25,25 @@
 			(Racetrack[,] racetrack, Node startNode) = GetRacetrack(input);
 
 			Node bestEndNode = GetBestPath(racetrack, startNode, int.MaxValue);
-			Dictionary<int, int> finishTimes = GetCheatTimes(racetrack, startNode, 2, bestEndNode);
+			Dictionary<int, int> finishTimes = GetCheatTimes(racetrack, 2, 100, bestEndNode);
 
-			foreach (KeyValuePair<int, int> item in finishTimes.OrderBy(pair => pair.Key))
-				Console.WriteLine("- There are " + item.Value +" cheats that save " + item.Key + " picoseconds.");
+			//foreach (KeyValuePair<int, int> item in finishTimes.OrderBy(pair => pair.Key))
+			//	Console.WriteLine("- There are " + item.Value + " cheats that save " + item.Key + " picoseconds.");
 
-			return finishTimes.Where(pair => pair.Key >= 100).Select(pair => pair.Value).Sum();
+			return finishTimes.Select(pair => pair.Value).Sum();
 		}
 
 		protected override object ResolveSecondPart(string[] input)
 		{
-			return 0;
+			(Racetrack[,] racetrack, Node startNode) = GetRacetrack(input);
+
+			Node bestEndNode = GetBestPath(racetrack, startNode, int.MaxValue);
+			Dictionary<int, int> finishTimes = GetCheatTimes(racetrack, 20, 100, bestEndNode);
+
+			return finishTimes.Select(pair => pair.Value).Sum();
 		}
 
-		private Dictionary<int, int> GetCheatTimes(Racetrack[,] racetrack, Node startNode, int radius, Node bestPathNode)
+		private Dictionary<int, int> GetCheatTimes(Racetrack[,] racetrack, int radius, int threshold, Node bestPathNode)
 		{
 			Dictionary<int, int> finishTimes = new();
 
@@ -52,13 +57,17 @@
 					(int x, int y, int manhattanDistance) radiusNode = radiusNodes[i];
 					int radiusNodeWeight = bestPathNode.PositionWeights[(radiusNode.x, radiusNode.y)];
 
-					int test = (radiusNodeWeight - bestPathPositionValue) - radiusNode.manhattanDistance;
+					int cheatGain = (radiusNodeWeight - bestPathPositionValue) - radiusNode.manhattanDistance;
 
-					if (test > 0)
-						if (finishTimes.ContainsKey(test))
-							finishTimes[test]++;
+					if (cheatGain >= threshold)
+					{
+						if (finishTimes.ContainsKey(cheatGain))
+							finishTimes[cheatGain]++;
 						else
-							finishTimes.Add(test, 1);
+							finishTimes.Add(cheatGain, 1);
+
+						//Console.WriteLine("Cheat (" + bestPathPosition.x + ", " + bestPathPosition.y + ") to (" + radiusNode.x + ", " + radiusNode.y + ") saving " + test);
+					}
 				}
 			}
 
@@ -77,8 +86,6 @@
 				for (int i = 0; i < currentPaths.Count; i++)
 				{
 					Node current = currentPaths[i];
-
-					//Console.WriteLine("Processing " + current.Position.x + " " + current.Position.y);
 
 					for (int j = 0; j < StaticBank.Directions.Count; j++)
 					{
@@ -158,7 +165,7 @@
 
 		private List<(int x, int y, int cheatDistance)> GetAllGroundNodesAround(Racetrack[,] track, (int x, int y) centralNode, int radius)
 		{
-			Console.WriteLine("Asking for " + centralNode.x + " " + centralNode.y);
+			//Console.WriteLine("Asking for " + centralNode.x + " " + centralNode.y);
 			List<(int x, int y, int cheatDistance)> aroundNodes = new();
 
 			// E.g. : Radius = 2 -> deltaY from -2 to 2
@@ -171,25 +178,20 @@
 
 					(int x, int y) pos = (centralNode.x + deltaX, centralNode.y + deltaY);
 
-					if (Math.Pow(pos.x - centralNode.x, 2) 
-						+ Math.Pow(pos.y - centralNode.y, 2) 
-						<= Math.Pow(radius, 2))
-					{
-						if (pos.x < 0
-							|| pos.y < 0
-							|| pos.x >= track.GetLength(0)
-							|| pos.y >= track.GetLength(1))
-							continue;
+					if (pos.x < 0
+						|| pos.y < 0
+						|| pos.x >= track.GetLength(0)
+						|| pos.y >= track.GetLength(1))
+						continue;
 
-						Racetrack next = track[pos.x, pos.y];
-						int manhattanDistance = Math.Abs(pos.x - centralNode.x) + Math.Abs(pos.y - centralNode.y);
+					Racetrack next = track[pos.x, pos.y];
+					int manhattanDistance = Math.Abs(pos.x - centralNode.x) + Math.Abs(pos.y - centralNode.y);
 
-						// If we reach a wall or if the best path value is better (lower) than our current path, we skip
-						if (next == Racetrack.WALL)
-							continue;
+					// If we reach a wall or if the best path value is better (lower) than our current path, we skip
+					if (manhattanDistance > radius || next == Racetrack.WALL)
+						continue;
 
-						aroundNodes.Add((pos.x, pos.y, manhattanDistance));
-					}
+					aroundNodes.Add((pos.x, pos.y, manhattanDistance));
 				}
 			}
 
