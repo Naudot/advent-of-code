@@ -12,14 +12,9 @@
 
 		public class Node
 		{
-			public (int x, int y) Direction;
 			public (int x, int y) Position;
 			public HashSet<(int x, int y)> PreviousPositions = new();
-			public List<float> ValuedPositions = new();
-			public int AllowedCheatTimeLeft = 0;
-
-			public float Value = float.MaxValue;
-			public bool HasReachedEnd;
+			public int Value = int.MaxValue;
 		}
 
 		protected override bool DeactivateJIT => true;
@@ -28,36 +23,13 @@
 		{
 			(Racetrack[,] racetrack, Node startNode) = GetRacetrack(input);
 
-			int baseTime = GetTime(racetrack, startNode, 0);
+			(int bestTime, Node bestEndNode) = GetBestPath(racetrack, startNode, int.MaxValue);
+			Dictionary<int, int> finishTimes = GetCheatTimes(racetrack, startNode, 2, bestTime, bestEndNode);
 
-			// Time saved, count
-			Dictionary<int, int> cheatTimes = new();
+			foreach (KeyValuePair<int, int> item in finishTimes.OrderBy(pair => pair.Key))
+				Console.WriteLine("- There are " + item.Value +" cheats that save " + (bestTime - item.Key) + " picoseconds.");
 
-			for (int y = 1; y < input.Length - 1; y++)
-			{
-				for (int x = 1; x < input.Length - 1; x++)
-				{
-					Console.WriteLine("Processing (" + x + "," + y + ")");
-					if (racetrack[x, y] != Racetrack.WALL)
-						continue;
-
-					int newTime = GetTime(racetrack, startNode, 1);
-
-					if (newTime < baseTime)
-					{
-						int timeSaved = baseTime - newTime;
-						if (cheatTimes.ContainsKey(timeSaved))
-							cheatTimes[timeSaved]++;
-						else
-							cheatTimes.Add(timeSaved, 1);
-					}
-				}
-			}
-
-			foreach (KeyValuePair<int, int> item in cheatTimes.OrderBy(pair => pair.Key))
-				Console.WriteLine("- There are " + item.Value +" cheats that save " + item.Key + " picoseconds.");
-
-			return cheatTimes.Where(pair => pair.Key >= 100).Select(pair => pair.Value).Sum();
+			return finishTimes.Where(pair => (bestTime - pair.Key) >= 100).Select(pair => pair.Value).Sum();
 		}
 
 		protected override object ResolveSecondPart(string[] input)
@@ -65,109 +37,138 @@
 			return 0;
 		}
 
-		private int GetTime(Racetrack[,] racetrack, Node startNode, int allowedCheatTime)
+		private (int,Node) GetBestPath(Racetrack[,] racetrack, Node startNode, int bestPathValue)
 		{
-			Node bestPath = new() { Value = float.MaxValue, AllowedCheatTimeLeft = allowedCheatTime };
-
-			HashSet<(int, int)> distinctPositions = new();
+			Node endNode = startNode;
 			List<Node> currentPaths = new() { startNode };
 
-			while (currentPaths.Any(path => !path.HasReachedEnd))
+			while (currentPaths.Count != 0)
 			{
 				List<Node> newPaths = new();
 
 				for (int i = 0; i < currentPaths.Count; i++)
 				{
 					Node current = currentPaths[i];
-					List<(int x, int y, int dirX, int dirY, bool hasCheated)> nextPaths = new();
+
+					//Console.WriteLine("Processing " + current.Position.x + " " + current.Position.y);
 
 					for (int j = 0; j < StaticBank.Directions.Count; j++)
 					{
 						(int x, int y) direction = StaticBank.Directions[j];
 						(int x, int y) nextPosition = (current.Position.x + direction.x, current.Position.y + direction.y);
 
-						if (nextPosition.x < 0 || nextPosition.y < 0 || nextPosition.x >= racetrack.Length || nextPosition.y >= racetrack.Length)
+						if (nextPosition.x < 0
+							|| nextPosition.y < 0
+							|| nextPosition.x >= racetrack.GetLength(0)
+							|| nextPosition.y >= racetrack.GetLength(1)
+							|| current.PreviousPositions.Contains(nextPosition))
 							continue;
 
 						Racetrack next = racetrack[nextPosition.x, nextPosition.y];
-						bool hasCheated = false;
 
-						if (next == Racetrack.WALL)
-						{
-							if (current.AllowedCheatTimeLeft == 0)
-								continue;
-							else
-								hasCheated = true;
-						}
-
-						if (current.PreviousPositions.Contains(nextPosition))
+						// If we reach a wall or if the best path value is better (lower) than our current path, we skip
+						if (next == Racetrack.WALL || bestPathValue < current.Value + 1)
 							continue;
 
-						nextPaths.Add((nextPosition.x, nextPosition.y, direction.x, direction.y, hasCheated));
-					}
-
-					if (nextPaths.Count == 0)
-					{
-						current.HasReachedEnd = true;
-						continue;
-					}
-
-					for (int j = 0; j < nextPaths.Count; j++)
-					{
 						Node newNode = new()
 						{
-							Position = (nextPaths[j].x, nextPaths[j].y),
-							Direction = (nextPaths[j].dirX, nextPaths[j].dirY),
-							PreviousPositions = new(current.PreviousPositions)
-							{
-								current.Position
-							},
-							Value = current.Value + 1,
-							ValuedPositions = new(current.ValuedPositions),
-							AllowedCheatTimeLeft = current.AllowedCheatTimeLeft - (nextPaths[j].hasCheated ? -1 : 0)
+							Position = (nextPosition.x, nextPosition.y),
+							PreviousPositions = new(current.PreviousPositions) { current.Position },
+							Value = current.Value + 1
 						};
 
-						newNode.ValuedPositions.Add(newNode.Value);
-
+						// If we reach the END node or the best path value is better (lower) than our current path
 						if (racetrack[newNode.Position.x, newNode.Position.y] == Racetrack.END)
 						{
-							newNode.HasReachedEnd = true;
-
-							if (bestPath.Value > newNode.Value)
-								bestPath = newNode;
-
-							if (newNode.Value == bestPath.Value)
+							if (bestPathValue > newNode.Value)
 							{
-								foreach ((int x, int y) pos in newNode.PreviousPositions)
-									distinctPositions.Add(pos);
+								bestPathValue = newNode.Value;
+								endNode = newNode;
 							}
 						}
 						else
 						{
-							if (bestPath.Value < newNode.Value)
-								newNode.HasReachedEnd = true;
-						}
-
-						if (!newNode.HasReachedEnd)
 							newPaths.Add(newNode);
+						}
 					}
 				}
 
 				currentPaths = newPaths;
-
-				// I remove paths if similar paths are better
-				List<Node> toClean = new();
-				for (int i = 0; i < currentPaths.Count; i++)
-				{
-					Node node = currentPaths[i];
-					if (currentPaths.Any(path => path.Position == node.Position && path.Value < node.Value))
-						toClean.Add(node);
-				}
-				for (int i = 0; i < toClean.Count; i++)
-					currentPaths.Remove(toClean[i]);
 			}
 
-			return distinctPositions.Count;
+			return (bestPathValue, endNode);
+		}
+
+		private Dictionary<int, int> GetCheatTimes(Racetrack[,] racetrack, Node startNode, int radius, int bestPathValue, Node bestNoCheatEndNode)
+		{
+			Dictionary<int, int> finishTimes = new();
+			List<Node> currentPaths = new() { startNode };
+			//List<(int, int)> mainPositionsProcessed = new();
+
+			//currentPaths.AddRange(GetAllGroundNodesAround(racetrack, startNode, radius, bestPathValue));
+			//mainPositionsProcessed.Add(startNode.Position);
+
+			while (currentPaths.Count != 0)
+			{
+				List<Node> newPaths = new();
+
+				for (int i = 0; i < currentPaths.Count; i++)
+				{
+					Node current = currentPaths[i];
+
+					//Console.WriteLine("Processing " + current.Position.x + " " + current.Position.y);
+
+					for (int j = 0; j < StaticBank.Directions.Count; j++)
+					{
+						(int x, int y) direction = StaticBank.Directions[j];
+						(int x, int y) nextPosition = (current.Position.x + direction.x, current.Position.y + direction.y);
+
+						if (nextPosition.x < 0
+							|| nextPosition.y < 0
+							|| nextPosition.x >= racetrack.GetLength(0)
+							|| nextPosition.y >= racetrack.GetLength(1)
+							|| current.PreviousPositions.Contains(nextPosition))
+							continue;
+
+						Racetrack next = racetrack[nextPosition.x, nextPosition.y];
+
+						// If we reach a wall or if the best path value is better (lower) than our current path, we skip
+						if (next == Racetrack.WALL || bestPathValue < current.Value + 1)
+							continue;
+
+						Node newNode = new()
+						{
+							Position = (nextPosition.x, nextPosition.y),
+							PreviousPositions = new(current.PreviousPositions) { current.Position },
+							Value = current.Value + 1
+						};
+
+						// If we reach the END node or the best path value is better (lower) than our current path
+						if (racetrack[newNode.Position.x, newNode.Position.y] == Racetrack.END)
+						{
+							if (bestPathValue > newNode.Value)
+							{
+								int finishTime = newNode.Value;
+								if (finishTimes.ContainsKey(finishTime))
+									finishTimes[newNode.Value]++;
+								else
+									finishTimes.Add(finishTime, 1);
+							}
+						}
+						else
+						{
+							newPaths.Add(newNode);
+
+							//if (radius != 0)
+							//	currentPaths.AddRange(GetAllGroundNodesAround(racetrack, newNode, radius, bestPathValue));
+						}
+					}
+				}
+
+				currentPaths = newPaths;
+			}
+
+			return finishTimes;
 		}
 
 		private (Racetrack[,], Node) GetRacetrack(string[] input)
@@ -176,7 +177,6 @@
 
 			Node startNode = new()
 			{
-				Direction = StaticBank.GetValueOfDirection(Direction.EAST),
 				Value = 0
 			};
 
@@ -191,6 +191,62 @@
 			}
 
 			return (track, startNode);
+		}
+
+		private List<Node> GetAllGroundNodesAround(Racetrack[,] track, Node centralNode, int radius, int bestPathValue)
+		{
+			Console.WriteLine("Asking for " + centralNode.Position.x + " " + centralNode.Position.y);
+			List<Node> aroundNodes = new();
+
+			//(int x, int y) topLeft = (centralNode.Position.x - radius, centralNode.Position.y - radius);
+			//(int x, int y) bottomRight = (centralNode.Position.x + radius, centralNode.Position.y + radius);
+
+			// E.g. : Radius = 2 -> deltaY from -2 to 2
+			for (int deltaY = -radius; deltaY <= radius; deltaY++)
+			{
+				for (int deltaX = -radius; deltaX <=  radius; deltaX++)
+				{
+					if (deltaY == 0 && deltaX == 0)
+						continue;
+
+					(int x, int y) pos = (centralNode.Position.x + deltaX, centralNode.Position.y + deltaY);
+
+					if (Math.Pow(pos.x - centralNode.Position.x, 2) 
+						+ Math.Pow(pos.y - centralNode.Position.y, 2) 
+						<= Math.Pow(radius, 2))
+					{
+						if (pos.x < 0
+							|| pos.y < 0
+							|| pos.x >= track.GetLength(0)
+							|| pos.y >= track.GetLength(1)
+							|| centralNode.PreviousPositions.Contains(pos))
+							continue;
+
+						Racetrack next = track[pos.x, pos.y];
+						int manhattanDistance = Math.Abs(pos.x - centralNode.Position.x) + Math.Abs(pos.y - centralNode.Position.y);
+
+						// If we reach a wall or if the best path value is better (lower) than our current path, we skip
+						if (next == Racetrack.WALL || bestPathValue < centralNode.Value + manhattanDistance)
+							continue;
+
+						Node newNode = new()
+						{
+							Position = pos,
+							PreviousPositions = new(centralNode.PreviousPositions), // TODO : Peut être un truc bizarre ici
+							Value = centralNode.Value + manhattanDistance
+						};
+
+						aroundNodes.Add(newNode);
+					}
+				}
+			}
+
+			for (int i = 0; i < aroundNodes.Count; i++)
+			{
+				Console.WriteLine("Getting " + aroundNodes[i].Position.x + " " + aroundNodes[i].Position.y);
+			}
+
+			return aroundNodes;
 		}
 	}
 }
