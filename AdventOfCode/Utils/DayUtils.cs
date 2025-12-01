@@ -189,4 +189,16 @@ namespace AdventOfCode
 			}
 		}
 	}
+
+
+	public abstract class Day2025 : Day<Day2025>
+	{
+		protected override int Year
+		{
+			get
+			{
+				return 2025;
+			}
+		}
+	}
 }
