@@ -9,17 +9,7 @@
 
 			for (int i = 0; i < input.Length; i++)
 			{
-				string rotationText = input[i];
-				bool isNegative = rotationText[0] == 'L';
-				int rotationValue = int.Parse(rotationText[1..]);
-
-				dial += (isNegative ? -rotationValue : rotationValue);
-
-				while (dial > 99)
-					dial -= 100;
-				while (dial < 0)
-					dial += 100;
-
+				dial = (dial + (input[i][0] == 'L' ? -1 : 1) * int.Parse(input[i][1..])) % 100;
 				dialToZeroCount += (dial == 0 ? 1 : 0);
 			}
 
@@ -33,14 +23,8 @@
 
 			for (int i = 0; i < input.Length; i++)
 			{
-				string rotationText = input[i];
-				bool isNegative = rotationText[0] == 'L';
-				int rotationValue = int.Parse(rotationText[1..]);
-				int finalRotationValue = (isNegative ? -rotationValue : rotationValue);
-
-				bool l_isDialZero = dial == 0;
-
-				dial += finalRotationValue;
+				bool isDialStartingAtZero = dial == 0;
+				dial += (input[i][0] == 'L' ? -1 : 1) * int.Parse(input[i][1..]);
 
 				while (dial > 99)
 				{
@@ -51,15 +35,10 @@
 
 				while (dial < 0)
 				{
-					if (l_isDialZero)
-					{
-						l_isDialZero = false;
-					}
-					else
-					{
-						if (dial != 0)
-							dialToZeroCount++;
-					}
+					if (isDialStartingAtZero)
+						isDialStartingAtZero = false;
+					else if (dial != 0)
+						dialToZeroCount++;
 
 					dial += 100;
 				}
