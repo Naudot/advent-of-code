@@ -2,6 +2,25 @@
 {
 	public class DayTwo : Day2025
 	{
+		long[] pows =
+		{
+			0,
+			1,
+			10,
+			100,
+			1000,
+			10000,
+			100000,
+			1000000,
+			10000000,
+			100000000,
+			1000000000,
+			10000000000,
+			100000000000,
+			1000000000000,
+			10000000000000
+		};
+
 		protected override object ResolveFirstPart(string[] input)
 		{
 			string[] ranges = input[0].Split(',');
@@ -17,7 +36,7 @@
 
 				for (long j = min; j <= max; j++)
 				{
-					if (IsInvalid(j))
+					if (IsInvalidCut(j, 2))
 						invalidIDsSum += j;
 				}
 			}
@@ -38,43 +57,22 @@
 				long min = long.Parse(minMax[0]);
 				long max = long.Parse(minMax[1]);
 
+				int cutCount = 7;
+
 				for (long j = min; j <= max; j++)
 				{
-					if (IsInvalidCut(j, 2))
-						invalidIDsSum += j;
-					else if (IsInvalidCut(j, 3))
-						invalidIDsSum += j;
-					else if (IsInvalidCut(j, 4))
-						invalidIDsSum += j;
-					else if (IsInvalidCut(j, 5))
-						invalidIDsSum += j;
-					else if (IsInvalidCut(j, 6))
-						invalidIDsSum += j;
-					else if (IsInvalidCut(j, 7))
-						invalidIDsSum += j;
+					for (int k = 0; k < cutCount; k++)
+					{
+						if (IsInvalidCut(j, cutCount))
+						{
+							invalidIDsSum += j;
+							break;
+						}
+					}
 				}
 			}
 
 			return invalidIDsSum;
-		}
-
-		private bool IsInvalid(long number)
-		{
-			int numberOfDigits = number.CountDigits();
-
-			if (numberOfDigits % 2 != 0)
-				return false;
-
-			for (int i = 0; i < numberOfDigits / 2; i++)
-			{
-				long firstDigitFromTheCenter = (number / (int)Math.Pow(10, numberOfDigits / 2 + i)) % 10;
-				long firstDigitFromTheRight = (number / (int)Math.Pow(10, i)) % 10;
-
-				if (firstDigitFromTheCenter != firstDigitFromTheRight)
-					return false;
-			}
-
-			return true;
 		}
 
 		private bool IsInvalidCut(long number, int cut)
@@ -84,18 +82,13 @@
 			if (numberOfDigits % cut != 0)
 				return false;
 
-			for (int i = 0; i < numberOfDigits / cut; i++)
-			{
-				long[] numbers = new long[cut];
+			int partsCount = numberOfDigits / cut;
 
-				for (int j = 0; j < cut; j++)
-					numbers[j] = (number / (int)Math.Pow(10, (numberOfDigits / cut) * j + i)) % 10;
-
+			for (int i = 0; i < partsCount; i++)
 				for (int j = 0; j < cut - 1; j++)
-					if (numbers[j] != numbers[j + 1])
+					if ((number / (int)Math.Pow(10, (partsCount) * j + i)) % 10	!= // This line take the ((partsCount) * j + i)nth digit
+						(number / (int)Math.Pow(10, (partsCount) * (j + 1) + i)) % 10) // Take the next left digit
 						return false;
-
-			}
 
 			return true;
 		}
