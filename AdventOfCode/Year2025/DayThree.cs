@@ -4,37 +4,12 @@
 	{
 		protected override object ResolveFirstPart(string[] input)
 		{
-			int sum = 0;
+			double sum = 0;
 
 			for (int i = 0; i < input.Length; i++)
 			{
 				string bank = input[i];
-
-				int biggestLeftValueIndex = -1;
-				int biggestLeftValue = 0;
-
-				for (int j = 0; j < bank.Length - 1; j++)
-				{
-					int val = bank[j] - '0';
-
-					if (biggestLeftValue < val)
-					{
-						biggestLeftValue = val;
-						biggestLeftValueIndex = j;
-					}
-				}
-
-				int biggestRightValue = 0;
-
-				for (int j = biggestLeftValueIndex + 1; j < bank.Length; j++)
-				{
-					int val = bank[j] - '0';
-
-					if (biggestRightValue < val)
-						biggestRightValue = val;
-				}
-
-				sum += biggestLeftValue * 10 + biggestRightValue;
+				sum += GetBiggestValue(bank, 2, 0, 0);
 			}
 
 			return sum;
@@ -42,7 +17,41 @@
 
 		protected override object ResolveSecondPart(string[] input)
 		{
-			return 0;
+			double sum = 0;
+
+			for (int i = 0; i < input.Length; i++)
+			{
+				string bank = input[i];
+				sum += GetBiggestValue(bank, 12, 0, 0);
+			}
+
+			return sum;
+		}
+
+		private double GetBiggestValue(string bank, int numberOfDigits, int startIndex, double currentResult)
+		{
+			double result = currentResult;
+
+			int biggestValueIndex = startIndex;
+			int biggestValue = 0;
+
+			for (int j = startIndex; j < bank.Length - (numberOfDigits - 1); j++)
+			{
+				int val = bank[j] - '0';
+
+				if (biggestValue < val)
+				{
+					biggestValue = val;
+					biggestValueIndex = j;
+				}
+			}
+
+			result += Math.Pow(10, numberOfDigits - 1) * biggestValue;
+
+			if (numberOfDigits > 1)
+				return GetBiggestValue(bank, (numberOfDigits - 1), biggestValueIndex + 1, result);
+
+			return result;
 		}
 	}
 }
