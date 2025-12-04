@@ -13,6 +13,27 @@
 		(-1, 0)
 	};
 
+	// x, y
+	public static readonly List<(int x, int y)> EightDirections = new()
+	{
+		// Up
+		(0, -1),
+		// Up Right
+		(1, -1),
+		// Right
+		(1, 0),
+		// Down Right
+		(1, 1),
+		// Down
+		(0, 1),
+		// Down Left
+		(-1, 1),
+		// Left
+		(-1, 0),
+		// Up Left
+		(-1, -1)
+	};
+
 	public static Direction GetDirectionOfArrow(char arrow)
 	{
 		return arrow switch
