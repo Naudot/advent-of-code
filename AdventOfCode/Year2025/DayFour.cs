@@ -12,7 +12,7 @@ namespace AdventOfCode.Year2025
 
 			for (int y = 0; y < input.Length; y++)
 				for (int x = 0; x < input[y].Length; x++)
-					if (input[y][x] == '@' && CountAdjacentRoll(input, y, x) < 4)
+					if (input[y][x] == '@' && CountAdjacentRolls(input, y, x) < 4)
 						count++;
 
 			return count;
@@ -29,7 +29,7 @@ namespace AdventOfCode.Year2025
 				count = 0;
 				for (int y = 0; y < input.Length; y++)
 					for (int x = 0; x < input[y].Length; x++)
-						if (input[y][x] == '@' && CountAdjacentRoll(input, y, x) < 4)
+						if (input[y][x] == '@' && CountAdjacentRolls(input, y, x) < 4)
 						{
 							foundRolls.Add((y, x));
 							totalCount++;
@@ -48,7 +48,7 @@ namespace AdventOfCode.Year2025
 			return totalCount;
 		}
 
-		private int CountAdjacentRoll(string[] input, int y, int x)
+		private int CountAdjacentRolls(string[] input, int y, int x)
 		{
 			int count = 0;
 
