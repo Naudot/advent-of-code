@@ -1,11 +1,9 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
 
 namespace AdventOfCode.Year2025
 {
 	public class DaySeven : Day2025
 	{
-		protected override bool DeactivateJIT => true;
-
 		protected override object ResolveFirstPart(string[] input)
 		{
 			int splitCount = 0;
@@ -67,58 +65,30 @@ namespace AdventOfCode.Year2025
 
 		protected override object ResolveSecondPart(string[] input)
 		{
-			int height = input.Length;
-			int width = input[0].Length;
+			Dictionary<int, long> beams = new() { { input[0].IndexOf('S'), 1 } };
 
-			// Number of timeline on this beam coordinate
-			Dictionary<(int x, int y), long> beams = new();
-			beams.Add((input[0].IndexOf('S'), 1), 1);
-
-			// When a beam join another beam, they merge and the beam count augments
-			for (int y = 0; y < height; y++)
+			for (int y = 0; y < input.Length - 1; y++)
 			{
-				Dictionary<(int x, int y), long> newBeams = new();
-				foreach (KeyValuePair<(int x, int y), long> beamPair in beams.Where(beam => beam.Key.y == y))
+				Dictionary<int, long> newBeams = new();
+				
+				foreach (KeyValuePair<int, long> beamPair in beams)
 				{
-					(int x, int y) beam = beamPair.Key;
+					int beamX = beamPair.Key;
 
-					// The beam reached the bottom of the map
-					if (beam.y + 1 == height)
-						break;
-
-					char downwardChar = input[beam.y + 1][beam.x];
-					if (downwardChar == '.')
+					if (input[y + 1][beamX] == '^')
 					{
-						// Should not happen ?
-						if (newBeams.ContainsKey((beam.x, beam.y + 1)))
-							newBeams[(beam.x, beam.y + 1)] += beamPair.Value;
-						else
-							newBeams.Add((beam.x, beam.y + 1), beamPair.Value);
-
+						if (beamX - 1 >= 0)
+							newBeams.AddUp(beamX - 1, beamPair.Value);
+						if (beamX + 1 < input[0].Length)
+							newBeams.AddUp(beamX + 1, beamPair.Value);
 					}
-					else if (downwardChar == '^')
-					{
-						if (beam.x - 1 >= 0)
-						{
-							if (newBeams.ContainsKey((beam.x - 1, beam.y + 1)))
-								newBeams[(beam.x - 1, beam.y + 1)] += beamPair.Value;
-							else
-								newBeams.Add((beam.x - 1, beam.y + 1), beamPair.Value);
-						}
-						if (beam.x + 1 < width)
-						{
-							if (newBeams.ContainsKey((beam.x + 1, beam.y + 1)))
-								newBeams[(beam.x + 1, beam.y + 1)] += beamPair.Value;
-							else
-								newBeams.Add((beam.x + 1, beam.y + 1), beamPair.Value);
-						}
-					}
+					else
+						newBeams.AddUp(beamX, beamPair.Value);
 
-					beams.Remove(beam);
+					beams.Remove(beamX);
 				}
 
-				if (newBeams.Count != 0)
-					beams = newBeams;
+				beams = newBeams;
 			}
 
 			return beams.Sum(beam => beam.Value);
