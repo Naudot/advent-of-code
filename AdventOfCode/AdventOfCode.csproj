@@ -427,6 +427,9 @@
     <None Update="Year2024\Resources\inputDayTwo.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Year2025\Resources\inputDayNine.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Year2025\Resources\inputDayEight.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -443,6 +446,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Year2025\Resources\inputDaySix.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Year2025\Resources\inputDayTen.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Year2025\Resources\inputDayThree.txt">
