@@ -43,7 +43,6 @@ namespace AdventOfCode.Year2025
 				}
 
 				machines.Add(newMachine);
-				Console.WriteLine(newMachine.Buttons.Count);
 			}
 
 			long totalResult = 0;
