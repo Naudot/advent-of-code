@@ -1,5 +1,4 @@
-﻿
-using Microsoft.Z3;
+﻿using Microsoft.Z3;
 
 namespace AdventOfCode.Year2025
 {
@@ -20,7 +19,6 @@ namespace AdventOfCode.Year2025
 		protected override bool DeactivateJIT => true;
 
 		private Dictionary<string, long> statesMemoization = new();
-		private Dictionary<string, long> joltagesMemoization = new();
 
 		protected override object ResolveFirstPart(string[] input)
 		{
@@ -62,6 +60,7 @@ namespace AdventOfCode.Year2025
 			// We have to know how much push on each button we need to resolve every equation
 			IntExpr[] constantes = new IntExpr[machine.Buttons.Count];
 
+			// So we create one Constante per button
 			for (int i = 0; i < constantes.Length; i++)
 			{
 				constantes[i] = context.MkIntConst(i.ToString());
@@ -75,15 +74,13 @@ namespace AdventOfCode.Year2025
 
 				ArithExpr[] mults = new ArithExpr[buttons.Count];
 				for (int j = 0; j < buttons.Count; j++)
-					mults[j] = context.MkMul(constantes[machine.Buttons.IndexOf(buttons[j])], joltage);
+					mults[j] = context.MkMul(constantes[machine.Buttons.IndexOf(buttons[j])], context.MkInt(1));
 
 				solver.Add(context.MkEq(context.MkAdd(mults), joltage));
 			}
 
 			if (solver.Check() != Status.SATISFIABLE)
-			{
 				return 0;
-			}
 
 			Model model = solver.Model;
 			for (int i = 0; i < constantes.Length; i++)
