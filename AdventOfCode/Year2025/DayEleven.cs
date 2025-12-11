@@ -6,50 +6,78 @@
 		{
 			public string Name = string.Empty;
 
-			public List<Device> Children = new();
-			public List<Device> Parents = new();
+			public List<Device> DirectChildren = new();
+			public List<Device> DirectParents = new();
 		}
 
-		private Dictionary<Device, long> pathCountMemory = new();
+		private Dictionary<string, long> pathCountMemory = new();
 		private Dictionary<string, HashSet<string>> allParentsMemory = new();
 		private Dictionary<string, HashSet<string>> childrenMemory = new();
 
 		protected override object ResolveFirstPart(string[] input)
 		{
-			return GetPathCountToExit(GetDevices(input, false), "you");
+			return GetPathCountToExit(GetDevices(input), "you");
 		}
 
 		protected override object ResolveSecondPart(string[] input)
 		{
-			Dictionary<string, Device> devicesLeadingToDacAndFft = GetDevices(input, true);
-			Dictionary<string, Device> allDevices = GetDevices(input, false);
-
-			long pathCountWithDacAndFft = GetPathCountToRoot(devicesLeadingToDacAndFft["dac"]);
-			long pathCountFromDacToExit = GetPathCountToExit(allDevices, "dac");
-			Console.WriteLine(pathCountWithDacAndFft);
-			Console.WriteLine(pathCountFromDacToExit);
+			long pathCountWithDacAndFft = GetPathCountToRoot(CleanNonUsedDevicesBeforeDacWithoutFft(GetDevices(input))["dac"]);
+			long pathCountFromDacToExit = GetPathCountToExit(GetDevices(input), "dac");
 
 			return pathCountWithDacAndFft * pathCountFromDacToExit;
 		}
 
+		private Dictionary<string, Device> CleanNonUsedDevicesBeforeDacWithoutFft(Dictionary<string, Device> devices)
+		{
+			List<Device> toIgnore = new();
+			foreach (KeyValuePair<string, Device> device in devices)
+			{
+				if (device.Value.Name == "dac" || device.Value.Name == "fft")
+					continue;
+
+				HashSet<string> allChildren = GetAllChildren(device.Value);
+				HashSet<string> allParents = GetAllParents(device.Value);
+
+				if ((allChildren.Contains("dac") && allChildren.Contains("fft"))
+					|| (allParents.Contains("fft") && allChildren.Contains("dac")))
+				{
+					continue;
+				}
+
+				toIgnore.Add(device.Value);
+			}
+
+			foreach (KeyValuePair<string, Device> device in devices)
+			{
+				for (int i = 0; i < toIgnore.Count; i++)
+					device.Value.DirectParents.Remove(toIgnore[i]);
+				for (int i = 0; i < toIgnore.Count; i++)
+					device.Value.DirectChildren.Remove(toIgnore[i]);
+			}
+
+			for (int i = 0; i < toIgnore.Count; i++)
+				devices.Remove(toIgnore[i].Name);
+
+			return devices;
+		}
+
+		// Uses DirectParents and optimized method
 		private long GetPathCountToRoot(Device device)
 		{
-			if (pathCountMemory.ContainsKey(device))
-				return pathCountMemory[device];
+			if (pathCountMemory.ContainsKey(device.Name))
+				return pathCountMemory[device.Name];
 
-			if (device.Parents.Count == 0)
+			if (device.DirectParents.Count == 0)
 				return 1;
 
-			if (device.Parents.Count == 1)
-				return GetPathCountToRoot(device.Parents[0]);
-
 			long count = 0;
-			for (int i = 0; i < device.Parents.Count; i++)
-				count += GetPathCountToRoot(device.Parents[i]);
-			pathCountMemory.Add(device, count);
+			for (int i = 0; i < device.DirectParents.Count; i++)
+				count += GetPathCountToRoot(device.DirectParents[i]);
+			pathCountMemory.Add(device.Name, count);
 			return count;
 		}
 
+		// Uses DirectChildren and unoptimized method
 		private long GetPathCountToExit(Dictionary<string, Device> devices, string start)
 		{
 			long pathCount = 0;
@@ -60,19 +88,19 @@
 				Device toProcess = pathsRemaining[0];
 				pathsRemaining.RemoveAt(0);
 
-				for (int i = 0; i < toProcess.Children.Count; i++)
+				for (int i = 0; i < toProcess.DirectChildren.Count; i++)
 				{
-					if (toProcess.Children[i].Name == "out")
+					if (toProcess.DirectChildren[i].Name == "out")
 						pathCount++;
 					else
-						pathsRemaining.Add(toProcess.Children[i]);
+						pathsRemaining.Add(toProcess.DirectChildren[i]);
 				}
 			}
 
 			return pathCount;
 		}
 
-		private Dictionary<string, Device> GetDevices(string[] input, bool secondPart)
+		private Dictionary<string, Device> GetDevices(string[] input)
 		{
 			Dictionary<string, Device> devices = new();
 
@@ -91,38 +119,12 @@
 					if (!devices.ContainsKey(connectedDevices[j]))
 						devices.Add(connectedDevices[j], new() { Name = connectedDevices[j] });
 
-					devices[output].Children.Add(devices[connectedDevices[j]]);
+					devices[output].DirectChildren.Add(devices[connectedDevices[j]]);
 				}
 			}
 
 			foreach (KeyValuePair<string, Device> device in devices)
-				device.Value.Parents = devices.Values.Where(lookupDevice => lookupDevice.Children.Contains(device.Value)).ToList();
-
-			if (secondPart)
-			{
-				List<Device> toRemove = new();
-				foreach (KeyValuePair<string, Device> device in devices)
-				{
-					HashSet<string> allChildren = GetAllChildren(device.Value);
-
-					if (device.Value.Name == "dac" || device.Value.Name == "fft")
-						continue;
-
-					if (!allChildren.Contains("dac") || !allChildren.Contains("fft"))
-						toRemove.Add(device.Value);
-				}
-
-				foreach (KeyValuePair<string, Device> device in devices)
-				{
-					for (int i = 0; i < toRemove.Count; i++)
-						device.Value.Parents.Remove(toRemove[i]);
-					for (int i = 0; i < toRemove.Count; i++)
-						device.Value.Children.Remove(toRemove[i]);
-				}
-
-				for (int i = 0; i < toRemove.Count; i++)
-					devices.Remove(toRemove[i].Name);
-			}
+				device.Value.DirectParents = devices.Values.Where(lookupDevice => lookupDevice.DirectChildren.Contains(device.Value)).ToList();
 
 			return devices;
 		}
@@ -132,15 +134,15 @@
 			if (allParentsMemory.ContainsKey(device.Name))
 				return allParentsMemory[device.Name];
 
-			if (device.Parents.Count == 0)
+			if (device.DirectParents.Count == 0)
 				return new();
 
 			HashSet<string> allParents = new();
 
-			for (int i = 0; i < device.Parents.Count; i++)
+			for (int i = 0; i < device.DirectParents.Count; i++)
 			{
-				allParents.Add(device.Parents[i].Name);
-				HashSet<string> parents = GetAllParents(device.Parents[i]);
+				allParents.Add(device.DirectParents[i].Name);
+				HashSet<string> parents = GetAllParents(device.DirectParents[i]);
 				foreach (string parent in parents)
 					allParents.Add(parent);
 			}
@@ -155,15 +157,15 @@
 			if (childrenMemory.ContainsKey(device.Name))
 				return childrenMemory[device.Name];
 
-			if (device.Children.Count == 0)
+			if (device.DirectChildren.Count == 0)
 				return new();
 
 			HashSet<string> children = new();
 
-			for (int i = 0; i < device.Children.Count; i++)
+			for (int i = 0; i < device.DirectChildren.Count; i++)
 			{
-				children.Add(device.Children[i].Name);
-				HashSet<string> allChildren = GetAllChildren(device.Children[i]);
+				children.Add(device.DirectChildren[i].Name);
+				HashSet<string> allChildren = GetAllChildren(device.DirectChildren[i]);
 				foreach (string child in allChildren)
 					children.Add(child);
 			}
