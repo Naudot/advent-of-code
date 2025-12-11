@@ -16,8 +16,6 @@ namespace AdventOfCode.Year2025
 			public List<int> PushedIndexes = new();
 		}
 
-		protected override bool DeactivateJIT => true;
-
 		private Dictionary<string, long> statesMemoization = new();
 
 		protected override object ResolveFirstPart(string[] input)
@@ -53,7 +51,7 @@ namespace AdventOfCode.Year2025
 		private long Solve(Machine machine)
 		{
 			Context context = new();
-			Solver solver = context.MkSolver();
+			Optimize solver = context.MkOptimize();
 
 			// We have to know how much push on each button we need to resolve every equation
 			IntExpr[] constantes = new IntExpr[machine.Buttons.Count];
@@ -64,6 +62,8 @@ namespace AdventOfCode.Year2025
 				constantes[i] = context.MkIntConst(i.ToString());
 				solver.Add(constantes[i] >= 0);
 			}
+			
+			solver.MkMinimize(context.MkAdd(constantes));
 
 			for (int i = 0; i < machine.WantedJoltages.Count; i++)
 			{
@@ -78,6 +78,7 @@ namespace AdventOfCode.Year2025
 					context.MkEq(
 						context.MkAdd(constAdditions),
 						context.MkInt(machine.WantedJoltages[i])));
+
 			}
 
 			if (solver.Check() != Status.SATISFIABLE)
@@ -88,11 +89,6 @@ namespace AdventOfCode.Year2025
 			long result = 0;
 			for (int i = 0; i < constantes.Length; i++)
 				result += long.Parse(model.Eval(constantes[i]).ToString());
-
-			Console.WriteLine("Result " + result);
-
-			// 15000 too low
-			// 15500 too high
 
 			return result;
 		}
