@@ -1,18 +1,14 @@
 ﻿
+using Microsoft.Z3;
+
 namespace AdventOfCode.Year2025
 {
 	public class DayTen : Day2025
 	{
-		public class Joltage
-		{
-			public int Value;
-			public int Index;
-		}
-
 		public class Machine
 		{
 			public List<bool> WantedStates = new();
-			public List<Joltage> WantedSortedJoltages = new();
+			public List<int> WantedJoltages = new();
 			public List<Button> Buttons = new();
 		}
 
@@ -51,23 +47,48 @@ namespace AdventOfCode.Year2025
 			List<Machine> machines = GetMachines(input);
 
 			long totalResult = 0;
-
 			for (int i = 0; i < machines.Count; i++)
+				totalResult += Solve(machines[i]);
+			return totalResult;
+		}
+
+		private long Solve(Machine machine)
+		{
+			Context context = new();
+			Solver solver = context.MkSolver();
+
+			long result = 0;
+
+			// We have to know how much push on each button we need to resolve every equation
+			IntExpr[] constantes = new IntExpr[machine.Buttons.Count];
+
+			for (int i = 0; i < constantes.Length; i++)
 			{
-				List<Joltage> joltages = new();
-				for (int j = 0; j < machines[i].WantedSortedJoltages.Count; j++)
-					joltages.Add(new() { Index = machines[i].WantedSortedJoltages[j].Index, Value = 0 });
-
-				long result = CalculateForJoltages(machines[i], joltages, machines[i].WantedSortedJoltages[0].Index, 0, 0);
-
-				if (result != long.MaxValue)
-				{
-					Console.WriteLine(result);
-					totalResult += result;
-				}
+				constantes[i] = context.MkIntConst(i.ToString());
+				solver.Add(constantes[i] >= 0);
 			}
 
-			return totalResult;
+			for (int i = 0; i < machine.WantedJoltages.Count; i++)
+			{
+				IntNum joltage = context.MkInt(machine.WantedJoltages[i]);
+				List<Button> buttons = machine.Buttons.Where(button => button.PushedIndexes.Contains(i)).ToList();
+
+				ArithExpr[] mults = new ArithExpr[buttons.Count];
+				for (int j = 0; j < buttons.Count; j++)
+					mults[j] = context.MkMul(constantes[machine.Buttons.IndexOf(buttons[j])], joltage);
+
+				solver.Add(context.MkEq(context.MkAdd(mults), joltage));
+			}
+
+			if (solver.Check() != Status.SATISFIABLE)
+			{
+				return 0;
+			}
+
+			Model model = solver.Model;
+			for (int i = 0; i < constantes.Length; i++)
+				result += long.Parse(model.Eval(constantes[i]).ToString());
+			return result;
 		}
 
 		private long CalculateForLights(Machine machine, List<bool> state, List<Button> toProcess, long result)
@@ -101,73 +122,6 @@ namespace AdventOfCode.Year2025
 			return bestButtonResult;
 		}
 
-		private long CalculateForJoltages(Machine machine, List<Joltage> sortedJoltages, int sortedJoltageIndex, int joltageIndexCount, long result)
-		{
-			// Good case
-			if (AreJoltagesMatching(machine.WantedSortedJoltages, sortedJoltages))
-				return result;
-
-			// Hash checking
-			string hash = GetJoltagesHash(sortedJoltages, joltageIndexCount);
-			if (joltagesMemoization.ContainsKey(hash))
-				return joltagesMemoization[hash];
-
-			// Bad case
-			for (int i = 0; i < machine.WantedSortedJoltages.Count; i++)
-				if (machine.WantedSortedJoltages[i].Value < sortedJoltages[i].Value)
-					return long.MaxValue;
-
-			//for (int i = 0; i < sortedJoltages.Count; i++)
-			//	Console.Write(sortedJoltages[i].Value);
-			//Console.WriteLine();
-
-			if (joltageIndexCount >= machine.WantedSortedJoltages.Count)
-				return long.MaxValue;
-
-			// We take every button pushing the current joltage index
-			List<Button> interestingButtons = machine.Buttons.Where(button => button.PushedIndexes.Contains(sortedJoltageIndex)).ToList();
-
-			// We determine how much time we need to push this button
-			int maxNumberOfPush = machine.WantedSortedJoltages[sortedJoltageIndex].Value;
-			long bestValue = long.MaxValue;
-
-			// For each interesting button
-			for (int i = 0; i < interestingButtons.Count; i++)
-			{
-				Button button = interestingButtons[i];
-
-				// We try each push configuration
-				for (int k = 1; k <= maxNumberOfPush; k++)
-				{
-					List<Joltage> newJoltages = new();
-					for (int j = 0; j < sortedJoltages.Count; j++)
-						newJoltages.Add(new() { Index = sortedJoltages[j].Index, Value = sortedJoltages[j].Value });
-
-					for (int j = 0; j < button.PushedIndexes.Count; j++)
-						newJoltages.First(joltage => joltage.Index == button.PushedIndexes[j]).Value += k;
-
-					// Good case
-					if (AreJoltagesMatching(machine.WantedSortedJoltages, newJoltages))
-						return result + k;
-
-					long value = long.MaxValue;
-
-					// We go to the next voltage index
-					if (joltageIndexCount + 1 < newJoltages.Count)
-					{
-						value = CalculateForJoltages(machine, newJoltages, newJoltages[joltageIndexCount + 1].Index, joltageIndexCount + 1, result + k);
-						if (value < bestValue)
-							bestValue = value;
-					}
-
-					if (!joltagesMemoization.ContainsKey(hash))
-						joltagesMemoization.Add(hash, value);
-				}
-			}
-
-			return bestValue;
-		}
-
 		private List<bool> PushLights(List<bool> state, Button button)
 		{
 			List<bool> newStates = new(state);
@@ -185,15 +139,6 @@ namespace AdventOfCode.Year2025
 			return true;
 		}
 
-		private bool AreJoltagesMatching(List<Joltage> wantedJoltages, List<Joltage> joltages)
-		{
-			for (int i = 0; i < wantedJoltages.Count; i++)
-				if (wantedJoltages[i].Value != joltages[i].Value)
-					return false;
-
-			return true;
-		}
-
 		private string GetStateHash(List<bool> state, Machine machine, List<Button> buttons)
 		{
 			string hash = string.Empty;
@@ -201,14 +146,6 @@ namespace AdventOfCode.Year2025
 				hash += state[i] ? "#" : ".";
 			for (int i = 0; i < buttons.Count; i++)
 				hash += machine.Buttons.IndexOf(buttons[i]);
-			return hash;
-		}
-
-		private string GetJoltagesHash(List<Joltage> joltages, int joltageIndex)
-		{
-			string hash = joltageIndex.ToString();
-			for (int i = 0; i < joltages.Count; i++)
-				hash += joltages[i].Index + joltages[i].Value;
 			return hash;
 		}
 
@@ -239,8 +176,7 @@ namespace AdventOfCode.Year2025
 
 				string[] joltage = values[values.Length - 1].Replace("{", "").Replace("}", "").Split(',');
 				for (int j = 0; j < joltage.Length; j++)
-					newMachine.WantedSortedJoltages.Add(new() { Value = int.Parse(joltage[j]), Index = j });
-				newMachine.WantedSortedJoltages = newMachine.WantedSortedJoltages.OrderBy(joltage => joltage.Value).ToList();
+					newMachine.WantedJoltages.Add(int.Parse(joltage[j]));
 
 				machines.Add(newMachine);
 			}
