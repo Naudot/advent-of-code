@@ -161,7 +161,8 @@
 //new AdventOfCode.Year2025.DaySeven();
 //new AdventOfCode.Year2025.DayEight();
 //new AdventOfCode.Year2025.DayNine();
-new AdventOfCode.Year2025.DayTen();
+//new AdventOfCode.Year2025.DayTen();
+new AdventOfCode.Year2025.DayEleven();
 
 //Day2015.CalculateAndLogResults();
 //Console.WriteLine();
