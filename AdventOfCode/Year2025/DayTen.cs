@@ -55,8 +55,6 @@ namespace AdventOfCode.Year2025
 			Context context = new();
 			Solver solver = context.MkSolver();
 
-			long result = 0;
-
 			// We have to know how much push on each button we need to resolve every equation
 			IntExpr[] constantes = new IntExpr[machine.Buttons.Count];
 
@@ -69,22 +67,33 @@ namespace AdventOfCode.Year2025
 
 			for (int i = 0; i < machine.WantedJoltages.Count; i++)
 			{
-				IntNum joltage = context.MkInt(machine.WantedJoltages[i]);
+				// We put in the equation every button constante linked to the current voltage
 				List<Button> buttons = machine.Buttons.Where(button => button.PushedIndexes.Contains(i)).ToList();
-
-				ArithExpr[] mults = new ArithExpr[buttons.Count];
+				ArithExpr[] constAdditions = new ArithExpr[buttons.Count];
 				for (int j = 0; j < buttons.Count; j++)
-					mults[j] = context.MkMul(constantes[machine.Buttons.IndexOf(buttons[j])], context.MkInt(1));
+					constAdditions[j] = constantes[machine.Buttons.IndexOf(buttons[j])];
 
-				solver.Add(context.MkEq(context.MkAdd(mults), joltage));
+				// Exemple : C2 + C3 = 29
+				solver.Add(
+					context.MkEq(
+						context.MkAdd(constAdditions),
+						context.MkInt(machine.WantedJoltages[i])));
 			}
 
 			if (solver.Check() != Status.SATISFIABLE)
-				return 0;
+				return long.MinValue;
 
 			Model model = solver.Model;
+
+			long result = 0;
 			for (int i = 0; i < constantes.Length; i++)
 				result += long.Parse(model.Eval(constantes[i]).ToString());
+
+			Console.WriteLine("Result " + result);
+
+			// 15000 too low
+			// 15500 too high
+
 			return result;
 		}
 
