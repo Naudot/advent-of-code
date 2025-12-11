@@ -132,34 +132,32 @@ namespace AdventOfCode.Year2025
 
 		public static bool IsInPolygon(List<(long x, long y)> polygon, Point point)
 		{
-			Point p1, p2;
 			bool inside = false;
 
 			if (polygon.Count < 3)
-			{
 				return inside;
-			}
 
+			Point tempP1;
+			Point tempP2;
 			Point oldPoint = new((int)polygon[^1].x, (int)polygon[^1].y);
-
 			for (int i = 0; i < polygon.Count; i++)
 			{
 				Point newPoint = new((int)polygon[i].x, (int)polygon[i].y);
 
 				if (newPoint.X > oldPoint.X)
 				{
-					p1 = oldPoint;
-					p2 = newPoint;
+					tempP1 = oldPoint;
+					tempP2 = newPoint;
 				}
 				else
 				{
-					p1 = newPoint;
-					p2 = oldPoint;
+					tempP1 = newPoint;
+					tempP2 = oldPoint;
 				}
 
 				if ((newPoint.X < point.X) == (point.X <= oldPoint.X)
-					&& (point.Y - (long)p1.Y) * (p2.X - p1.X)
-					< (p2.Y - (long)p1.Y) * (point.X - p1.X))
+					&& (point.Y - (long)tempP1.Y) * (tempP2.X - tempP1.X)
+					< (tempP2.Y - (long)tempP1.Y) * (point.X - tempP1.X))
 				{
 					inside = !inside;
 				}
